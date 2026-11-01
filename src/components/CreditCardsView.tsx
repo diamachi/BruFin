@@ -14,7 +14,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { Transaction, CreditCard } from '../types';
-import { formatINR, formatDateLabel } from '../utils/dateUtils';
+import { formatINR, formatDateLabel, getCurrentMonthKey } from '../utils/dateUtils';
 import { getCategoryMeta } from '../utils/categories';
 import { CategoryIcon } from './CategoryIcon';
 
@@ -63,8 +63,24 @@ export const CreditCardsView: React.FC<Props> = ({
   // Calculate card stats
   const cardStats = useMemo(() => {
     return creditCards.map((card) => {
+      const today = new Date();
+      const [selectedYear, selectedMonthNumber] = (selectedMonth === 'All' ? getCurrentMonthKey() : selectedMonth).split('-').map(Number);
+      const selectedIsCurrent = selectedMonth === 'All';
+      const statementMonthDate = selectedIsCurrent && today.getDate() <= card.statementDay
+        ? new Date(today.getFullYear(), today.getMonth() - 1, 1)
+        : new Date(selectedYear, selectedMonthNumber - 1, 1);
+      const statementYear = statementMonthDate.getFullYear();
+      const statementMonthIndex = statementMonthDate.getMonth();
+      const endDay = Math.min(card.statementDay, new Date(statementYear, statementMonthIndex + 1, 0).getDate());
+      const end = new Date(statementYear, statementMonthIndex, endDay);
+      const priorStatementDay = Math.min(card.statementDay, new Date(statementYear, statementMonthIndex, 0).getDate());
+      const start = new Date(statementYear, statementMonthIndex - 1, priorStatementDay);
+      start.setDate(start.getDate() + 1);
+      const dateKey = (date: Date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+      const cycleStart = dateKey(start);
+      const cycleEnd = dateKey(end);
       const cardExpenses = transactions.filter((t) => {
-        const matchesMonth = selectedMonth === 'All' || (t.date && t.date.startsWith(selectedMonth));
+        const matchesMonth = !!t.date && t.date >= cycleStart && t.date <= cycleEnd;
         const modeLower = (t.paymentMode || '').toLowerCase();
         const shortLower = card.shortName.toLowerCase();
         const nameLower = card.name.toLowerCase();
@@ -86,6 +102,8 @@ export const CreditCardsView: React.FC<Props> = ({
         remaining,
         utilization,
         expenses: cardExpenses,
+        cycleStart,
+        cycleEnd,
       };
     });
   }, [creditCards, transactions, selectedMonth]);
@@ -219,16 +237,16 @@ export const CreditCardsView: React.FC<Props> = ({
       <div className="flex items-center justify-between px-1">
         <div className="flex items-center space-x-2">
           <div>
-            <h2 className="text-sm font-bold text-slate-900 dark:text-[#F4F6F5] tracking-tight">Credit Cards</h2>
-            <p className="text-[11px] text-slate-500 dark:text-[#A0A8A5]">
-              Total Spend: <strong className="text-slate-800 dark:text-[#EF6448]">{formatINR(totalSpentAcrossAll)}</strong> ({selectedMonth === 'All' ? 'All Time' : selectedMonth})
+            <h2 className="text-sm font-bold text-slate-900 dark:text-[#F2F3F5] tracking-tight">Credit Cards</h2>
+            <p className="text-[11px] text-slate-500 dark:text-[#A5ACB7]">
+              Total Spend: <strong className="text-slate-800 dark:text-[#FF927A]">{formatINR(totalSpentAcrossAll)}</strong> ({selectedMonth === 'All' ? 'All Time' : selectedMonth})
             </p>
           </div>
         </div>
 
         <div className="flex items-center space-x-2">
           {cardStats.length > 0 && (
-            <span className="text-[11px] text-slate-400 dark:text-[#A0A8A5] font-mono">
+            <span className="text-[11px] text-slate-400 dark:text-[#A5ACB7] font-mono">
               {safeIndex + 1} / {cardStats.length}
             </span>
           )}
@@ -244,10 +262,10 @@ export const CreditCardsView: React.FC<Props> = ({
 
       {/* 2. Empty State if no cards exist */}
       {cardStats.length === 0 ? (
-        <div className="p-8 text-center rounded-3xl bg-white dark:bg-[#272B2A] border border-[#FED7B8] dark:border-[#363C3A] shadow-sm space-y-3">
-          <CardIcon className="w-12 h-12 text-slate-400 dark:text-[#EF6448]/60 mx-auto" />
-          <h3 className="text-sm font-bold text-slate-800 dark:text-[#F4F6F5]">No Credit Cards Added</h3>
-          <p className="text-xs text-slate-500 dark:text-[#A0A8A5] max-w-xs mx-auto">
+        <div className="p-8 text-center rounded-3xl bg-white dark:bg-[#22252A] border border-[#FED7B8] dark:border-[#363B44] shadow-sm space-y-3">
+          <CardIcon className="w-12 h-12 text-slate-400 dark:text-[#FF927A]/60 mx-auto" />
+          <h3 className="text-sm font-bold text-slate-800 dark:text-[#F2F3F5]">No Credit Cards Added</h3>
+          <p className="text-xs text-slate-500 dark:text-[#A5ACB7] max-w-xs mx-auto">
             Add your cards to track monthly limits, statement cycles, and have them automatically appear as payment options in expenses.
           </p>
           <button
@@ -265,26 +283,26 @@ export const CreditCardsView: React.FC<Props> = ({
               onTouchStart={handleTouchStart}
               onTouchMove={handleTouchMove}
               onTouchEnd={handleTouchEnd}
-              className="relative w-full rounded-3xl bg-white dark:bg-[#272B2A] border border-[#FED7B8] dark:border-[#363C3A] p-6 shadow-md dark:shadow-2xl transition-all duration-300 backdrop-blur-md select-none"
+              className="relative w-full rounded-3xl bg-white dark:bg-[#22252A] border border-[#FED7B8] dark:border-[#363B44] p-6 shadow-md dark:shadow-2xl transition-all duration-300 backdrop-blur-md select-none"
             >
               {/* Top row: Name, Statement cycle & Actions */}
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <span className="text-[10px] font-bold text-slate-500 dark:text-[#A0A8A5] uppercase tracking-widest block">
+                  <span className="text-[10px] font-bold text-slate-500 dark:text-[#A5ACB7] uppercase tracking-widest block">
                     {activeCard.bank}
                   </span>
-                  <h3 className="text-base font-extrabold text-slate-900 dark:text-[#F4F6F5] tracking-tight">
+                  <h3 className="text-base font-extrabold text-slate-900 dark:text-[#F2F3F5] tracking-tight">
                     {activeCard.shortName}
                   </h3>
                 </div>
 
                 <div className="flex items-center space-x-1.5">
-                  <span className="text-[11px] font-semibold text-slate-700 dark:text-[#EF6448] bg-[#FFF8F3] dark:bg-[#1C1F1E] px-2.5 py-1 rounded-full border border-[#FED7B8] dark:border-[#363C3A]">
+                  <span className="text-[11px] font-semibold text-slate-700 dark:text-[#FF927A] bg-[#FFF8F3] dark:bg-[#1B1E22] px-2.5 py-1 rounded-full border border-[#FED7B8] dark:border-[#363B44]">
                     Stmt: {activeCard.statementDay}th
                   </span>
                   <button
                     onClick={() => handleOpenEdit(activeCard)}
-                    className="p-1.5 rounded-full hover:bg-slate-100 dark:hover:bg-[#363C3A] text-slate-400 hover:text-slate-700 dark:hover:text-[#F4F6F5] transition-colors"
+                    className="p-1.5 rounded-full hover:bg-slate-100 dark:hover:bg-[#363C3A] text-slate-400 hover:text-slate-700 dark:hover:text-[#F2F3F5] transition-colors"
                     title="Edit Card"
                   >
                     <Edit2 className="w-3.5 h-3.5" />
@@ -301,14 +319,15 @@ export const CreditCardsView: React.FC<Props> = ({
 
               {/* Middle: Spent prominent number */}
               <div className="space-y-1 mb-6">
-                <span className="text-[10px] font-bold text-slate-500 dark:text-[#A0A8A5] uppercase tracking-wider block">
+                <span className="text-[10px] font-bold text-slate-500 dark:text-[#A5ACB7] uppercase tracking-wider block">
                   Spent this cycle
                 </span>
+                <span className="block text-[10px] text-slate-400 dark:text-[#A5ACB7]">{formatDateLabel(activeCard.cycleStart)} – {formatDateLabel(activeCard.cycleEnd)}</span>
                 <div className="flex items-baseline space-x-2">
-                  <span className="text-3xl font-black text-slate-900 dark:text-[#F4F6F5] tracking-tight">
+                  <span className="text-3xl font-black text-slate-900 dark:text-[#F2F3F5] tracking-tight">
                     {formatINR(activeCard.spent)}
                   </span>
-                  <span className="text-xs text-slate-500 dark:text-[#A0A8A5] font-medium">
+                  <span className="text-xs text-slate-500 dark:text-[#A5ACB7] font-medium">
                     / {formatINR(activeCard.limit)} limit
                   </span>
                 </div>
@@ -317,21 +336,21 @@ export const CreditCardsView: React.FC<Props> = ({
               {/* Hairline Utilization Bar */}
               <div className="space-y-1.5 mb-5">
                 <div className="flex justify-between text-[11px] font-semibold">
-                  <span className="text-[#996520] dark:text-[#EF6448]">
+                  <span className="text-[#996520] dark:text-[#FF927A]">
                     {formatINR(activeCard.remaining)} Available
                   </span>
-                  <span className="text-slate-500 dark:text-[#A0A8A5]">
+                  <span className="text-slate-500 dark:text-[#A5ACB7]">
                     {activeCard.utilization.toFixed(1)}% used
                   </span>
                 </div>
-                <div className="w-full h-1.5 bg-[#FFF8F3] dark:bg-[#1C1F1E] rounded-full overflow-hidden border border-[#FED7B8] dark:border-[#363C3A]">
+                <div className="w-full h-1.5 bg-[#FFF8F3] dark:bg-[#1B1E22] rounded-full overflow-hidden border border-[#FED7B8] dark:border-[#363B44]">
                   <div
                     className={`h-full rounded-full transition-all duration-300 ${
                       activeCard.utilization > 70
                         ? 'bg-rose-500'
                         : activeCard.utilization > 30
                         ? 'bg-[#4A3B28]'
-                        : 'bg-[#B87B2E] dark:bg-[#EF6448]'
+                        : 'bg-[#B87B2E] dark:bg-[#B84E3B]'
                     }`}
                     style={{ width: `${Math.min(100, activeCard.utilization)}%` }}
                   />
@@ -339,9 +358,9 @@ export const CreditCardsView: React.FC<Props> = ({
               </div>
 
               {/* Bottom: Card number mask */}
-              <div className="flex justify-between items-center pt-2 border-t border-[#FED7B8] dark:border-[#363C3A] text-[11px] font-mono text-slate-500 dark:text-[#A0A8A5]">
+              <div className="flex justify-between items-center pt-2 border-t border-[#FED7B8] dark:border-[#363B44] text-[11px] font-mono text-slate-500 dark:text-[#A5ACB7]">
                 <span>•••• •••• •••• {activeCard.last4}</span>
-                <span className="text-[10px] text-slate-500 dark:text-[#A0A8A5] uppercase tracking-wider font-sans">
+                <span className="text-[10px] text-slate-500 dark:text-[#A5ACB7] uppercase tracking-wider font-sans">
                   {activeCard.expenses.length} transaction{activeCard.expenses.length !== 1 ? 's' : ''}
                 </span>
               </div>
@@ -351,14 +370,14 @@ export const CreditCardsView: React.FC<Props> = ({
                 <>
                   <button
                     onClick={handlePrev}
-                    className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white dark:bg-[#272B2A] hover:bg-slate-100 dark:hover:bg-[#363C3A] border border-[#FED7B8] dark:border-[#363C3A] text-slate-600 dark:text-[#F4F6F5] flex items-center justify-center transition-colors -ml-4 shadow-md"
+                    className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white dark:bg-[#22252A] hover:bg-slate-100 dark:hover:bg-[#363C3A] border border-[#FED7B8] dark:border-[#363B44] text-slate-600 dark:text-[#F2F3F5] flex items-center justify-center transition-colors -ml-4 shadow-md"
                     title="Previous Card"
                   >
                     <ChevronLeft className="w-4 h-4" />
                   </button>
                   <button
                     onClick={handleNext}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white dark:bg-[#272B2A] hover:bg-slate-100 dark:hover:bg-[#363C3A] border border-[#FED7B8] dark:border-[#363C3A] text-slate-600 dark:text-[#F4F6F5] flex items-center justify-center transition-colors -mr-4 shadow-md"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white dark:bg-[#22252A] hover:bg-slate-100 dark:hover:bg-[#363C3A] border border-[#FED7B8] dark:border-[#363B44] text-slate-600 dark:text-[#F2F3F5] flex items-center justify-center transition-colors -mr-4 shadow-md"
                     title="Next Card"
                   >
                     <ChevronRight className="w-4 h-4" />
@@ -376,8 +395,8 @@ export const CreditCardsView: React.FC<Props> = ({
                     onClick={() => setCurrentIndex(idx)}
                     className={`transition-all rounded-full ${
                       idx === safeIndex
-                        ? 'w-6 h-1.5 bg-[#59171B] dark:bg-[#EF6448]'
-                        : 'w-1.5 h-1.5 bg-[#EAD9C8] dark:bg-[#363C3A] hover:bg-[#59171B] dark:hover:bg-[#EF6448]'
+                        ? 'w-6 h-1.5 bg-[#59171B] dark:bg-[#B84E3B]'
+                        : 'w-1.5 h-1.5 bg-[#EAD9C8] dark:bg-[#30353D] hover:bg-[#59171B] dark:hover:bg-[#EF6448]'
                     }`}
                     title={card.shortName}
                   />
@@ -390,22 +409,22 @@ export const CreditCardsView: React.FC<Props> = ({
 
       {/* 4. Filtered Transactions for this single active card */}
       {activeCard && (
-        <div className="p-5 rounded-3xl bg-white dark:bg-[#272B2A] border border-[#FED7B8] dark:border-[#363C3A] shadow-sm space-y-3">
+        <div className="p-5 rounded-3xl bg-white dark:bg-[#22252A] border border-[#FED7B8] dark:border-[#363B44] shadow-sm space-y-3">
           <div className="flex items-center justify-between">
-            <h4 className="text-xs font-bold text-slate-900 dark:text-[#F4F6F5] uppercase tracking-wider">
+            <h4 className="text-xs font-bold text-slate-900 dark:text-[#F2F3F5] uppercase tracking-wider">
               {activeCard.shortName} Expenses
             </h4>
-            <span className="text-[11px] text-slate-500 dark:text-[#A0A8A5]">
+            <span className="text-[11px] text-slate-500 dark:text-[#A5ACB7]">
               Total: {formatINR(activeCard.spent)}
             </span>
           </div>
 
           {activeCard.expenses.length === 0 ? (
-            <div className="text-center py-8 rounded-2xl bg-slate-50 dark:bg-[#1C1F1E] border border-[#FED7B8] dark:border-[#363C3A] text-xs text-slate-500 dark:text-[#A0A8A5]">
+            <div className="text-center py-8 rounded-2xl bg-slate-50 dark:bg-[#1B1E22] border border-[#FED7B8] dark:border-[#363B44] text-xs text-slate-500 dark:text-[#A5ACB7]">
               No transactions recorded for this card in {selectedMonth === 'All' ? 'the log' : selectedMonth}.
             </div>
           ) : (
-            <div className="rounded-2xl bg-slate-50 dark:bg-[#1C1F1E] border border-[#FED7B8] dark:border-[#363C3A] divide-y divide-slate-200/80 dark:divide-[#363C3A] overflow-hidden">
+            <div className="rounded-2xl bg-slate-50 dark:bg-[#1B1E22] border border-[#FED7B8] dark:border-[#363B44] divide-y divide-slate-200/80 dark:divide-[#363B44] overflow-hidden">
               {activeCard.expenses.map((t) => {
                 const meta = getCategoryMeta(t.category);
                 return (
@@ -422,10 +441,10 @@ export const CreditCardsView: React.FC<Props> = ({
                         <CategoryIcon name={meta.icon} className="w-4 h-4" />
                       </div>
                       <div className="truncate">
-                        <p className="text-xs font-bold text-slate-800 dark:text-[#F4F6F5] truncate">
+                        <p className="text-xs font-bold text-slate-800 dark:text-[#F2F3F5] truncate">
                           {t.description || t.category}
                         </p>
-                        <p className="text-[10px] text-slate-500 dark:text-[#A0A8A5]">
+                        <p className="text-[10px] text-slate-500 dark:text-[#A5ACB7]">
                           {formatDateLabel(t.date)} {t.remarks && `• ${t.remarks}`}
                         </p>
                       </div>
@@ -445,26 +464,26 @@ export const CreditCardsView: React.FC<Props> = ({
       {isModalOpen && createPortal(
         <div className="fixed inset-0 z-50 overflow-y-auto bg-black/75 p-4 flex items-center justify-center animate-fadeIn">
           <div 
-            className="w-full max-w-md max-h-[88vh] overflow-y-auto my-auto bg-white dark:bg-[#272B2A] border border-[#FED7B8] dark:border-[#363C3A] rounded-3xl shadow-2xl p-5 space-y-4"
+            className="w-full max-w-md max-h-[88vh] overflow-y-auto my-auto bg-white dark:bg-[#22252A] border border-[#FED7B8] dark:border-[#363B44] rounded-3xl shadow-2xl p-5 space-y-4"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between border-b border-[#FED7B8] dark:border-[#363C3A] pb-3">
+            <div className="flex items-center justify-between border-b border-[#FED7B8] dark:border-[#363B44] pb-3">
               <div>
-                <h3 className="text-sm font-bold text-slate-900 dark:text-[#F4F6F5]">
+                <h3 className="text-sm font-bold text-slate-900 dark:text-[#F2F3F5]">
                   {editingCard ? 'Edit Credit Card' : 'Add Credit Card'}
                 </h3>
-                <p className="text-[11px] text-slate-500 dark:text-[#A0A8A5]">
+                <p className="text-[11px] text-slate-500 dark:text-[#A5ACB7]">
                   Card will automatically be added to expenses payment options
                 </p>
               </div>
-              <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-700 dark:hover:text-[#F4F6F5]">
+              <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-700 dark:hover:text-[#F2F3F5]">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <form onSubmit={handleSaveCard} className="space-y-3.5">
               <div>
-                <label className="block text-[10px] font-bold text-slate-500 dark:text-[#A0A8A5] uppercase tracking-wider mb-1">
+                <label className="block text-[10px] font-bold text-slate-500 dark:text-[#A5ACB7] uppercase tracking-wider mb-1">
                   Card Nickname / Display Label <span className="text-rose-500">*</span>
                 </label>
                 <input
@@ -472,13 +491,13 @@ export const CreditCardsView: React.FC<Props> = ({
                   placeholder="e.g. HDFC Millennia, SBI Cashback, Amex Gold"
                   value={formShortName}
                   onChange={(e) => setFormShortName(e.target.value)}
-                  className="w-full bg-[#FFF8F3] dark:bg-[#1C1F1E] border border-[#FED7B8] dark:border-[#363C3A] rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-[#F4F6F5] focus:outline-none"
+                  className="w-full bg-[#FFF8F3] dark:bg-[#1B1E22] border border-[#FED7B8] dark:border-[#363B44] rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-[#F2F3F5] focus:outline-none"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-[10px] font-bold text-slate-500 dark:text-[#A0A8A5] uppercase tracking-wider mb-1">
+                <label className="block text-[10px] font-bold text-slate-500 dark:text-[#A5ACB7] uppercase tracking-wider mb-1">
                   Bank / Issuer
                 </label>
                 <input
@@ -486,13 +505,13 @@ export const CreditCardsView: React.FC<Props> = ({
                   placeholder="e.g. HDFC Bank, SBI Card, ICICI, Axis"
                   value={formBank}
                   onChange={(e) => setFormBank(e.target.value)}
-                  className="w-full bg-[#FFF8F3] dark:bg-[#1C1F1E] border border-[#FED7B8] dark:border-[#363C3A] rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-[#F4F6F5] focus:outline-none"
+                  className="w-full bg-[#FFF8F3] dark:bg-[#1B1E22] border border-[#FED7B8] dark:border-[#363B44] rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-[#F2F3F5] focus:outline-none"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-500 dark:text-[#A0A8A5] uppercase tracking-wider mb-1">
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-[#A5ACB7] uppercase tracking-wider mb-1">
                     Credit Limit (₹) <span className="text-rose-500">*</span>
                   </label>
                   <input
@@ -500,13 +519,13 @@ export const CreditCardsView: React.FC<Props> = ({
                     placeholder="e.g. 150000"
                     value={formLimit}
                     onChange={(e) => setFormLimit(e.target.value)}
-                    className="w-full bg-[#FFF8F3] dark:bg-[#1C1F1E] border border-[#FED7B8] dark:border-[#363C3A] rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-[#F4F6F5] font-bold focus:outline-none"
+                    className="w-full bg-[#FFF8F3] dark:bg-[#1B1E22] border border-[#FED7B8] dark:border-[#363B44] rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-[#F2F3F5] font-bold focus:outline-none"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-500 dark:text-[#A0A8A5] uppercase tracking-wider mb-1">
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-[#A5ACB7] uppercase tracking-wider mb-1">
                     Statement Day (1-31)
                   </label>
                   <input
@@ -516,13 +535,13 @@ export const CreditCardsView: React.FC<Props> = ({
                     placeholder="20"
                     value={formStatementDay}
                     onChange={(e) => setFormStatementDay(e.target.value)}
-                    className="w-full bg-[#FFF8F3] dark:bg-[#1C1F1E] border border-[#FED7B8] dark:border-[#363C3A] rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-[#F4F6F5] focus:outline-none"
+                    className="w-full bg-[#FFF8F3] dark:bg-[#1B1E22] border border-[#FED7B8] dark:border-[#363B44] rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-[#F2F3F5] focus:outline-none"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-[10px] font-bold text-slate-500 dark:text-[#A0A8A5] uppercase tracking-wider mb-1">
+                <label className="block text-[10px] font-bold text-slate-500 dark:text-[#A5ACB7] uppercase tracking-wider mb-1">
                   Last 4 Digits
                 </label>
                 <input
@@ -531,7 +550,7 @@ export const CreditCardsView: React.FC<Props> = ({
                   placeholder="e.g. 4521"
                   value={formLast4}
                   onChange={(e) => setFormLast4(e.target.value)}
-                  className="w-full bg-[#FFF8F3] dark:bg-[#1C1F1E] border border-[#FED7B8] dark:border-[#363C3A] rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-[#F4F6F5] font-mono focus:outline-none"
+                  className="w-full bg-[#FFF8F3] dark:bg-[#1B1E22] border border-[#FED7B8] dark:border-[#363B44] rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-[#F2F3F5] font-mono focus:outline-none"
                 />
               </div>
 
@@ -553,7 +572,7 @@ export const CreditCardsView: React.FC<Props> = ({
                   <button
                     type="button"
                     onClick={() => setIsModalOpen(false)}
-                    className="px-4 py-2 rounded-xl text-slate-500 dark:text-[#A0A8A5] text-xs font-medium"
+                    className="px-4 py-2 rounded-xl text-slate-500 dark:text-[#A5ACB7] text-xs font-medium"
                   >
                     Cancel
                   </button>

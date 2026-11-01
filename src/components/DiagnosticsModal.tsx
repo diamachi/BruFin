@@ -22,8 +22,7 @@ import {
   getArchivableData,
   archiveAndExportOldData,
   getArchiveHistory,
-  isAutoArchiveEnabled,
-  setAutoArchiveEnabled,
+  formatBytes,
   StorageDiagnostics,
   MemoryDiagnostics,
   ArchivableInfo,
@@ -36,7 +35,6 @@ interface Props {
   onClose: () => void;
   onToggleDiagnostics: (enabled: boolean) => void;
   isDiagnosticsActive: boolean;
-  onDataPruned?: () => void;
 }
 
 export const DiagnosticsModal: React.FC<Props> = ({
@@ -44,26 +42,24 @@ export const DiagnosticsModal: React.FC<Props> = ({
   onClose,
   onToggleDiagnostics,
   isDiagnosticsActive,
-  onDataPruned,
 }) => {
   const [storage, setStorage] = useState<StorageDiagnostics | null>(null);
   const [memory, setMemory] = useState<MemoryDiagnostics | null>(null);
   const [archivable, setArchivable] = useState<ArchivableInfo | null>(null);
   const [archiveHistory, setArchiveHistory] = useState<ArchiveRecord[]>([]);
-  const [autoArchive, setAutoArchive] = useState<boolean>(false);
   const [actionMessage, setActionMessage] = useState<string | null>(null);
 
-  const refreshMetrics = () => {
-    setStorage(getStorageDiagnostics());
+  const refreshMetrics = async () => {
+    const nextStorage = await getStorageDiagnostics();
+    setStorage(nextStorage);
     setMemory(getMemoryDiagnostics());
     setArchivable(getArchivableData(12));
     setArchiveHistory(getArchiveHistory());
-    setAutoArchive(isAutoArchiveEnabled());
   };
 
   useEffect(() => {
     if (isOpen) {
-      refreshMetrics();
+      void refreshMetrics();
       const interval = setInterval(refreshMetrics, 2500);
       return () => clearInterval(interval);
     }
@@ -74,37 +70,28 @@ export const DiagnosticsModal: React.FC<Props> = ({
   const handleArchive = (format: 'json' | 'csv') => {
     const res = archiveAndExportOldData(format, 12);
     setActionMessage(res.message);
-    refreshMetrics();
-    if (res.success && onDataPruned) {
-      onDataPruned();
-    }
+    void refreshMetrics();
     setTimeout(() => setActionMessage(null), 6000);
-  };
-
-  const handleToggleAutoArchive = () => {
-    const next = !autoArchive;
-    setAutoArchive(next);
-    setAutoArchiveEnabled(next);
   };
 
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 animate-fadeIn">
       <div
-        className="w-full max-w-lg bg-white dark:bg-[#272B2A] border border-[#FED7B8] dark:border-[#363C3A] rounded-3xl shadow-2xl p-5 sm:p-6 space-y-5 max-h-[92vh] overflow-y-auto"
+        className="w-full max-w-lg bg-white dark:bg-[#22252A] border border-[#FED7B8] dark:border-[#363B44] rounded-3xl shadow-2xl p-5 sm:p-6 space-y-5 max-h-[92vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-[#FED7B8] dark:border-[#363C3A] pb-3">
+        <div className="flex items-center justify-between border-b border-[#FED7B8] dark:border-[#363B44] pb-3">
           <div className="flex items-center space-x-2.5">
             <div className="w-9 h-9 rounded-2xl bg-[#EF6448] text-white flex items-center justify-center shadow-sm">
               <Cpu className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-base font-extrabold text-[#59171B] dark:text-[#F4F6F5]">
+              <h3 className="text-base font-extrabold text-[#59171B] dark:text-[#F2F3F5]">
                 System & Storage Inspector
               </h3>
-              <p className="text-[11px] text-slate-500 dark:text-[#A0A8A5]">
-                Live RAM monitor, storage quota & 1-year data retention
+              <p className="text-[11px] text-slate-500 dark:text-[#A5ACB7]">
+                Live RAM monitor, local storage & historical exports
               </p>
             </div>
           </div>
@@ -135,11 +122,11 @@ export const DiagnosticsModal: React.FC<Props> = ({
         )}
 
         {/* 1. Live RAM / Heap Monitor */}
-        <div className="p-4 rounded-2xl bg-slate-50 dark:bg-[#1C1F1E] border border-[#FED7B8] dark:border-[#363C3A] space-y-3">
+        <div className="p-4 rounded-2xl bg-slate-50 dark:bg-[#1B1E22] border border-[#FED7B8] dark:border-[#363B44] space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <Cpu className="w-4 h-4 text-[#59171B] dark:text-[#EF6448]" />
-              <h4 className="text-xs font-bold text-slate-900 dark:text-[#F4F6F5] uppercase tracking-wider">
+              <Cpu className="w-4 h-4 text-[#59171B] dark:text-[#FF927A]" />
+              <h4 className="text-xs font-bold text-slate-900 dark:text-[#F2F3F5] uppercase tracking-wider">
                 JavaScript Memory & Leak Checker
               </h4>
             </div>
@@ -158,26 +145,26 @@ export const DiagnosticsModal: React.FC<Props> = ({
           </div>
 
           <div className="grid grid-cols-3 gap-2 text-center">
-            <div className="p-2.5 rounded-xl bg-white dark:bg-[#272B2A] border border-slate-200/80 dark:border-[#363C3A]">
+            <div className="p-2.5 rounded-xl bg-white dark:bg-[#22252A] border border-slate-200/80 dark:border-[#363B44]">
               <span className="text-[10px] text-slate-400 uppercase font-semibold block">Used Heap</span>
-              <span className="text-sm font-extrabold text-slate-900 dark:text-[#F4F6F5] mt-0.5 block font-mono">
+              <span className="text-sm font-extrabold text-slate-900 dark:text-[#F2F3F5] mt-0.5 block font-mono">
                 {memory.usedMB}
               </span>
             </div>
-            <div className="p-2.5 rounded-xl bg-white dark:bg-[#272B2A] border border-slate-200/80 dark:border-[#363C3A]">
+            <div className="p-2.5 rounded-xl bg-white dark:bg-[#22252A] border border-slate-200/80 dark:border-[#363B44]">
               <span className="text-[10px] text-slate-400 uppercase font-semibold block">Total Heap</span>
               <span className="text-sm font-extrabold text-slate-700 dark:text-slate-300 mt-0.5 block font-mono">
                 {memory.totalMB}
               </span>
             </div>
-            <div className="p-2.5 rounded-xl bg-white dark:bg-[#272B2A] border border-slate-200/80 dark:border-[#363C3A]">
+            <div className="p-2.5 rounded-xl bg-white dark:bg-[#22252A] border border-slate-200/80 dark:border-[#363B44]">
               <span className="text-[10px] text-slate-400 uppercase font-semibold block">Max Limit</span>
               <span className="text-sm font-extrabold text-slate-500 dark:text-slate-400 mt-0.5 block font-mono">
                 {memory.limitMB}
               </span>
             </div>
           </div>
-          <p className="text-[10px] text-slate-500 dark:text-[#A0A8A5] italic">
+          <p className="text-[10px] text-slate-500 dark:text-[#A5ACB7] italic">
             {memory.isSupported
               ? 'Monitoring real-time Chromium / Android WebView V8 garbage collection heap.'
               : 'Performance memory API active in simulation / standard secure sandbox context.'}
@@ -185,41 +172,41 @@ export const DiagnosticsModal: React.FC<Props> = ({
         </div>
 
         {/* 2. Storage Quota & Breakdown */}
-        <div className="p-4 rounded-2xl bg-slate-50 dark:bg-[#1C1F1E] border border-[#FED7B8] dark:border-[#363C3A] space-y-3">
+        <div className="p-4 rounded-2xl bg-slate-50 dark:bg-[#1B1E22] border border-[#FED7B8] dark:border-[#363B44] space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <HardDrive className="w-4 h-4 text-[#59171B] dark:text-[#EF6448]" />
-              <h4 className="text-xs font-bold text-slate-900 dark:text-[#F4F6F5] uppercase tracking-wider">
+              <HardDrive className="w-4 h-4 text-[#59171B] dark:text-[#FF927A]" />
+              <h4 className="text-xs font-bold text-slate-900 dark:text-[#F2F3F5] uppercase tracking-wider">
                 Internal Storage Quota
               </h4>
             </div>
-            <span className="text-xs font-mono font-bold text-slate-800 dark:text-[#F4F6F5]">
-              {storage.totalFormatted} / 5.0 MB
+            <span className="text-xs font-mono font-bold text-slate-800 dark:text-[#F2F3F5]">
+              {storage.totalFormatted} / {storage.quotaBytes ? formatBytes(storage.quotaBytes) : 'quota unavailable'}
             </span>
           </div>
 
           {/* Progress Bar */}
           <div className="space-y-1">
-            <div className="w-full h-2 rounded-full bg-slate-200 dark:bg-[#272B2A] overflow-hidden">
+            <div className="w-full h-2 rounded-full bg-slate-200 dark:bg-[#22252A] overflow-hidden">
               <div
-                className="h-full rounded-full bg-[#59171B] dark:bg-[#EF6448] transition-all duration-300"
+                className="h-full rounded-full bg-[#59171B] dark:bg-[#B84E3B] transition-all duration-300"
                 style={{ width: `${Math.max(2, storage.percentOfQuota)}%` }}
               />
             </div>
-            <div className="flex justify-between text-[10px] text-slate-500 dark:text-[#A0A8A5]">
-              <span>Using {storage.percentOfQuota.toFixed(2)}% of browser storage</span>
-              <span>{(5 * 1024 - storage.totalBytes / 1024).toFixed(0)} KB Free</span>
+            <div className="flex justify-between text-[10px] text-slate-500 dark:text-[#A5ACB7]">
+              <span>{storage.quotaBytes ? `Using ${storage.percentOfQuota.toFixed(2)}% of browser storage` : 'Browser quota estimate unavailable'}</span>
+              <span>{storage.quotaBytes ? `${formatBytes(Math.max(0, storage.quotaBytes - storage.totalBytes))} free` : ''}</span>
             </div>
           </div>
 
           {/* Key Breakdown */}
-          <div className="divide-y divide-slate-200/80 dark:divide-[#363C3A] pt-1">
+          <div className="divide-y divide-slate-200/80 dark:divide-[#363B44] pt-1">
             {storage.breakdown.map((item) => (
               <div key={item.key} className="py-1.5 flex items-center justify-between text-xs">
                 <span className="text-slate-700 dark:text-slate-300 font-medium">
                   {item.name} <span className="text-[10px] text-slate-400 font-normal">({item.count} records)</span>
                 </span>
-                <span className="font-mono text-slate-600 dark:text-[#A0A8A5] font-semibold">
+                <span className="font-mono text-slate-600 dark:text-[#A5ACB7] font-semibold">
                   {item.formatted}
                 </span>
               </div>
@@ -227,38 +214,26 @@ export const DiagnosticsModal: React.FC<Props> = ({
           </div>
         </div>
 
-        {/* 3. 1-Year Retention Policy & Archival Section */}
-        <div className="p-4 rounded-2xl bg-slate-50 dark:bg-[#1C1F1E] border border-[#FED7B8] dark:border-[#363C3A] space-y-3.5">
+        {/* 3. Historical export section */}
+        <div className="p-4 rounded-2xl bg-slate-50 dark:bg-[#1B1E22] border border-[#FED7B8] dark:border-[#363B44] space-y-3.5">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <Archive className="w-4 h-4 text-[#59171B] dark:text-[#EF6448]" />
-              <h4 className="text-xs font-bold text-slate-900 dark:text-[#F4F6F5] uppercase tracking-wider">
-                1-Year Data Retention & Archival
+              <Archive className="w-4 h-4 text-[#59171B] dark:text-[#FF927A]" />
+              <h4 className="text-xs font-bold text-slate-900 dark:text-[#F2F3F5] uppercase tracking-wider">
+                Historical Data Export
               </h4>
             </div>
-            <button
-              onClick={handleToggleAutoArchive}
-              className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors"
-              title="Automatically prompt/archive data older than 1 year"
-            >
-              <span className="text-[10px]">Auto-Archive</span>
-              {autoArchive ? (
-                <ToggleRight className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-              ) : (
-                <ToggleLeft className="w-5 h-5 text-slate-400" />
-              )}
-            </button>
           </div>
 
-          <p className="text-xs text-slate-600 dark:text-[#A0A8A5] leading-relaxed">
-            FinMan stores records in an offline local database. Storing only the most recent 1 year of data keeps the app instant, prevents memory leaks, and ensures the database never grows indefinitely.
+          <p className="text-xs text-slate-600 dark:text-[#A5ACB7] leading-relaxed">
+            BruFin keeps your records on this device. Export older records as a backup whenever you need one; exporting never deletes data.
           </p>
 
           {/* Status of Archivable Records */}
-          <div className="p-3.5 rounded-xl bg-white dark:bg-[#272B2A] border border-slate-200/80 dark:border-[#363C3A] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="p-3.5 rounded-xl bg-white dark:bg-[#22252A] border border-slate-200/80 dark:border-[#363B44] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <div className="flex items-center space-x-1.5">
-                <span className="text-xs font-bold text-slate-900 dark:text-[#F4F6F5]">
+                <span className="text-xs font-bold text-slate-900 dark:text-[#F2F3F5]">
                   Records Older Than 1 Year:
                 </span>
                 <span
@@ -271,7 +246,7 @@ export const DiagnosticsModal: React.FC<Props> = ({
                   {archivable?.count || 0} items
                 </span>
               </div>
-              <p className="text-[11px] text-slate-500 dark:text-[#A0A8A5] mt-0.5">
+              <p className="text-[11px] text-slate-500 dark:text-[#A5ACB7] mt-0.5">
                 {archivable && archivable.count > 0
                   ? `From ${archivable.startDate} to ${archivable.endDate} (${formatINR(archivable.totalExpense)} spent)`
                   : 'All your current transactions are within the 1-year window.'}
@@ -285,13 +260,13 @@ export const DiagnosticsModal: React.FC<Props> = ({
                 onClick={() => handleArchive('json')}
                 className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all active:scale-95 ${
                   archivable && archivable.count > 0
-                    ? 'bg-[#59171B] dark:bg-[#EF6448] text-white hover:opacity-90'
-                    : 'bg-slate-200 dark:bg-[#1C1F1E] text-slate-400 cursor-not-allowed border border-slate-300 dark:border-slate-800'
+                    ? 'bg-[#59171B] dark:bg-[#B84E3B] text-white hover:opacity-90'
+                    : 'bg-slate-200 dark:bg-[#1B1E22] text-slate-400 cursor-not-allowed border border-slate-300 dark:border-slate-800'
                 }`}
-                title="Export older data to structured JSON and prune active DB"
+                title="Download older records as a JSON backup"
               >
                 <FileJson className="w-3.5 h-3.5" />
-                <span>Archive JSON</span>
+                <span>Export JSON</span>
               </button>
 
               <button
@@ -299,20 +274,20 @@ export const DiagnosticsModal: React.FC<Props> = ({
                 onClick={() => handleArchive('csv')}
                 className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all active:scale-95 ${
                   archivable && archivable.count > 0
-                    ? 'bg-white dark:bg-[#202322] border border-[#FED7B8] dark:border-[#363C3A] text-slate-800 dark:text-[#F4F6F5] hover:bg-slate-50'
-                    : 'bg-slate-200 dark:bg-[#1C1F1E] text-slate-400 cursor-not-allowed border border-slate-300 dark:border-slate-800'
+                    ? 'bg-white dark:bg-[#17191C] border border-[#FED7B8] dark:border-[#363B44] text-slate-800 dark:text-[#F2F3F5] hover:bg-slate-50'
+                    : 'bg-slate-200 dark:bg-[#1B1E22] text-slate-400 cursor-not-allowed border border-slate-300 dark:border-slate-800'
                 }`}
-                title="Export older data to CSV and prune active DB"
+                title="Download older records as a CSV file"
               >
                 <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600" />
-                <span>Archive CSV</span>
+                <span>Export CSV</span>
               </button>
             </div>
           </div>
 
-          <div className="text-[10px] text-slate-500 dark:text-[#A0A8A5] flex items-center gap-1 font-mono">
-            <Download className="w-3 h-3 text-[#59171B] dark:text-[#EF6448]" />
-            <span>Files are named accurately: PruFin_Archive_[Start]__to__[End].json</span>
+          <div className="text-[10px] text-slate-500 dark:text-[#A5ACB7] flex items-center gap-1 font-mono">
+            <Download className="w-3 h-3 text-[#59171B] dark:text-[#FF927A]" />
+            <span>Exports are local downloads. Exporting does not remove records from this device.</span>
           </div>
 
           {/* Previous Archives Log */}
@@ -325,7 +300,7 @@ export const DiagnosticsModal: React.FC<Props> = ({
                 {archiveHistory.map((rec) => (
                   <div
                     key={rec.id}
-                    className="p-2 rounded-lg bg-white dark:bg-[#272B2A] border border-slate-200/80 dark:border-[#363C3A] flex items-center justify-between text-[11px]"
+                    className="p-2 rounded-lg bg-white dark:bg-[#22252A] border border-slate-200/80 dark:border-[#363B44] flex items-center justify-between text-[11px]"
                   >
                     <div>
                       <span className="font-semibold text-slate-800 dark:text-white">{rec.fileName}</span>
@@ -344,10 +319,10 @@ export const DiagnosticsModal: React.FC<Props> = ({
         </div>
 
         {/* 4. Controls & Visibility Toggle */}
-        <div className="pt-2 border-t border-[#FED7B8] dark:border-[#363C3A] flex items-center justify-between">
+        <div className="pt-2 border-t border-[#FED7B8] dark:border-[#363B44] flex items-center justify-between">
           <button
             onClick={() => onToggleDiagnostics(!isDiagnosticsActive)}
-            className="text-xs font-semibold text-slate-600 dark:text-[#A0A8A5] hover:text-[#59171B] dark:hover:text-[#EF6448] flex items-center gap-1.5 transition-colors"
+            className="text-xs font-semibold text-slate-600 dark:text-[#A5ACB7] hover:text-[#59171B] dark:hover:text-[#EF6448] flex items-center gap-1.5 transition-colors"
           >
             {isDiagnosticsActive ? (
               <>

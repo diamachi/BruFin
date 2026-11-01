@@ -16,7 +16,7 @@ import {
   BarChart3,
 } from 'lucide-react';
 import { MonthlyAccountBalance } from '../types';
-import { formatINR, formatMonthYear } from '../utils/dateUtils';
+import { formatINR, formatMonthYear, getCurrentMonthKey } from '../utils/dateUtils';
 import { getUnifiedMonthlyBalance, updateUnifiedMonthlyBalance } from '../utils/storage';
 
 interface Props {
@@ -36,7 +36,7 @@ export const BalancesView: React.FC<Props> = ({
   const activeMonth = useMemo(() => {
     if (selectedMonth !== 'All') return selectedMonth;
     const months = Array.from(new Set(monthlyBalances.map((b) => b.month))).sort().reverse();
-    return months[0] || new Date().toISOString().substring(0, 7);
+    return months[0] || getCurrentMonthKey();
   }, [selectedMonth, monthlyBalances]);
 
   // Modal states for editing a month's balance
@@ -98,7 +98,7 @@ export const BalancesView: React.FC<Props> = ({
   return (
     <div className="space-y-4 animate-fadeIn">
       {/* 1. Header Banner */}
-      <div className="p-4 rounded-3xl bg-white dark:bg-[#272B2A] border border-[#FED7B8] dark:border-[#363C3A] shadow-sm flex items-center justify-between transition-colors">
+      <div className="p-4 rounded-3xl bg-white dark:bg-[#22252A] border border-[#FED7B8] dark:border-[#363B44] shadow-sm flex items-center justify-between transition-colors">
         <div>
           <div className="flex items-center space-x-1.5 text-slate-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-wider">
             <Landmark className="w-3.5 h-3.5 text-[#EF6448]" />
@@ -124,7 +124,7 @@ export const BalancesView: React.FC<Props> = ({
       </div>
 
       {/* 2. Month Overview Card: Starting vs Ending vs Difference */}
-      <div className="p-4 rounded-3xl bg-white dark:bg-[#272B2A] border border-[#FED7B8] dark:border-[#363C3A] shadow-sm space-y-3">
+      <div className="p-4 rounded-3xl bg-white dark:bg-[#22252A] border border-[#FED7B8] dark:border-[#363B44] shadow-sm space-y-3">
         <div className="flex items-center justify-between">
           <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
             {formatMonthYear(activeMonth)} Cash Flow Snapshot
@@ -139,7 +139,7 @@ export const BalancesView: React.FC<Props> = ({
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-          <div className="p-3 rounded-2xl bg-slate-50 dark:bg-[#1C1F1E] border border-[#FED7B8]/60 dark:border-[#363C3A]">
+          <div className="p-3 rounded-2xl bg-slate-50 dark:bg-[#1B1E22] border border-[#FED7B8]/60 dark:border-[#363B44]">
             <span className="text-[10px] text-slate-400 uppercase font-bold tracking-wider block">
               Starting (1st of month)
             </span>
@@ -148,7 +148,7 @@ export const BalancesView: React.FC<Props> = ({
             </span>
           </div>
 
-          <div className="p-3 rounded-2xl bg-slate-50 dark:bg-[#1C1F1E] border border-[#FED7B8]/60 dark:border-[#363C3A]">
+          <div className="p-3 rounded-2xl bg-slate-50 dark:bg-[#1B1E22] border border-[#FED7B8]/60 dark:border-[#363B44]">
             <span className="text-[10px] text-slate-400 uppercase font-bold tracking-wider block">
               Ending (End of month)
             </span>
@@ -169,16 +169,16 @@ export const BalancesView: React.FC<Props> = ({
       <div className="space-y-2">
         <div className="flex items-center justify-between px-1">
           <div className="flex items-center space-x-1.5 text-xs font-bold text-slate-600 dark:text-slate-400">
-            <Calendar className="w-3.5 h-3.5 text-[#59171B] dark:text-[#EF6448]" />
+            <Calendar className="w-3.5 h-3.5 text-[#59171B] dark:text-[#FF927A]" />
             <span>Monthly Balance History</span>
           </div>
           <button
             onClick={() => {
-              const prev = new Date();
-              prev.setMonth(prev.getMonth() - 1);
-              handleOpenEdit(prev.toISOString().substring(0, 7));
+              const today = new Date();
+              const previousMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+              handleOpenEdit(getCurrentMonthKey(previousMonth));
             }}
-            className="text-[11px] font-bold text-[#59171B] dark:text-[#EF6448] hover:underline flex items-center gap-1"
+            className="text-[11px] font-bold text-[#59171B] dark:text-[#FF927A] hover:underline flex items-center gap-1"
           >
             <Plus className="w-3 h-3" />
             <span>Add Month Record</span>
@@ -189,7 +189,7 @@ export const BalancesView: React.FC<Props> = ({
           {allMonths.map((m) => (
             <div
               key={m.month}
-              className="p-3.5 rounded-2xl bg-white dark:bg-[#272B2A] border border-[#FED7B8] dark:border-[#363C3A] shadow-sm flex items-center justify-between gap-3 transition-colors hover:border-[#59171B]/40"
+              className="p-3.5 rounded-2xl bg-white dark:bg-[#22252A] border border-[#FED7B8] dark:border-[#363B44] shadow-sm flex items-center justify-between gap-3 transition-colors hover:border-[#59171B]/40"
             >
               <div className="min-w-0">
                 <div className="flex items-center space-x-2">
@@ -232,12 +232,12 @@ export const BalancesView: React.FC<Props> = ({
       {isEditModalOpen && createPortal(
         <div className="fixed inset-0 z-50 overflow-y-auto bg-black/75 p-4 flex items-center justify-center animate-fadeIn">
           <div
-            className="w-full max-w-md max-h-[88vh] overflow-y-auto my-auto bg-white dark:bg-[#272B2A] border border-[#FED7B8] dark:border-[#363C3A] rounded-3xl shadow-2xl p-5 space-y-4"
+            className="w-full max-w-md max-h-[88vh] overflow-y-auto my-auto bg-white dark:bg-[#22252A] border border-[#FED7B8] dark:border-[#363B44] rounded-3xl shadow-2xl p-5 space-y-4"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between border-b border-[#FED7B8] dark:border-[#363C3A] pb-3">
+            <div className="flex items-center justify-between border-b border-[#FED7B8] dark:border-[#363B44] pb-3">
               <div>
-                <h3 className="text-sm font-bold text-[#59171B] dark:text-[#EF6448]">
+                <h3 className="text-sm font-bold text-[#59171B] dark:text-[#FF927A]">
                   Update Liquid Balance
                 </h3>
                 <p className="text-[11px] text-slate-500 dark:text-slate-400">
@@ -264,7 +264,7 @@ export const BalancesView: React.FC<Props> = ({
                     placeholder="e.g. 150000"
                     value={inputStart}
                     onChange={(e) => setInputStart(e.target.value)}
-                    className="w-full bg-slate-50 dark:bg-[#1C1F1E] border border-[#FED7B8] dark:border-[#363C3A] rounded-xl pl-8 pr-3.5 py-2.5 text-xs text-slate-900 dark:text-white font-bold focus:outline-none"
+                    className="w-full bg-slate-50 dark:bg-[#1B1E22] border border-[#FED7B8] dark:border-[#363B44] rounded-xl pl-8 pr-3.5 py-2.5 text-xs text-slate-900 dark:text-white font-bold focus:outline-none"
                   />
                 </div>
               </div>
@@ -280,7 +280,7 @@ export const BalancesView: React.FC<Props> = ({
                     placeholder="e.g. 175000"
                     value={inputEnd}
                     onChange={(e) => setInputEnd(e.target.value)}
-                    className="w-full bg-slate-50 dark:bg-[#1C1F1E] border border-[#FED7B8] dark:border-[#363C3A] rounded-xl pl-8 pr-3.5 py-2.5 text-xs text-slate-900 dark:text-white font-bold focus:outline-none"
+                    className="w-full bg-slate-50 dark:bg-[#1B1E22] border border-[#FED7B8] dark:border-[#363B44] rounded-xl pl-8 pr-3.5 py-2.5 text-xs text-slate-900 dark:text-white font-bold focus:outline-none"
                   />
                 </div>
               </div>
@@ -294,7 +294,7 @@ export const BalancesView: React.FC<Props> = ({
                   placeholder="e.g. Salary credited, bonus, trip expense"
                   value={inputNotes}
                   onChange={(e) => setInputNotes(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-[#1C1F1E] border border-[#FED7B8] dark:border-[#363C3A] rounded-xl px-3 py-2.5 text-xs text-slate-900 dark:text-white focus:outline-none"
+                  className="w-full bg-slate-50 dark:bg-[#1B1E22] border border-[#FED7B8] dark:border-[#363B44] rounded-xl px-3 py-2.5 text-xs text-slate-900 dark:text-white focus:outline-none"
                 />
               </div>
 

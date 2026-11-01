@@ -106,7 +106,7 @@ export const IncomeView: React.FC<Props> = ({
   return (
     <div className="space-y-4 animate-fadeIn">
       {/* 1. Header Overview Bar */}
-      <div className="p-5 rounded-3xl bg-white dark:bg-[#272B2A] border border-[#FED7B8] dark:border-[#363C3A] shadow-sm space-y-3">
+      <div className="p-5 rounded-3xl bg-white dark:bg-[#22252A] border border-[#FED7B8] dark:border-[#363B44] shadow-sm space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <button
@@ -117,7 +117,7 @@ export const IncomeView: React.FC<Props> = ({
               <span>Back to Monitor</span>
             </button>
           </div>
-          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#FDF4E7] dark:bg-[#EF6448]/15 text-[#996520] dark:text-[#EF6448] border border-[#F5DEBE] dark:border-[#EF6448]/30">
+          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#FDF4E7] dark:bg-[#B84E3B]/15 text-[#996520] dark:text-[#FF927A] border border-[#F5DEBE] dark:border-[#EF6448]/30">
             {selectedMonth === 'All' ? 'All Time' : selectedMonth}
           </span>
         </div>
@@ -127,7 +127,7 @@ export const IncomeView: React.FC<Props> = ({
             <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
               Total Inflows Received
             </span>
-            <span className="text-2xl sm:text-3xl font-black text-[#996520] dark:text-[#EF6448] tracking-tight">
+            <span className="text-2xl sm:text-3xl font-black text-[#996520] dark:text-[#FF927A] tracking-tight">
               +{formatINR(totalIncome)}
             </span>
           </div>
@@ -152,7 +152,7 @@ export const IncomeView: React.FC<Props> = ({
               placeholder="Search salary, cashbacks, refunds..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-white dark:bg-[#272B2A] border border-[#FED7B8] dark:border-[#363C3A] focus:border-slate-400 rounded-2xl pl-10 pr-9 py-2.5 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none transition-colors shadow-sm"
+              className="w-full bg-white dark:bg-[#22252A] border border-[#FED7B8] dark:border-[#363B44] focus:border-slate-400 rounded-2xl pl-10 pr-9 py-2.5 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none transition-colors shadow-sm"
             />
             {searchQuery && (
               <button
@@ -170,7 +170,7 @@ export const IncomeView: React.FC<Props> = ({
             className={`p-2.5 rounded-2xl border transition-colors flex items-center justify-center cursor-pointer ${
               showFilters || categoryFilter !== 'All' || paymentModeFilter !== 'All'
                 ? 'bg-[#EF6448] text-white border-[#EF6448]'
-                : 'bg-white dark:bg-[#272B2A] border-[#FED7B8] dark:border-[#363C3A] text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+                : 'bg-white dark:bg-[#22252A] border-[#FED7B8] dark:border-[#363B44] text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
             }`}
             title="Filter Income"
           >
@@ -180,7 +180,7 @@ export const IncomeView: React.FC<Props> = ({
 
         {/* Expandable Advanced Filters */}
         {showFilters && (
-          <div className="p-3.5 rounded-2xl bg-white dark:bg-[#272B2A] border border-[#FED7B8] dark:border-[#363C3A] space-y-3 shadow-sm animate-fadeIn">
+          <div className="p-3.5 rounded-2xl bg-white dark:bg-[#22252A] border border-[#FED7B8] dark:border-[#363B44] space-y-3 shadow-sm animate-fadeIn">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
               <div>
                 <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
@@ -189,7 +189,7 @@ export const IncomeView: React.FC<Props> = ({
                 <select
                   value={categoryFilter}
                   onChange={(e) => setCategoryFilter(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-slate-950 border border-[#FED7B8] dark:border-[#363C3A] rounded-xl px-2.5 py-2 text-xs text-slate-800 dark:text-white focus:outline-none"
+                  className="w-full bg-slate-50 dark:bg-slate-950 border border-[#FED7B8] dark:border-[#363B44] rounded-xl px-2.5 py-2 text-xs text-slate-800 dark:text-white focus:outline-none"
                 >
                   <option value="All">All Categories</option>
                   {INCOME_CATEGORIES.map((c) => (
@@ -205,7 +205,7 @@ export const IncomeView: React.FC<Props> = ({
                 <select
                   value={paymentModeFilter}
                   onChange={(e) => setPaymentModeFilter(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-slate-950 border border-[#FED7B8] dark:border-[#363C3A] rounded-xl px-2.5 py-2 text-xs text-slate-800 dark:text-white focus:outline-none"
+                  className="w-full bg-slate-50 dark:bg-slate-950 border border-[#FED7B8] dark:border-[#363B44] rounded-xl px-2.5 py-2 text-xs text-slate-800 dark:text-white focus:outline-none"
                 >
                   <option value="All">All Channels</option>
                   {paymentModes.map((pm) => (
@@ -233,7 +233,7 @@ export const IncomeView: React.FC<Props> = ({
 
       {/* 3. Income Transaction List Grouped by Date */}
       {sortedDates.length === 0 ? (
-        <div className="p-8 text-center rounded-3xl bg-white dark:bg-[#272B2A] border border-[#FED7B8] dark:border-[#363C3A] space-y-3">
+        <div className="p-8 text-center rounded-3xl bg-white dark:bg-[#22252A] border border-[#FED7B8] dark:border-[#363B44] space-y-3">
           <Coins className="w-10 h-10 text-slate-400 mx-auto" />
           <p className="text-slate-500 dark:text-slate-400 text-xs">No income entries match your search filters.</p>
           <button
@@ -254,11 +254,11 @@ export const IncomeView: React.FC<Props> = ({
                 {/* Date Header */}
                 <div className="flex items-center justify-between px-2 text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                   <span>{formatDateLabel(dateStr)}</span>
-                  <span className="text-[#996520] dark:text-[#EF6448]">+{formatINR(dayIncome)}</span>
+                  <span className="text-[#996520] dark:text-[#FF927A]">+{formatINR(dayIncome)}</span>
                 </div>
 
                 {/* Date Items */}
-                <div className="rounded-3xl bg-white dark:bg-[#272B2A] border border-[#FED7B8] dark:border-[#363C3A] divide-y divide-slate-100 dark:divide-slate-800/80 shadow-sm overflow-hidden">
+                <div className="rounded-3xl bg-white dark:bg-[#22252A] border border-[#FED7B8] dark:border-[#363B44] divide-y divide-slate-100 dark:divide-slate-800/80 shadow-sm overflow-hidden">
                   {items.map((t) => {
                     const meta = getCategoryMeta(t.category, true);
 
@@ -280,9 +280,9 @@ export const IncomeView: React.FC<Props> = ({
                               {t.description || t.category}
                             </h4>
                             <div className="flex items-center gap-1.5 mt-0.5 text-[10px] text-slate-500 dark:text-slate-400 flex-wrap">
-                              <span className="font-medium text-[#996520] dark:text-[#EF6448]">{t.category}</span>
+                              <span className="font-medium text-[#996520] dark:text-[#FF927A]">{t.category}</span>
                               <span>•</span>
-                              <span className="px-1.5 py-0.2 rounded bg-slate-100 dark:bg-[#1C1F1E] text-slate-700 dark:text-slate-300">
+                              <span className="px-1.5 py-0.2 rounded bg-slate-100 dark:bg-[#1B1E22] text-slate-700 dark:text-slate-300">
                                 {t.paymentMode}
                               </span>
                               {t.remarks && (
@@ -299,7 +299,7 @@ export const IncomeView: React.FC<Props> = ({
 
                         {/* Right: Amount & Actions */}
                         <div className="flex items-center space-x-3 shrink-0">
-                          <span className="text-sm sm:text-base font-black text-[#996520] dark:text-[#EF6448]">
+                          <span className="text-sm sm:text-base font-black text-[#996520] dark:text-[#FF927A]">
                             +{formatINR(t.amount)}
                           </span>
 

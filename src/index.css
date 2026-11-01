@@ -24,7 +24,7 @@
     -webkit-tap-highlight-color: transparent !important;
   }
   body {
-    @apply bg-[#FFF8F3] text-slate-800 dark:bg-[#202322] dark:text-[#F4F6F5] antialiased font-sans transition-colors duration-200;
+    @apply bg-[#FFF8F3] text-slate-800 dark:bg-[#17191C] dark:text-[#F2F3F5] antialiased font-sans transition-colors duration-200;
     -webkit-tap-highlight-color: transparent !important;
     accent-color: #EF6448;
   }
@@ -34,6 +34,9 @@
   input, select, textarea, button {
     accent-color: #EF6448;
     -webkit-tap-highlight-color: transparent !important;
+  }
+  .dark {
+    color-scheme: dark;
   }
   ::selection {
     background-color: #FED7B8;
@@ -45,7 +48,7 @@
   }
 }
 
-/* Custom scrollbars tailored to #FED7B8 (light) and Raisin Black / Fire Opal (#202322 / #EF6448) */
+/* Warm light surfaces pair with a neutral charcoal dark palette. */
 ::-webkit-scrollbar {
   width: 5px;
   height: 5px;
@@ -61,11 +64,11 @@
 }
 
 .dark ::-webkit-scrollbar-thumb {
-  background: #363C3A;
+  background: #363B44;
 }
 
 .dark ::-webkit-scrollbar-thumb:hover {
-  background: #EF6448;
+  background: #FF927A;
 }
 
 .scrollbar-none::-webkit-scrollbar {
@@ -98,7 +101,7 @@ input[type="range"]::-webkit-slider-runnable-track {
 }
 
 .dark input[type="range"]::-webkit-slider-runnable-track {
-  background-color: #363C3A;
+  background-color: #363B44;
 }
 
 input[type="range"]::-webkit-slider-thumb {
@@ -116,7 +119,7 @@ input[type="range"]::-webkit-slider-thumb {
 
 .dark input[type="range"]::-webkit-slider-thumb {
   background-color: #EF6448;
-  border-color: #202322;
+  border-color: #17191C;
 }
 
 input[type="range"]::-moz-range-track {
@@ -126,7 +129,7 @@ input[type="range"]::-moz-range-track {
 }
 
 .dark input[type="range"]::-moz-range-track {
-  background-color: #363C3A;
+  background-color: #363B44;
 }
 
 input[type="range"]::-moz-range-thumb {
@@ -140,7 +143,7 @@ input[type="range"]::-moz-range-thumb {
 
 .dark input[type="range"]::-moz-range-thumb {
   background-color: #EF6448;
-  border-color: #202322;
+  border-color: #17191C;
 }
 
 /* Animations */
@@ -151,6 +154,11 @@ input[type="range"]::-moz-range-thumb {
   to {
     opacity: 1;
   }
+}
+
+:focus-visible {
+  outline: 3px solid #EF6448;
+  outline-offset: 2px;
 }
 
 .animate-fadeIn {

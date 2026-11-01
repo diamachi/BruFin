@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Transaction, CreditCard, RecurringPayment, InvestmentItem, LoanItem, BankAccount, MonthlyAccountBalance, ViewTab, PaymentMethodItem } from './types';
+import { Transaction, CreditCard, RecurringPayment, InvestmentItem, LoanItem, MonthlyAccountBalance, ViewTab, PaymentMethodItem } from './types';
 import {
   loadTransactions,
   saveTransactions,
@@ -13,12 +13,11 @@ import {
   saveInvestments,
   loadLoans,
   saveLoans,
-  loadBankAccounts,
-  saveBankAccounts,
   loadMonthlyBalances,
   saveMonthlyBalances,
   loadPaymentMethods,
   savePaymentMethods,
+  saveDatabaseSections,
   postRecurringPaymentToExpenses,
   getRecurringPaymentStatuses,
   clearAllData,
@@ -38,25 +37,29 @@ import {
 import { Navbar } from './components/Navbar';
 import { BottomNav } from './components/BottomNav';
 import { DiagnosticsBar } from './components/DiagnosticsBar';
-import { DiagnosticsModal } from './components/DiagnosticsModal';
-import { DashboardView } from './components/DashboardView';
-import { ExpensesView } from './components/ExpensesView';
-import { IncomeView } from './components/IncomeView';
-import { BalancesView } from './components/BalancesView';
-import { CreditCardsView } from './components/CreditCardsView';
-import { InvestmentsView } from './components/InvestmentsView';
 import { QuickAddModal } from './components/QuickAddModal';
-import { SettingsModal } from './components/SettingsModal';
 import { AddRecurringModal } from './components/AddRecurringModal';
-import { PageHelpModal } from './components/PageHelpModal';
-import { OnboardingModal } from './components/OnboardingModal';
 import { MonthlyBalancePromptModal, BalancePromptMode } from './components/MonthlyBalancePromptModal';
 import { Smartphone, Monitor } from 'lucide-react';
+import { getCurrentMonthKey } from './utils/dateUtils';
+import { parseHistoricalDataFile } from './utils/archiveImport';
+
+const ArchiveViewerModal = React.lazy(() => import('./components/ArchiveViewerModal').then((module) => ({ default: module.ArchiveViewerModal })));
+const DiagnosticsModal = React.lazy(() => import('./components/DiagnosticsModal').then((module) => ({ default: module.DiagnosticsModal })));
+const DashboardView = React.lazy(() => import('./components/DashboardView').then((module) => ({ default: module.DashboardView })));
+const ExpensesView = React.lazy(() => import('./components/ExpensesView').then((module) => ({ default: module.ExpensesView })));
+const IncomeView = React.lazy(() => import('./components/IncomeView').then((module) => ({ default: module.IncomeView })));
+const BalancesView = React.lazy(() => import('./components/BalancesView').then((module) => ({ default: module.BalancesView })));
+const CreditCardsView = React.lazy(() => import('./components/CreditCardsView').then((module) => ({ default: module.CreditCardsView })));
+const InvestmentsView = React.lazy(() => import('./components/InvestmentsView').then((module) => ({ default: module.InvestmentsView })));
+const SettingsModal = React.lazy(() => import('./components/SettingsModal').then((module) => ({ default: module.SettingsModal })));
+const PageHelpModal = React.lazy(() => import('./components/PageHelpModal').then((module) => ({ default: module.PageHelpModal })));
+const OnboardingModal = React.lazy(() => import('./components/OnboardingModal').then((module) => ({ default: module.OnboardingModal })));
 
 export const App: React.FC = () => {
   // Theme state: 'light' or 'dark'
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
-    return (localStorage.getItem('brufin_theme') as 'dark' | 'light') || 'light';
+    try { return localStorage.getItem('brufin_theme') === 'dark' ? 'dark' : 'light'; } catch { return 'light'; }
   });
 
   useEffect(() => {
@@ -67,7 +70,7 @@ export const App: React.FC = () => {
       document.documentElement.classList.remove('dark');
       document.documentElement.classList.add('light');
     }
-    localStorage.setItem('brufin_theme', theme);
+    try { localStorage.setItem('brufin_theme', theme); } catch { /* Keep the theme active for this session. */ }
   }, [theme]);
 
   const toggleTheme = () => {
@@ -103,7 +106,6 @@ export const App: React.FC = () => {
   const [monthlyTarget, setMonthlyTarget] = useState<number>(() => loadMonthlyTarget());
   const [investments, setInvestments] = useState<InvestmentItem[]>(() => loadInvestments());
   const [loans, setLoans] = useState<LoanItem[]>(() => loadLoans());
-  const [bankAccounts, setBankAccounts] = useState<BankAccount[]>(() => loadBankAccounts());
   const [monthlyBalances, setMonthlyBalances] = useState<MonthlyAccountBalance[]>(() => loadMonthlyBalances());
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethodItem[]>(() => loadPaymentMethods());
 
@@ -111,6 +113,7 @@ export const App: React.FC = () => {
   const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [archivePreview, setArchivePreview] = useState<Transaction[] | null>(null);
   const [isAddRecurringOpen, setIsAddRecurringOpen] = useState(false);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -120,7 +123,7 @@ export const App: React.FC = () => {
   const [balancePromptsEnabled, setBalancePromptsEnabledState] = useState<boolean>(() => isBalancePromptsEnabled());
   const [isBalancePromptOpen, setIsBalancePromptOpen] = useState(false);
   const [balancePromptMode, setBalancePromptMode] = useState<BalancePromptMode>('start_of_month');
-  const [balancePromptMonthKey, setBalancePromptMonthKey] = useState<string>(() => new Date().toISOString().substring(0, 7));
+  const [balancePromptMonthKey, setBalancePromptMonthKey] = useState<string>(() => getCurrentMonthKey());
 
   // Storage & RAM diagnostics state
   const [isDiagnosticsActive, setIsDiagnosticsActive] = useState<boolean>(() => isDiagnosticsEnabled());
@@ -141,10 +144,6 @@ export const App: React.FC = () => {
     });
   };
 
-  const handleDataPruned = () => {
-    setTransactions(loadTransactions());
-    showToast('Historical records archived and active database pruned!');
-  };
 
   // Automatic Start / End of Month Balance Check-in trigger
   useEffect(() => {
@@ -189,6 +188,17 @@ export const App: React.FC = () => {
     setTimeout(() => setToastMessage(null), 3000);
   };
 
+  const persistWrite = async (write: Promise<void>): Promise<boolean> => {
+    try {
+      await write;
+      return true;
+    } catch (error) {
+      console.error('Local database write failed', error);
+      showToast('Could not save to this device. Please retry and export a backup.');
+      return false;
+    }
+  };
+
   // Compute available months from transactions & balances
   const availableMonths = useMemo(() => {
     const monthSet = new Set<string>();
@@ -212,7 +222,7 @@ export const App: React.FC = () => {
           .filter(Boolean)
       )
     ).sort((a, b) => (b as string).localeCompare(a as string));
-    return months[0] || new Date().toISOString().substring(0, 7);
+    return months[0] || getCurrentMonthKey();
   });
 
   // Unique recent descriptions for autocompletion
@@ -222,13 +232,13 @@ export const App: React.FC = () => {
   }, [transactions]);
 
   // Handlers
-  const handleSaveTransaction = (transactionData: Omit<Transaction, 'id'>) => {
+  const handleSaveTransaction = async (transactionData: Omit<Transaction, 'id'>) => {
     if (editingTransaction) {
       const updated = transactions.map((t) =>
         t.id === editingTransaction.id ? { ...transactionData, id: editingTransaction.id } : t
       );
+      if (!(await persistWrite(saveTransactions(updated)))) return;
       setTransactions(updated);
-      saveTransactions(updated);
       setEditingTransaction(null);
       showToast('Transaction updated');
     } else {
@@ -237,32 +247,32 @@ export const App: React.FC = () => {
         id: `tx_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
       };
       const updated = [newTransaction, ...transactions];
+      if (!(await persistWrite(saveTransactions(updated)))) return;
       setTransactions(updated);
-      saveTransactions(updated);
       showToast('Transaction recorded locally');
     }
   };
 
-  const handleDeleteTransaction = (id: string) => {
+  const handleDeleteTransaction = async (id: string) => {
     const updated = transactions.filter((t) => t.id !== id);
+    if (!(await persistWrite(saveTransactions(updated)))) return;
     setTransactions(updated);
-    saveTransactions(updated);
     showToast('Transaction deleted');
   };
 
-  const handleUpdateTarget = (target: number) => {
+  const handleUpdateTarget = async (target: number) => {
+    if (!(await persistWrite(saveMonthlyTarget(target)))) return;
     setMonthlyTarget(target);
-    saveMonthlyTarget(target);
     showToast(`Monthly budget target set to ₹ ${target.toLocaleString('en-IN')}`);
   };
 
-  const handleUpdateRecurring = (payments: RecurringPayment[]) => {
+  const handleUpdateRecurring = async (payments: RecurringPayment[]) => {
+    if (!(await persistWrite(saveRecurringPayments(payments)))) return;
     setRecurringPayments(payments);
-    saveRecurringPayments(payments);
     showToast('Recurring payments updated');
   };
 
-  const handleSaveNewRecurring = (rec: RecurringPayment) => {
+  const handleSaveNewRecurring = async (rec: RecurringPayment) => {
     const exists = recurringPayments.find((r) => r.id === rec.id);
     let updated: RecurringPayment[];
     if (exists) {
@@ -270,23 +280,23 @@ export const App: React.FC = () => {
     } else {
       updated = [...recurringPayments, rec];
     }
+    if (!(await persistWrite(saveRecurringPayments(updated)))) return;
     setRecurringPayments(updated);
-    saveRecurringPayments(updated);
     showToast(`Saved recurring bill: ${rec.name}`);
   };
 
-  const handlePostRecurring = (rec: RecurringPayment) => {
-    const monthKey = selectedMonth === 'All' ? new Date().toISOString().substring(0, 7) : selectedMonth;
+  const handlePostRecurring = async (rec: RecurringPayment) => {
+    const monthKey = selectedMonth === 'All' ? getCurrentMonthKey() : selectedMonth;
     const updated = postRecurringPaymentToExpenses(rec, monthKey, transactions);
+    if (!(await persistWrite(saveTransactions(updated)))) return;
     setTransactions(updated);
-    saveTransactions(updated);
     showToast(`Posted ${rec.name} (₹${rec.amount}) to expenses`);
   };
 
-  const handlePostAllDueRecurring = () => {
-    const monthKey = selectedMonth === 'All' ? new Date().toISOString().substring(0, 7) : selectedMonth;
+  const handlePostAllDueRecurring = async () => {
+    const monthKey = selectedMonth === 'All' ? getCurrentMonthKey() : selectedMonth;
     const statuses = getRecurringPaymentStatuses(recurringPayments, transactions, monthKey);
-    const unposted = statuses.filter((s) => !s.isPaid);
+    const unposted = statuses.filter((s) => s.isActive && !s.isPaid);
 
     if (unposted.length === 0) {
       showToast('All recurring bills are already posted for this month!');
@@ -298,38 +308,38 @@ export const App: React.FC = () => {
       currentTx = postRecurringPaymentToExpenses(rec, monthKey, currentTx);
     });
 
+    if (!(await persistWrite(saveTransactions(currentTx)))) return;
     setTransactions(currentTx);
-    saveTransactions(currentTx);
     showToast(`Posted ${unposted.length} recurring bills to expenses!`);
   };
 
-  const handleUpdateInvestments = (items: InvestmentItem[]) => {
+  const handleUpdateInvestments = async (items: InvestmentItem[]) => {
+    if (!(await persistWrite(saveInvestments(items)))) return;
     setInvestments(items);
-    saveInvestments(items);
     showToast('Investments updated');
   };
 
-  const handleUpdateCreditCards = (cards: CreditCard[]) => {
+  const handleUpdateCreditCards = async (cards: CreditCard[]) => {
+    if (!(await persistWrite(saveCreditCards(cards)))) return;
     setCreditCards(cards);
-    saveCreditCards(cards);
     showToast('Credit cards updated');
   };
 
-  const handleUpdatePaymentMethods = (methods: PaymentMethodItem[]) => {
+  const handleUpdatePaymentMethods = async (methods: PaymentMethodItem[]) => {
+    if (!(await persistWrite(savePaymentMethods(methods)))) return;
     setPaymentMethods(methods);
-    savePaymentMethods(methods);
     showToast('Payment methods updated');
   };
 
-  const handleUpdateLoans = (items: LoanItem[]) => {
+  const handleUpdateLoans = async (items: LoanItem[]) => {
+    if (!(await persistWrite(saveLoans(items)))) return;
     setLoans(items);
-    saveLoans(items);
     showToast('Loans updated');
   };
 
-  const handleUpdateBalances = (bals: MonthlyAccountBalance[]) => {
+  const handleUpdateBalances = async (bals: MonthlyAccountBalance[]) => {
+    if (!(await persistWrite(saveMonthlyBalances(bals)))) return;
     setMonthlyBalances(bals);
-    saveMonthlyBalances(bals);
     showToast('Bank balances updated');
   };
 
@@ -339,8 +349,9 @@ export const App: React.FC = () => {
     setIsBalancePromptOpen(true);
   };
 
-  const handleSaveUnifiedBalance = (mKey: string, start: number, end: number, notes?: string) => {
+  const handleSaveUnifiedBalance = async (mKey: string, start: number, end: number, notes?: string) => {
     const updated = updateUnifiedMonthlyBalance(monthlyBalances, mKey, start, end, notes);
+    if (!(await persistWrite(saveMonthlyBalances(updated)))) return;
     setMonthlyBalances(updated);
     showToast(`Saved liquid balance for ${mKey}`);
   };
@@ -351,138 +362,172 @@ export const App: React.FC = () => {
     showToast(enabled ? 'Monthly balance prompts turned on' : 'Monthly balance prompts turned off');
   };
 
-  const handleUpdateAccounts = (accs: BankAccount[]) => {
-    setBankAccounts(accs);
-    saveBankAccounts(accs);
-    showToast('Bank account added');
-  };
-
   const handleImportJSON = async (file: File) => {
     try {
       const text = await file.text();
-      const data = JSON.parse(text);
-      if (data.transactions && Array.isArray(data.transactions)) {
-        setTransactions(data.transactions);
-        saveTransactions(data.transactions);
+      const data: unknown = JSON.parse(text);
+      if (!data || typeof data !== 'object' || Array.isArray(data)) throw new Error('Backup must be an object');
+      const backup = data as Record<string, unknown>;
+      if (backup.version !== 2) throw new Error('Unsupported backup version');
+      const arrayFields = ['transactions', 'creditCards', 'recurringPayments', 'investments', 'loans', 'bankAccounts', 'monthlyBalances', 'paymentMethods'];
+      for (const field of arrayFields) {
+        if (backup[field] !== undefined && !Array.isArray(backup[field])) throw new Error(`Invalid ${field}`);
       }
-      if (data.creditCards && Array.isArray(data.creditCards)) {
-        setCreditCards(data.creditCards);
-        saveCreditCards(data.creditCards);
+      if (backup.monthlyTarget !== undefined && (typeof backup.monthlyTarget !== 'number' || !Number.isFinite(backup.monthlyTarget) || backup.monthlyTarget <= 0)) {
+        throw new Error('Invalid monthly target');
       }
-      if (data.recurringPayments && Array.isArray(data.recurringPayments)) {
-        setRecurringPayments(data.recurringPayments);
-        saveRecurringPayments(data.recurringPayments);
+      const txRows = (backup.transactions || []) as unknown[];
+      if (txRows.some((row) => !row || typeof row !== 'object' || typeof (row as any).id !== 'string' || !['Expense', 'Income'].includes((row as any).type) || typeof (row as any).date !== 'string' || !Number.isFinite((row as any).amount))) {
+        throw new Error('Invalid transaction record');
       }
-      if (data.monthlyTarget) {
-        setMonthlyTarget(data.monthlyTarget);
-        saveMonthlyTarget(data.monthlyTarget);
-      }
-      if (data.investments && Array.isArray(data.investments)) {
-        setInvestments(data.investments);
-        saveInvestments(data.investments);
-      }
-      if (data.loans && Array.isArray(data.loans)) {
-        setLoans(data.loans);
-        saveLoans(data.loans);
-      }
-      if (data.bankAccounts && Array.isArray(data.bankAccounts)) {
-        setBankAccounts(data.bankAccounts);
-        saveBankAccounts(data.bankAccounts);
-      }
-      if (data.monthlyBalances && Array.isArray(data.monthlyBalances)) {
-        setMonthlyBalances(data.monthlyBalances);
-        saveMonthlyBalances(data.monthlyBalances);
-      }
-      if (data.paymentMethods && Array.isArray(data.paymentMethods)) {
-        setPaymentMethods(data.paymentMethods);
-        savePaymentMethods(data.paymentMethods);
-      }
+      const updates: Record<string, unknown> = {};
+      for (const field of arrayFields) if (backup[field] !== undefined) updates[field] = backup[field];
+      if (backup.monthlyTarget !== undefined) updates.monthlyTarget = backup.monthlyTarget;
+      await saveDatabaseSections(updates as Parameters<typeof saveDatabaseSections>[0]);
+      if (backup.transactions !== undefined) setTransactions(backup.transactions as Transaction[]);
+      if (backup.creditCards !== undefined) setCreditCards(backup.creditCards as CreditCard[]);
+      if (backup.recurringPayments !== undefined) setRecurringPayments(backup.recurringPayments as RecurringPayment[]);
+      if (backup.monthlyTarget !== undefined) setMonthlyTarget(backup.monthlyTarget as number);
+      if (backup.investments !== undefined) setInvestments(backup.investments as InvestmentItem[]);
+      if (backup.loans !== undefined) setLoans(backup.loans as LoanItem[]);
+      if (backup.monthlyBalances !== undefined) setMonthlyBalances(backup.monthlyBalances as MonthlyAccountBalance[]);
+      if (backup.paymentMethods !== undefined) setPaymentMethods(backup.paymentMethods as PaymentMethodItem[]);
       showToast('Database backup imported successfully!');
       setIsSettingsOpen(false);
     } catch (e) {
-      alert('Failed to import backup file. Invalid format.');
+      alert(`Backup import failed: ${e instanceof Error ? e.message : 'Invalid format or storage unavailable.'}`);
     }
   };
 
+  const handleOpenArchiveImport = async (file: File) => {
+    try {
+      const archived = await parseHistoricalDataFile(file);
+      if (archived.length === 0) {
+        showToast('This file contains no transactions to preview.');
+        return;
+      }
+      setIsSettingsOpen(false);
+      setArchivePreview(archived);
+    } catch (error) {
+      alert(`Could not open historical data: ${error instanceof Error ? error.message : 'Unsupported file format.'}`);
+    }
+  };
+
+  const handleRestoreArchive = async (archived: Transaction[]) => {
+    const merged = [...transactions, ...archived].sort((a, b) =>
+      b.date.localeCompare(a.date) || (b.timestamp || '').localeCompare(a.timestamp || '')
+    );
+    await saveTransactions(merged);
+    setTransactions(merged);
+    setArchivePreview(null);
+    showToast(`Restored ${archived.length} historical transactions to this device.`);
+  };
+
   // Onboarding & Demo Dataset Handlers
-  const handleSelectDemo = () => {
-    const data = loadDemoDataset();
+  const handleSelectDemo = async () => {
+    let data;
+    try { data = await loadDemoDataset(); } catch (error) {
+      console.error(error);
+      showToast('Could not load demo data into local storage.');
+      return;
+    }
     setTransactions(data.transactions);
     setCreditCards(data.creditCards);
     setRecurringPayments(data.recurringPayments);
     setMonthlyTarget(data.monthlyTarget);
     setInvestments(data.investments);
     setLoans(data.loans);
-    setBankAccounts(data.bankAccounts);
     setMonthlyBalances(data.monthlyBalances);
     setIsDemoMode(true);
     setHasOnboarded(true);
     showToast('Loaded demo data! Tap "Clear Demo" whenever you are ready to start fresh.');
   };
 
-  const handleSelectFresh = () => {
-    clearAllData();
+  const handleSelectFresh = async () => {
+    try { await clearAllData(); } catch (error) {
+      console.error(error);
+      showToast('Could not initialize the local database.');
+      return;
+    }
     setTransactions([]);
     setCreditCards([]);
     setRecurringPayments([]);
     setInvestments([]);
     setLoans([]);
-    setBankAccounts([]);
     setMonthlyBalances([]);
+    setMonthlyTarget(loadMonthlyTarget());
+    setPaymentMethods(loadPaymentMethods());
+    setSelectedMonth(getCurrentMonthKey());
     setIsDemoMode(false);
     setHasOnboarded(true);
     showToast('Clean slate ready! Add your first account or transaction.');
   };
 
-  const handleClearDemoAndStartFresh = () => {
+  const handleClearDemoAndStartFresh = async () => {
     if (confirm('Clear demo data and start fresh? This will delete all sample records and create a clean database for your personal use.')) {
-      clearAllData();
+      try { await clearAllData(); } catch (error) {
+        console.error(error);
+        showToast('Could not clear the local database.');
+        return;
+      }
       setTransactions([]);
       setCreditCards([]);
       setRecurringPayments([]);
       setInvestments([]);
       setLoans([]);
-      setBankAccounts([]);
       setMonthlyBalances([]);
+      setMonthlyTarget(loadMonthlyTarget());
+      setPaymentMethods(loadPaymentMethods());
+      setSelectedMonth(getCurrentMonthKey());
       setIsDemoMode(false);
       showToast('Demo data cleared! Your private database is ready.');
     }
   };
 
-  const handleLoadDemoData = () => {
-    const data = loadDemoDataset();
+  const handleLoadDemoData = async () => {
+    let data;
+    try { data = await loadDemoDataset(); } catch (error) {
+      console.error(error);
+      showToast('Could not load demo data into local storage.');
+      return;
+    }
     setTransactions(data.transactions);
     setCreditCards(data.creditCards);
     setRecurringPayments(data.recurringPayments);
     setMonthlyTarget(data.monthlyTarget);
     setInvestments(data.investments);
     setLoans(data.loans);
-    setBankAccounts(data.bankAccounts);
     setMonthlyBalances(data.monthlyBalances);
     setIsDemoMode(true);
     showToast('Sample demo data loaded successfully!');
   };
 
   // Permanently delete all personal data
-  const handleDeleteAllPersonalData = () => {
-    clearAllData();
+  const handleDeleteAllPersonalData = async () => {
+    try { await clearAllData(); } catch (error) {
+      console.error(error);
+      showToast('Could not clear the local database.');
+      return;
+    }
     setTransactions([]);
     setCreditCards([]);
     setRecurringPayments([]);
     setMonthlyBalances([]);
     setInvestments([]);
     setLoans([]);
-    setBankAccounts([]);
+    setMonthlyTarget(loadMonthlyTarget());
+    setPaymentMethods(loadPaymentMethods());
+    setSelectedMonth(getCurrentMonthKey());
     setIsDemoMode(false);
     showToast('All data has been permanently cleared from this device');
   };
 
   return (
-    <div className="min-h-screen bg-[#FFF8F3] dark:bg-[#202322] text-slate-800 dark:text-[#F4F6F5] flex flex-col justify-between selection:bg-[#FED7B8] selection:text-[#202322] dark:selection:bg-[#EF6448]/30 dark:selection:text-[#EF6448] font-sans antialiased transition-colors duration-200">
+    <div className="min-h-screen bg-[#FFF8F3] dark:bg-[#17191C] text-slate-800 dark:text-[#F2F3F5] flex flex-col justify-between selection:bg-[#FED7B8] selection:text-[#202322] dark:selection:bg-[#EF6448]/30 dark:selection:text-[#EF6448] font-sans antialiased transition-colors duration-200">
       {/* Toast Notification */}
       {toastMessage && (
         <div
-          className="fixed left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-2xl bg-[#EF6448] text-white text-xs font-semibold shadow-xl border border-[#FED7B8] dark:border-[#363C3A] backdrop-blur-md animate-bounce"
+          className="fixed left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-2xl bg-[#EF6448] text-white text-xs font-semibold shadow-xl border border-[#FED7B8] dark:border-[#363B44] backdrop-blur-md animate-bounce"
           style={{
             top: 'calc(var(--app-safe-top, 0px) + 4.5rem)',
           }}
@@ -492,7 +537,7 @@ export const App: React.FC = () => {
       )}
 
       {/* Phone Frame Toggle on Desktop */}
-      <div className="hidden lg:flex fixed right-4 bottom-4 z-40 items-center space-x-2 bg-white/90 dark:bg-[#272B2A] border border-[#FED7B8] dark:border-[#363C3A] rounded-2xl p-1.5 shadow-xl">
+      <div className="hidden lg:flex fixed right-4 bottom-4 z-40 items-center space-x-2 bg-white/90 dark:bg-[#22252A] border border-[#FED7B8] dark:border-[#363B44] rounded-2xl p-1.5 shadow-xl">
         <button
           onClick={() => setIsPhoneFrame(false)}
           className={`p-2 rounded-xl text-xs font-medium flex items-center gap-1.5 transition-colors ${
@@ -519,7 +564,7 @@ export const App: React.FC = () => {
       <div
         className={`w-full mx-auto transition-all duration-300 flex-1 flex flex-col ${
           isPhoneFrame
-            ? 'max-w-md my-6 rounded-[40px] border-8 border-[#FED7B8] dark:border-[#363C3A] shadow-2xl overflow-hidden bg-[#FFF8F3] dark:bg-[#202322] relative min-h-[820px]'
+            ? 'max-w-md my-6 rounded-[40px] border-8 border-[#FED7B8] dark:border-[#363B44] shadow-2xl overflow-hidden bg-[#FFF8F3] dark:bg-[#17191C] relative min-h-[820px]'
             : 'max-w-2xl'
         }`}
       >
@@ -530,7 +575,6 @@ export const App: React.FC = () => {
           onSelectMonth={setSelectedMonth}
           onOpenSettings={() => setIsSettingsOpen(true)}
           onOpenHelp={() => setIsHelpOpen(true)}
-          totalTransactionsCount={transactions.length}
           theme={theme}
           onToggleTheme={toggleTheme}
           onTapCoffee={handleTapCoffee}
@@ -546,7 +590,7 @@ export const App: React.FC = () => {
 
         {/* Demo Mode Notice Banner */}
         {isDemoMode && (
-          <div className="bg-gradient-to-r from-[#FDF4E7] via-[#FFF8F3] to-[#FDF4E7] dark:from-[#272B2A] dark:via-[#202322] dark:to-[#272B2A] border-b border-[#FED7B8] dark:border-[#363C3A] px-4 py-2 flex items-center justify-between gap-2.5 text-xs animate-fadeIn">
+          <div className="bg-gradient-to-r from-[#FDF4E7] via-[#FFF8F3] to-[#FDF4E7] dark:from-[#272B2A] dark:via-[#202328] dark:to-[#272B2A] border-b border-[#FED7B8] dark:border-[#363B44] px-4 py-2 flex items-center justify-between gap-2.5 text-xs animate-fadeIn">
             <div className="flex items-center space-x-2 truncate">
               <span className="text-sm">☕</span>
               <span className="font-bold text-[#EF6448]">Demo Mode:</span>
@@ -568,13 +612,13 @@ export const App: React.FC = () => {
           className="flex-1 px-4 pt-4"
           style={{ paddingBottom: 'calc(var(--app-safe-bottom, 0px) + 7rem)' }}
         >
+          <React.Suspense fallback={<div className="py-10 text-center text-sm text-slate-500">Loading view…</div>}>
           {activeTab === 'dashboard' && (
             <DashboardView
               transactions={transactions}
               monthlyTarget={monthlyTarget}
               recurringPayments={recurringPayments}
               creditCards={creditCards}
-              bankAccounts={bankAccounts}
               monthlyBalances={monthlyBalances}
               selectedMonth={selectedMonth}
               onNavigateToTransactions={() => setActiveTab('expenses')}
@@ -673,6 +717,7 @@ export const App: React.FC = () => {
               initialSubTab="loans"
             />
           )}
+          </React.Suspense>
         </main>
 
         {/* Bottom Navigation */}
@@ -708,7 +753,7 @@ export const App: React.FC = () => {
         paymentMethods={paymentMethods}
       />
 
-      <SettingsModal
+      {isSettingsOpen && <React.Suspense fallback={null}><SettingsModal
         isOpen={isSettingsOpen}
         onClose={() => setIsSettingsOpen(false)}
         monthlyTarget={monthlyTarget}
@@ -718,6 +763,7 @@ export const App: React.FC = () => {
         paymentMethods={paymentMethods}
         onUpdatePaymentMethods={handleUpdatePaymentMethods}
         onImportJSON={handleImportJSON}
+        onOpenArchiveImport={handleOpenArchiveImport}
         onResetData={handleDeleteAllPersonalData}
         isDemoMode={isDemoMode}
         onLoadDemoData={handleLoadDemoData}
@@ -729,16 +775,26 @@ export const App: React.FC = () => {
         onOpenDiagnostics={() => setIsDiagnosticsModalOpen(true)}
         appScale={appScale}
         onUpdateAppScale={handleUpdateAppScale}
-      />
+      /></React.Suspense>}
+
+      {archivePreview && (
+        <React.Suspense fallback={null}>
+          <ArchiveViewerModal
+            transactions={archivePreview}
+            existingTransactions={transactions}
+            onClose={() => setArchivePreview(null)}
+            onRestore={handleRestoreArchive}
+          />
+        </React.Suspense>
+      )}
 
       {/* System Diagnostics & 1-Year Retention Center Modal */}
-      <DiagnosticsModal
+      {isDiagnosticsModalOpen && <React.Suspense fallback={null}><DiagnosticsModal
         isOpen={isDiagnosticsModalOpen}
         onClose={() => setIsDiagnosticsModalOpen(false)}
         onToggleDiagnostics={handleToggleDiagnostics}
         isDiagnosticsActive={isDiagnosticsActive}
-        onDataPruned={handleDataPruned}
-      />
+      /></React.Suspense>}
 
       {/* Monthly Balance Prompt / Manual Edit Modal */}
       <MonthlyBalancePromptModal
@@ -751,18 +807,18 @@ export const App: React.FC = () => {
         onDisablePrompts={() => handleToggleBalancePrompts(false)}
       />
 
-      <PageHelpModal
+      {isHelpOpen && <React.Suspense fallback={null}><PageHelpModal
         tab={activeTab}
         isOpen={isHelpOpen}
         onClose={() => setIsHelpOpen(false)}
-      />
+      /></React.Suspense>}
 
       {/* First-time Welcome & Onboarding Modal */}
-      <OnboardingModal
+      {!hasOnboarded && <React.Suspense fallback={null}><OnboardingModal
         isOpen={!hasOnboarded}
         onSelectDemo={handleSelectDemo}
         onSelectFresh={handleSelectFresh}
-      />
+      /></React.Suspense>}
     </div>
   );
 };

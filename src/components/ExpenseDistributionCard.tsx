@@ -66,8 +66,12 @@ export const ExpenseDistributionCard: React.FC<Props> = ({
   const { daysElapsed } = useMemo(() => {
     const today = new Date();
     if (selectedMonth === 'All') {
-      const dates = new Set(transactions.filter((t) => t.type === 'Expense').map((t) => t.date));
-      return { daysElapsed: Math.max(1, dates.size) };
+      const dates = transactions.filter((t) => t.type === 'Expense' && t.date).map((t) => t.date).sort();
+      if (dates.length === 0) return { daysElapsed: 1 };
+      const [year, month, day] = dates[0].split('-').map(Number);
+      const firstExpense = new Date(year, month - 1, day);
+      const elapsed = Math.floor((new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime() - firstExpense.getTime()) / 86_400_000) + 1;
+      return { daysElapsed: Math.max(1, elapsed) };
     }
     const [y, m] = selectedMonth.split('-').map(Number);
     const totalDays = new Date(y, m, 0).getDate();
@@ -175,17 +179,17 @@ export const ExpenseDistributionCard: React.FC<Props> = ({
 
   return (
     <div
-      className={`p-4 sm:p-5 rounded-3xl bg-white dark:bg-[#272B2A] border border-[#FED7B8] dark:border-[#363C3A] shadow-sm space-y-4 transition-colors ${className}`}
+      className={`p-4 sm:p-5 rounded-3xl bg-white dark:bg-[#22252A] border border-[#FED7B8] dark:border-[#363B44] shadow-sm space-y-4 transition-colors ${className}`}
     >
       {/* Top Header: Title, Subtitle, and Optional "View All" link */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
         <div className="flex items-center space-x-2.5">
-          <div className="w-8 h-8 rounded-2xl bg-[#59171B] dark:bg-[#EF6448] text-white flex items-center justify-center shadow-sm shrink-0">
+          <div className="w-8 h-8 rounded-2xl bg-[#59171B] dark:bg-[#B84E3B] text-white flex items-center justify-center shadow-sm shrink-0">
             <PieChart className="w-4 h-4 stroke-[2.5]" />
           </div>
           <div>
             <div className="flex items-center space-x-2">
-              <h3 className="text-xs sm:text-sm font-black text-slate-900 dark:text-[#F4F6F5] tracking-tight">
+              <h3 className="text-xs sm:text-sm font-black text-slate-900 dark:text-[#F2F3F5] tracking-tight">
                 {title}
               </h3>
               {filterMode === 'monthly' && (
@@ -204,7 +208,7 @@ export const ExpenseDistributionCard: React.FC<Props> = ({
                 </span>
               )}
             </div>
-            <p className="text-[10px] text-slate-500 dark:text-[#A0A8A5]">
+            <p className="text-[10px] text-slate-500 dark:text-[#A5ACB7]">
               {subtitle ||
                 (filterMode === 'monthly'
                   ? 'Monthly totals & distribution'
@@ -218,7 +222,7 @@ export const ExpenseDistributionCard: React.FC<Props> = ({
         {onNavigateToExpenses && (
           <button
             onClick={onNavigateToExpenses}
-            className="self-start sm:self-auto text-xs font-bold text-[#59171B] dark:text-[#EF6448] hover:underline flex items-center gap-1 active:scale-95 transition-transform"
+            className="self-start sm:self-auto text-xs font-bold text-[#59171B] dark:text-[#FF927A] hover:underline flex items-center gap-1 active:scale-95 transition-transform"
           >
             <span>Expenses Tab</span>
             <ArrowRight className="w-3.5 h-3.5" />
@@ -227,16 +231,16 @@ export const ExpenseDistributionCard: React.FC<Props> = ({
       </div>
 
       {/* Primary Filter Tabs: Monthly vs Day-wise vs Specific Date */}
-      <div className="flex flex-wrap items-center justify-between gap-2 border-y border-[#FED7B8]/40 dark:border-[#363C3A] py-2.5">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-y border-[#FED7B8]/40 dark:border-[#363B44] py-2.5">
         {/* Time Filters */}
-        <div className="flex bg-[#FFF8F3] dark:bg-[#1C1F1E] p-1 rounded-xl border border-[#FED7B8] dark:border-[#363C3A] text-[10px] font-bold">
+        <div className="flex bg-[#FFF8F3] dark:bg-[#1B1E22] p-1 rounded-xl border border-[#FED7B8] dark:border-[#363B44] text-[10px] font-bold">
           <button
             type="button"
             onClick={() => setFilterMode('monthly')}
             className={`px-2.5 py-1 rounded-lg transition-all flex items-center gap-1 cursor-pointer ${
               filterMode === 'monthly'
-                ? 'bg-[#59171B] text-[#FED7B8] dark:bg-[#EF6448] dark:text-white shadow-sm'
-                : 'text-slate-600 dark:text-[#A0A8A5] hover:text-slate-900 dark:hover:text-white'
+                ? 'bg-[#59171B] text-[#FED7B8] dark:bg-[#B84E3B] dark:text-white shadow-sm'
+                : 'text-slate-600 dark:text-[#A5ACB7] hover:text-slate-900 dark:hover:text-white'
             }`}
           >
             <Calendar className="w-3 h-3" />
@@ -248,8 +252,8 @@ export const ExpenseDistributionCard: React.FC<Props> = ({
             onClick={() => setFilterMode('day_wise')}
             className={`px-2.5 py-1 rounded-lg transition-all flex items-center gap-1 cursor-pointer ${
               filterMode === 'day_wise'
-                ? 'bg-[#59171B] text-[#FED7B8] dark:bg-[#EF6448] dark:text-white shadow-sm'
-                : 'text-slate-600 dark:text-[#A0A8A5] hover:text-slate-900 dark:hover:text-white'
+                ? 'bg-[#59171B] text-[#FED7B8] dark:bg-[#B84E3B] dark:text-white shadow-sm'
+                : 'text-slate-600 dark:text-[#A5ACB7] hover:text-slate-900 dark:hover:text-white'
             }`}
           >
             <Zap className="w-3 h-3" />
@@ -261,8 +265,8 @@ export const ExpenseDistributionCard: React.FC<Props> = ({
             onClick={() => setFilterMode('specific_date')}
             className={`px-2.5 py-1 rounded-lg transition-all flex items-center gap-1 cursor-pointer ${
               filterMode === 'specific_date'
-                ? 'bg-[#59171B] text-[#FED7B8] dark:bg-[#EF6448] dark:text-white shadow-sm'
-                : 'text-slate-600 dark:text-[#A0A8A5] hover:text-slate-900 dark:hover:text-white'
+                ? 'bg-[#59171B] text-[#FED7B8] dark:bg-[#B84E3B] dark:text-white shadow-sm'
+                : 'text-slate-600 dark:text-[#A5ACB7] hover:text-slate-900 dark:hover:text-white'
             }`}
           >
             <CalendarDays className="w-3 h-3" />
@@ -271,14 +275,14 @@ export const ExpenseDistributionCard: React.FC<Props> = ({
         </div>
 
         {/* View Toggle: By Category vs By Method */}
-        <div className="flex bg-[#FFF8F3] dark:bg-[#1C1F1E] p-1 rounded-xl border border-[#FED7B8] dark:border-[#363C3A] text-[10px] font-bold">
+        <div className="flex bg-[#FFF8F3] dark:bg-[#1B1E22] p-1 rounded-xl border border-[#FED7B8] dark:border-[#363B44] text-[10px] font-bold">
           <button
             type="button"
             onClick={() => setChartMode('category')}
             className={`px-2 py-1 rounded-lg transition-all flex items-center gap-1 cursor-pointer ${
               chartMode === 'category'
-                ? 'bg-[#59171B] text-[#FED7B8] dark:bg-[#EF6448] dark:text-white shadow-sm'
-                : 'text-slate-600 dark:text-[#A0A8A5] hover:text-slate-900 dark:hover:text-white'
+                ? 'bg-[#59171B] text-[#FED7B8] dark:bg-[#B84E3B] dark:text-white shadow-sm'
+                : 'text-slate-600 dark:text-[#A5ACB7] hover:text-slate-900 dark:hover:text-white'
             }`}
           >
             <Tag className="w-3 h-3" />
@@ -289,8 +293,8 @@ export const ExpenseDistributionCard: React.FC<Props> = ({
             onClick={() => setChartMode('method')}
             className={`px-2 py-1 rounded-lg transition-all flex items-center gap-1 cursor-pointer ${
               chartMode === 'method'
-                ? 'bg-[#59171B] text-[#FED7B8] dark:bg-[#EF6448] dark:text-white shadow-sm'
-                : 'text-slate-600 dark:text-[#A0A8A5] hover:text-slate-900 dark:hover:text-white'
+                ? 'bg-[#59171B] text-[#FED7B8] dark:bg-[#B84E3B] dark:text-white shadow-sm'
+                : 'text-slate-600 dark:text-[#A5ACB7] hover:text-slate-900 dark:hover:text-white'
             }`}
           >
             <CreditCard className="w-3 h-3" />
@@ -301,12 +305,12 @@ export const ExpenseDistributionCard: React.FC<Props> = ({
 
       {/* Specific Date Picker Toolbar (visible when 'specific_date' is active) */}
       {filterMode === 'specific_date' && (
-        <div className="p-3 rounded-2xl bg-slate-50 dark:bg-[#1C1F1E] border border-[#FED7B8] dark:border-[#363C3A] flex flex-wrap items-center justify-between gap-2 text-xs animate-fadeIn">
+        <div className="p-3 rounded-2xl bg-slate-50 dark:bg-[#1B1E22] border border-[#FED7B8] dark:border-[#363B44] flex flex-wrap items-center justify-between gap-2 text-xs animate-fadeIn">
           <div className="flex items-center space-x-1.5">
             <button
               type="button"
               onClick={() => handleShiftDate(-1)}
-              className="p-1.5 rounded-xl bg-white dark:bg-[#272B2A] border border-[#FED7B8] dark:border-[#363C3A] hover:bg-slate-100 dark:hover:bg-[#323836] text-slate-700 dark:text-white transition-colors"
+              className="p-1.5 rounded-xl bg-white dark:bg-[#22252A] border border-[#FED7B8] dark:border-[#363B44] hover:bg-slate-100 dark:hover:bg-[#2B3037] text-slate-700 dark:text-white transition-colors"
               title="Previous Day"
             >
               <ChevronLeft className="w-3.5 h-3.5" />
@@ -316,13 +320,13 @@ export const ExpenseDistributionCard: React.FC<Props> = ({
               type="date"
               value={specificDate}
               onChange={(e) => setSpecificDate(e.target.value)}
-              className="bg-white dark:bg-[#272B2A] border border-[#FED7B8] dark:border-[#363C3A] rounded-xl px-2.5 py-1 text-xs font-semibold text-slate-900 dark:text-white focus:outline-none cursor-pointer"
+              className="bg-white dark:bg-[#22252A] border border-[#FED7B8] dark:border-[#363B44] rounded-xl px-2.5 py-1 text-xs font-semibold text-slate-900 dark:text-white focus:outline-none cursor-pointer"
             />
 
             <button
               type="button"
               onClick={() => handleShiftDate(1)}
-              className="p-1.5 rounded-xl bg-white dark:bg-[#272B2A] border border-[#FED7B8] dark:border-[#363C3A] hover:bg-slate-100 dark:hover:bg-[#323836] text-slate-700 dark:text-white transition-colors"
+              className="p-1.5 rounded-xl bg-white dark:bg-[#22252A] border border-[#FED7B8] dark:border-[#363B44] hover:bg-slate-100 dark:hover:bg-[#2B3037] text-slate-700 dark:text-white transition-colors"
               title="Next Day"
             >
               <ChevronRight className="w-3.5 h-3.5" />
@@ -331,7 +335,7 @@ export const ExpenseDistributionCard: React.FC<Props> = ({
             <button
               type="button"
               onClick={handleSetToday}
-              className="px-2 py-1 rounded-xl bg-[#FFF8F3] dark:bg-[#272B2A] text-[#59171B] dark:text-[#EF6448] border border-[#FED7B8] dark:border-[#363C3A] text-[10px] font-bold hover:bg-[#FED7B8]/40 transition-colors"
+              className="px-2 py-1 rounded-xl bg-[#FFF8F3] dark:bg-[#22252A] text-[#59171B] dark:text-[#FF927A] border border-[#FED7B8] dark:border-[#363B44] text-[10px] font-bold hover:bg-[#FED7B8]/40 transition-colors"
             >
               Today
             </button>
@@ -339,7 +343,7 @@ export const ExpenseDistributionCard: React.FC<Props> = ({
 
           <div className="text-[11px] font-semibold text-slate-600 dark:text-slate-300">
             {formatDateLabel(specificDate)} •{' '}
-            <span className="font-bold text-[#59171B] dark:text-[#EF6448]">
+            <span className="font-bold text-[#59171B] dark:text-[#FF927A]">
               {formatINR(totalExpenseAmount)}
             </span>
           </div>
@@ -348,7 +352,7 @@ export const ExpenseDistributionCard: React.FC<Props> = ({
 
       {/* Content Area: Chart & Breakdown or Empty State */}
       {activeExpenses.length === 0 ? (
-        <div className="text-center py-8 px-4 rounded-2xl bg-slate-50/60 dark:bg-[#1C1F1E]/60 border border-dashed border-[#FED7B8] dark:border-[#363C3A] text-slate-400 dark:text-slate-500 text-xs space-y-1.5">
+        <div className="text-center py-8 px-4 rounded-2xl bg-slate-50/60 dark:bg-[#1B1E22]/60 border border-dashed border-[#FED7B8] dark:border-[#363B44] text-slate-400 dark:text-slate-500 text-xs space-y-1.5">
           <Sparkles className="w-5 h-5 mx-auto text-slate-400/70" />
           <p className="font-semibold text-slate-600 dark:text-slate-400">
             {filterMode === 'specific_date'
@@ -396,10 +400,10 @@ export const ExpenseDistributionCard: React.FC<Props> = ({
 
               {/* Center Metrics Pill */}
               <div className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none px-2">
-                <span className="text-[9px] font-bold text-slate-400 dark:text-[#A0A8A5] uppercase tracking-wider">
+                <span className="text-[9px] font-bold text-slate-400 dark:text-[#A5ACB7] uppercase tracking-wider">
                   {filterMode === 'day_wise' ? 'Daily Avg' : 'Total'}
                 </span>
-                <span className="text-sm font-black text-[#59171B] dark:text-[#EF6448] tracking-tight">
+                <span className="text-sm font-black text-[#59171B] dark:text-[#FF927A] tracking-tight">
                   {filterMode === 'day_wise'
                     ? formatINR(Math.round(totalExpenseAmount / daysElapsed))
                     : formatINR(totalExpenseAmount)}
@@ -437,7 +441,7 @@ export const ExpenseDistributionCard: React.FC<Props> = ({
           </div>
 
           {/* Itemized Breakdown Bars */}
-          <div className="space-y-2.5 pt-2 border-t border-[#FED7B8]/40 dark:border-[#363C3A]">
+          <div className="space-y-2.5 pt-2 border-t border-[#FED7B8]/40 dark:border-[#363B44]">
             <div className="flex items-center justify-between text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               <span>{chartMode === 'category' ? 'Category' : 'Payment Method'}</span>
               <span>
@@ -451,7 +455,7 @@ export const ExpenseDistributionCard: React.FC<Props> = ({
                 return (
                   <div
                     key={item.name}
-                    className="p-2.5 rounded-2xl bg-slate-50/70 dark:bg-[#1C1F1E] border border-[#FED7B8]/50 dark:border-[#363C3A] space-y-1.5 transition-all hover:border-[#59171B]/40 dark:hover:border-[#EF6448]/40"
+                    className="p-2.5 rounded-2xl bg-slate-50/70 dark:bg-[#1B1E22] border border-[#FED7B8]/50 dark:border-[#363B44] space-y-1.5 transition-all hover:border-[#59171B]/40 dark:hover:border-[#EF6448]/40"
                   >
                     <div className="flex items-center justify-between text-xs">
                       <div className="flex items-center space-x-2.5 truncate">
@@ -469,10 +473,10 @@ export const ExpenseDistributionCard: React.FC<Props> = ({
                           />
                         )}
                         <div className="truncate">
-                          <span className="font-bold text-slate-800 dark:text-[#F4F6F5] truncate block">
+                          <span className="font-bold text-slate-800 dark:text-[#F2F3F5] truncate block">
                             {item.name}
                           </span>
-                          <span className="text-[10px] text-slate-400 dark:text-[#A0A8A5]">
+                          <span className="text-[10px] text-slate-400 dark:text-[#A5ACB7]">
                             {item.count} {item.count === 1 ? 'transaction' : 'transactions'}
                           </span>
                         </div>
@@ -483,12 +487,12 @@ export const ExpenseDistributionCard: React.FC<Props> = ({
                           <span className="font-black text-slate-900 dark:text-white">
                             {formatINR(item.amount)}
                           </span>
-                          <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-slate-200 dark:bg-[#272B2A] text-slate-700 dark:text-[#EF6448]">
+                          <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-slate-200 dark:bg-[#22252A] text-slate-700 dark:text-[#FF927A]">
                             {item.percent.toFixed(1)}%
                           </span>
                         </div>
                         {filterMode === 'day_wise' && (
-                          <div className="text-[10px] font-bold text-[#59171B] dark:text-[#EF6448]">
+                          <div className="text-[10px] font-bold text-[#59171B] dark:text-[#FF927A]">
                             ~{formatINR(item.avgDaily)}/day
                           </div>
                         )}
@@ -496,7 +500,7 @@ export const ExpenseDistributionCard: React.FC<Props> = ({
                     </div>
 
                     {/* Progress Bar */}
-                    <div className="w-full h-1.5 bg-slate-200 dark:bg-[#272B2A] rounded-full overflow-hidden">
+                    <div className="w-full h-1.5 bg-slate-200 dark:bg-[#22252A] rounded-full overflow-hidden">
                       <div
                         className="h-full rounded-full transition-all duration-300"
                         style={{
@@ -513,7 +517,7 @@ export const ExpenseDistributionCard: React.FC<Props> = ({
 
           {/* Specific Date: List of transactions on that date */}
           {filterMode === 'specific_date' && activeExpenses.length > 0 && (
-            <div className="pt-2 border-t border-[#FED7B8]/40 dark:border-[#363C3A] space-y-2">
+            <div className="pt-2 border-t border-[#FED7B8]/40 dark:border-[#363B44] space-y-2">
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
                 Transactions on {formatDateLabel(specificDate)} ({activeExpenses.length})
               </span>
@@ -524,7 +528,7 @@ export const ExpenseDistributionCard: React.FC<Props> = ({
                     <div
                       key={t.id}
                       onClick={() => onEditTransaction?.(t)}
-                      className={`p-2.5 rounded-xl bg-white dark:bg-[#272B2A] border border-[#FED7B8]/60 dark:border-[#363C3A] flex items-center justify-between gap-2 transition-all ${
+                      className={`p-2.5 rounded-xl bg-white dark:bg-[#22252A] border border-[#FED7B8]/60 dark:border-[#363B44] flex items-center justify-between gap-2 transition-all ${
                         onEditTransaction ? 'cursor-pointer hover:border-[#59171B] dark:hover:border-[#EF6448]' : ''
                       }`}
                     >
@@ -544,7 +548,7 @@ export const ExpenseDistributionCard: React.FC<Props> = ({
                           </span>
                         </div>
                       </div>
-                      <span className="text-xs font-black text-[#59171B] dark:text-[#EF6448] shrink-0">
+                      <span className="text-xs font-black text-[#59171B] dark:text-[#FF927A] shrink-0">
                         {formatINR(t.amount)}
                       </span>
                     </div>

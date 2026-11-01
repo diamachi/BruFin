@@ -11,23 +11,20 @@ import {
 import { generateSampleData, DEFAULT_MONTHLY_TARGET } from '../data/dummyData';
 import { DEFAULT_BASE_PAYMENT_MODES } from './categories';
 import { getTodayDateString, getCurrentTimestampString } from './dateUtils';
+import {
+  getLocalDatabaseData,
+  initializeLocalDatabase,
+  replaceLocalDatabaseData,
+  saveLocalDatabaseSections,
+} from './localDatabase';
+import type { LocalDatabaseUpdates } from './localDatabase';
 
 const STORAGE_KEYS = {
-  TRANSACTIONS: 'brufin_transactions_v2',
-  CARDS: 'brufin_cards_v2',
-  RECURRING: 'brufin_recurring_v2',
-  TARGET: 'brufin_target_v2',
-  INVESTMENTS: 'brufin_investments_v2',
-  LOANS: 'brufin_loans_v2',
-  ACCOUNTS: 'brufin_accounts_v2',
-  BALANCES: 'brufin_balances_v2',
-  PAYMENT_METHODS: 'brufin_payment_methods_v2',
   IS_DEMO_MODE: 'brufin_is_demo_mode_v2',
   HAS_ONBOARDED: 'brufin_has_onboarded_v2',
   BALANCE_PROMPTS_ENABLED: 'brufin_balance_prompts_enabled_v2',
   DISMISSED_PROMPTS: 'brufin_dismissed_balance_prompts_v2',
   SHOW_DIAGNOSTICS: 'brufin_show_diagnostics_v2',
-  AUTO_ARCHIVE_ENABLED: 'brufin_auto_archive_enabled_v2',
   ARCHIVE_HISTORY: 'brufin_archive_history_v2',
   APP_SCALE: 'brufin_app_scale_v2',
 };
@@ -39,6 +36,12 @@ export const APP_SCALE_PRESETS = [
   { value: 1.2, label: '120%', name: 'Large' },
   { value: 1.3, label: '130%', name: 'Extra Large' },
 ];
+
+export { initializeLocalDatabase };
+
+export function saveDatabaseSections(updates: LocalDatabaseUpdates): Promise<void> {
+  return saveLocalDatabaseSections(updates);
+}
 
 export function loadAppScale(): number {
   try {
@@ -80,23 +83,6 @@ export function setDiagnosticsEnabled(enabled: boolean): void {
   }
 }
 
-export function isAutoArchiveEnabled(): boolean {
-  try {
-    const val = localStorage.getItem(STORAGE_KEYS.AUTO_ARCHIVE_ENABLED);
-    return val === 'true';
-  } catch {
-    return false;
-  }
-}
-
-export function setAutoArchiveEnabled(enabled: boolean): void {
-  try {
-    localStorage.setItem(STORAGE_KEYS.AUTO_ARCHIVE_ENABLED, enabled ? 'true' : 'false');
-  } catch (e) {
-    console.error('Error saving auto archive preference', e);
-  }
-}
-
 export interface ArchiveRecord {
   id: string;
   archivedAt: string;
@@ -114,15 +100,6 @@ export function getArchiveHistory(): ArchiveRecord[] {
     return raw ? JSON.parse(raw) : [];
   } catch {
     return [];
-  }
-}
-
-export function saveArchiveRecord(record: ArchiveRecord): void {
-  try {
-    const current = getArchiveHistory();
-    localStorage.setItem(STORAGE_KEYS.ARCHIVE_HISTORY, JSON.stringify([record, ...current]));
-  } catch (e) {
-    console.error('Error saving archive record', e);
   }
 }
 
@@ -199,178 +176,75 @@ export function setDemoModeActive(value: boolean): void {
 
 // Data loaders - strictly defaulting to empty arrays for clean, private defaults
 export function loadTransactions(): Transaction[] {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEYS.TRANSACTIONS);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch (e) {
-    console.error('Error loading transactions', e);
-    return [];
-  }
+  return getLocalDatabaseData().transactions;
 }
 
-export function saveTransactions(transactions: Transaction[]): void {
-  try {
-    localStorage.setItem(STORAGE_KEYS.TRANSACTIONS, JSON.stringify(transactions || []));
-  } catch (e) {
-    console.error('Error saving transactions', e);
-  }
+export function saveTransactions(transactions: Transaction[]): Promise<void> {
+  return saveLocalDatabaseSections({ transactions: transactions || [] });
 }
 
 export function loadCreditCards(): CreditCard[] {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEYS.CARDS);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch (e) {
-    return [];
-  }
+  return getLocalDatabaseData().creditCards;
 }
 
-export function saveCreditCards(cards: CreditCard[]): void {
-  try {
-    localStorage.setItem(STORAGE_KEYS.CARDS, JSON.stringify(cards || []));
-  } catch (e) {
-    console.error('Error saving credit cards', e);
-  }
+export function saveCreditCards(cards: CreditCard[]): Promise<void> {
+  return saveLocalDatabaseSections({ creditCards: cards || [] });
 }
 
 export function loadRecurringPayments(): RecurringPayment[] {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEYS.RECURRING);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch (e) {
-    return [];
-  }
+  return getLocalDatabaseData().recurringPayments;
 }
 
-export function saveRecurringPayments(recurring: RecurringPayment[]): void {
-  try {
-    localStorage.setItem(STORAGE_KEYS.RECURRING, JSON.stringify(recurring || []));
-  } catch (e) {
-    console.error('Error saving recurring payments', e);
-  }
+export function saveRecurringPayments(recurring: RecurringPayment[]): Promise<void> {
+  return saveLocalDatabaseSections({ recurringPayments: recurring || [] });
 }
 
 export function loadMonthlyTarget(): number {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEYS.TARGET);
-    if (!raw) return DEFAULT_MONTHLY_TARGET;
-    const num = parseFloat(raw);
-    return isNaN(num) || num <= 0 ? DEFAULT_MONTHLY_TARGET : num;
-  } catch (e) {
-    return DEFAULT_MONTHLY_TARGET;
-  }
+  return getLocalDatabaseData().monthlyTarget;
 }
 
-export function saveMonthlyTarget(target: number): void {
-  try {
-    localStorage.setItem(STORAGE_KEYS.TARGET, (target || DEFAULT_MONTHLY_TARGET).toString());
-  } catch (e) {
-    console.error('Error saving monthly target', e);
-  }
+export function saveMonthlyTarget(target: number): Promise<void> {
+  return saveLocalDatabaseSections({ monthlyTarget: target || DEFAULT_MONTHLY_TARGET });
 }
 
 export function loadInvestments(): InvestmentItem[] {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEYS.INVESTMENTS);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch (e) {
-    return [];
-  }
+  return getLocalDatabaseData().investments;
 }
 
-export function saveInvestments(investments: InvestmentItem[]): void {
-  try {
-    localStorage.setItem(STORAGE_KEYS.INVESTMENTS, JSON.stringify(investments || []));
-  } catch (e) {
-    console.error('Error saving investments', e);
-  }
+export function saveInvestments(investments: InvestmentItem[]): Promise<void> {
+  return saveLocalDatabaseSections({ investments: investments || [] });
 }
 
 export function loadLoans(): LoanItem[] {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEYS.LOANS);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch (e) {
-    return [];
-  }
+  return getLocalDatabaseData().loans;
 }
 
-export function saveLoans(loans: LoanItem[]): void {
-  try {
-    localStorage.setItem(STORAGE_KEYS.LOANS, JSON.stringify(loans || []));
-  } catch (e) {
-    console.error('Error saving loans', e);
-  }
+export function saveLoans(loans: LoanItem[]): Promise<void> {
+  return saveLocalDatabaseSections({ loans: loans || [] });
 }
 
 export function loadPaymentMethods(): PaymentMethodItem[] {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEYS.PAYMENT_METHODS);
-    if (!raw) {
-      savePaymentMethods(DEFAULT_BASE_PAYMENT_MODES);
-      return DEFAULT_BASE_PAYMENT_MODES;
-    }
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) && parsed.length > 0 ? parsed : DEFAULT_BASE_PAYMENT_MODES;
-  } catch (e) {
-    return DEFAULT_BASE_PAYMENT_MODES;
-  }
+  return getLocalDatabaseData().paymentMethods;
 }
 
-export function savePaymentMethods(methods: PaymentMethodItem[]): void {
-  try {
-    localStorage.setItem(STORAGE_KEYS.PAYMENT_METHODS, JSON.stringify(methods || DEFAULT_BASE_PAYMENT_MODES));
-  } catch (e) {
-    console.error('Error saving payment methods', e);
-  }
+export function savePaymentMethods(methods: PaymentMethodItem[]): Promise<void> {
+  return saveLocalDatabaseSections({ paymentMethods: methods || DEFAULT_BASE_PAYMENT_MODES });
 }
 
 export function loadBankAccounts(): BankAccount[] {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEYS.ACCOUNTS);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch (e) {
-    return [];
-  }
+  return getLocalDatabaseData().bankAccounts;
 }
 
-export function saveBankAccounts(accounts: BankAccount[]): void {
-  try {
-    localStorage.setItem(STORAGE_KEYS.ACCOUNTS, JSON.stringify(accounts || []));
-  } catch (e) {
-    console.error('Error saving bank accounts', e);
-  }
+export function saveBankAccounts(accounts: BankAccount[]): Promise<void> {
+  return saveLocalDatabaseSections({ bankAccounts: accounts || [] });
 }
 
 export function loadMonthlyBalances(): MonthlyAccountBalance[] {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEYS.BALANCES);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch (e) {
-    return [];
-  }
+  return getLocalDatabaseData().monthlyBalances;
 }
 
-export function saveMonthlyBalances(balances: MonthlyAccountBalance[]): void {
-  try {
-    localStorage.setItem(STORAGE_KEYS.BALANCES, JSON.stringify(balances));
-  } catch (e) {
-    console.error('Error saving monthly balances', e);
-  }
+export function saveMonthlyBalances(balances: MonthlyAccountBalance[]): Promise<void> {
+  return saveLocalDatabaseSections({ monthlyBalances: balances });
 }
 
 /**
@@ -410,23 +284,25 @@ export function updateUnifiedMonthlyBalance(
     notes: notes || '',
   };
   const updatedList = [updatedEntry, ...filtered];
-  saveMonthlyBalances(updatedList);
   return updatedList;
 }
 
 /**
  * Loads the complete sample dataset into localStorage and activates demo mode
  */
-export function loadDemoDataset() {
+export async function loadDemoDataset() {
   const sample = generateSampleData();
-  saveTransactions(sample.transactions);
-  saveCreditCards(sample.creditCards);
-  saveRecurringPayments(sample.recurringPayments);
-  saveMonthlyTarget(sample.monthlyTarget);
-  saveInvestments(sample.investments);
-  saveLoans(sample.loans);
-  saveBankAccounts(sample.bankAccounts);
-  saveMonthlyBalances(sample.monthlyBalances);
+  await replaceLocalDatabaseData({
+    transactions: sample.transactions,
+    creditCards: sample.creditCards,
+    recurringPayments: sample.recurringPayments,
+    monthlyTarget: sample.monthlyTarget,
+    investments: sample.investments,
+    loans: sample.loans,
+    bankAccounts: sample.bankAccounts,
+    monthlyBalances: sample.monthlyBalances,
+    paymentMethods: DEFAULT_BASE_PAYMENT_MODES,
+  });
   setDemoModeActive(true);
   setUserOnboarded(true);
   return sample;
@@ -435,16 +311,18 @@ export function loadDemoDataset() {
 /**
  * Permanently wipes all personal/sample data and starts with a pristine database
  */
-export function clearAllData(): void {
-  saveTransactions([]);
-  saveCreditCards([]);
-  saveRecurringPayments([]);
-  saveInvestments([]);
-  saveLoans([]);
-  saveBankAccounts([]);
-  saveMonthlyBalances([]);
-  savePaymentMethods(DEFAULT_BASE_PAYMENT_MODES);
-  saveMonthlyTarget(DEFAULT_MONTHLY_TARGET);
+export async function clearAllData(): Promise<void> {
+  await replaceLocalDatabaseData({
+    transactions: [],
+    creditCards: [],
+    recurringPayments: [],
+    investments: [],
+    loans: [],
+    bankAccounts: [],
+    monthlyBalances: [],
+    paymentMethods: DEFAULT_BASE_PAYMENT_MODES,
+    monthlyTarget: DEFAULT_MONTHLY_TARGET,
+  });
   setDemoModeActive(false);
   setUserOnboarded(true);
 }
@@ -465,21 +343,28 @@ export function getRecurringPaymentStatuses(
   const txList = Array.isArray(transactions) ? transactions : [];
 
   return recList.map((rec) => {
-    if (!rec) return { recurring: rec, isPaid: false };
+    if (!rec) return { recurring: rec, isPaid: false, isActive: false };
     const recNameLower = (rec.name || '').toLowerCase().trim();
 
-    const found = txList.find((t) => {
+    const exactFound = txList.find((t) => {
       if (!t || t.type !== 'Expense') return false;
       const matchMonth = t.date && t.date.startsWith(monthKey);
-      const matchRec =
-        (t.recurringId && t.recurringId === rec.id) ||
-        (recNameLower && (t.description || '').toLowerCase().trim() === recNameLower);
-      return matchMonth && matchRec;
+      return matchMonth && t.recurringId === rec.id;
     });
+    const uniqueLegacyName = recNameLower && recList.filter((item) => item.name.toLowerCase().trim() === recNameLower).length === 1;
+    const found = exactFound || (uniqueLegacyName ? txList.find((t) =>
+      t?.type === 'Expense' && t.date?.startsWith(monthKey) && t.description?.toLowerCase().trim() === recNameLower
+    ) : undefined);
+    const [startYear, startMonthNum] = (rec.startMonth || '').split('-').map(Number);
+    const [targetYear, targetMonthNum] = monthKey.split('-').map(Number);
+    const monthOffset = startYear && targetYear ? (targetYear - startYear) * 12 + targetMonthNum - startMonthNum : 0;
+    const duration = Number(rec.durationMonths) || 0;
+    const isActive = !rec.startMonth || (monthKey >= rec.startMonth && (!duration || monthOffset < duration));
 
     return {
       recurring: rec,
-      isPaid: !!found,
+      isPaid: isActive && !!found,
+      isActive,
       transaction: found,
     };
   });
@@ -493,11 +378,13 @@ export function postRecurringPaymentToExpenses(
   monthKey: string,
   existingTransactions: Transaction[]
 ): Transaction[] {
+  const status = getRecurringPaymentStatuses([rec], existingTransactions, monthKey)[0];
+  if (!status?.isActive || status.isPaid) return existingTransactions;
   const today = getTodayDateString();
   const txDate = today.startsWith(monthKey) ? today : `${monthKey}-01`;
 
   const newTx: Transaction = {
-    id: `tx_rec_${rec.id}_${monthKey}_${Date.now()}`,
+    id: `tx_rec_${rec.id}_${monthKey}`,
     type: 'Expense',
     category: rec.category || 'Subscriptions',
     description: rec.name,
@@ -510,7 +397,6 @@ export function postRecurringPaymentToExpenses(
   };
 
   const updated = [newTx, ...existingTransactions];
-  saveTransactions(updated);
   return updated;
 }
 
@@ -534,9 +420,9 @@ export function exportDatabaseJSON(): void {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `brufin_backup_${new Date().toISOString().split('T')[0]}.json`;
+  a.download = `brufin_backup_${getTodayDateString()}.json`;
   a.click();
-  URL.revokeObjectURL(url);
+  window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
 }
 
 export function exportTransactionsCSV(): void {
@@ -556,7 +442,11 @@ export function exportTransactionsCSV(): void {
   const rows = transactions.map((t) => {
     const expCat = t.type === 'Expense' ? t.category : '';
     const incCat = t.type === 'Income' ? t.category : '';
-    const escape = (val: string) => `"${(val || '').replace(/"/g, '""')}"`;
+    const escape = (value: unknown) => {
+      let val = String(value ?? '');
+      if (/^[\s\u0000-\u001f]*[=+@-]/.test(val)) val = `'${val}`;
+      return `"${val.replace(/"/g, '""')}"`;
+    };
     return [
       escape(t.timestamp || t.date),
       escape(t.type),
@@ -575,9 +465,9 @@ export function exportTransactionsCSV(): void {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `brufin_transactions_${new Date().toISOString().split('T')[0]}.csv`;
+  a.download = `brufin_transactions_${getTodayDateString()}.csv`;
   a.click();
-  URL.revokeObjectURL(url);
+  window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
 }
 
 // -------------------------------------------------------------
@@ -617,63 +507,37 @@ export function formatBytes(bytes: number): string {
   return `${(bytes / Math.pow(k, i)).toFixed(1)} ${sizes[i]}`;
 }
 
-export function getStorageDiagnostics(): StorageDiagnostics {
-  let totalBytes = 0;
-  const breakdown: StorageDiagnostics['breakdown'] = [];
-
-  const keyMeta = [
-    { name: 'Transactions', key: STORAGE_KEYS.TRANSACTIONS, loader: loadTransactions },
-    { name: 'Cards', key: STORAGE_KEYS.CARDS, loader: loadCreditCards },
-    { name: 'Balances', key: STORAGE_KEYS.BALANCES, loader: loadMonthlyBalances },
-    { name: 'Recurring Rules', key: STORAGE_KEYS.RECURRING, loader: loadRecurringPayments },
-    { name: 'Investments', key: STORAGE_KEYS.INVESTMENTS, loader: loadInvestments },
-    { name: 'Loans & Liabilities', key: STORAGE_KEYS.LOANS, loader: loadLoans },
-    { name: 'Payment Methods', key: STORAGE_KEYS.PAYMENT_METHODS, loader: loadPaymentMethods },
+export async function getStorageDiagnostics(): Promise<StorageDiagnostics> {
+  const data = getLocalDatabaseData();
+  const sectionMeta: { name: string; key: keyof typeof data; value: unknown }[] = [
+    { name: 'Transactions', key: 'transactions', value: data.transactions },
+    { name: 'Cards', key: 'creditCards', value: data.creditCards },
+    { name: 'Balances', key: 'monthlyBalances', value: data.monthlyBalances },
+    { name: 'Recurring Rules', key: 'recurringPayments', value: data.recurringPayments },
+    { name: 'Investments', key: 'investments', value: data.investments },
+    { name: 'Loans & Liabilities', key: 'loans', value: data.loans },
+    { name: 'Payment Methods', key: 'paymentMethods', value: data.paymentMethods },
   ];
-
+  const breakdown = sectionMeta.map(({ name, key, value }) => {
+    const bytes = new Blob([JSON.stringify(value)]).size;
+    return { name, key, bytes, formatted: formatBytes(bytes), count: Array.isArray(value) ? value.length : 1 };
+  });
+  const estimatedBytes = breakdown.reduce((sum, item) => sum + item.bytes, 0);
+  let usage = estimatedBytes;
+  let quota = 0;
   try {
-    for (let i = 0; i < localStorage.length; i++) {
-      const k = localStorage.key(i);
-      if (k) {
-        const val = localStorage.getItem(k) || '';
-        // UTF-16 string size in memory: 2 bytes per char
-        totalBytes += (k.length + val.length) * 2;
-      }
-    }
-
-    keyMeta.forEach((meta) => {
-      const raw = localStorage.getItem(meta.key) || '';
-      const sizeBytes = (meta.key.length + raw.length) * 2;
-      let count = 0;
-      try {
-        const loaded = meta.loader();
-        if (Array.isArray(loaded)) count = loaded.length;
-        else if (loaded && typeof loaded === 'object') count = Object.keys(loaded).length;
-      } catch {
-        count = 0;
-      }
-
-      breakdown.push({
-        name: meta.name,
-        key: meta.key,
-        bytes: sizeBytes,
-        formatted: formatBytes(sizeBytes),
-        count,
-      });
-    });
-  } catch (e) {
-    console.error('Error computing storage diagnostics', e);
+    const estimate = await navigator.storage?.estimate();
+    usage = estimate?.usage ?? usage;
+    quota = estimate?.quota ?? 0;
+  } catch {
+    // Quota estimates are not available in every WebView.
   }
-
-  const quotaBytes = 5 * 1024 * 1024; // Standard 5MB WebView quota
-  const percentOfQuota = Math.min(100, (totalBytes / quotaBytes) * 100);
-
   return {
-    totalBytes,
-    totalFormatted: formatBytes(totalBytes),
-    quotaBytes,
-    percentOfQuota,
-    keysCount: localStorage.length,
+    totalBytes: usage,
+    totalFormatted: formatBytes(usage),
+    quotaBytes: quota,
+    percentOfQuota: quota > 0 ? Math.min(100, (usage / quota) * 100) : 0,
+    keysCount: breakdown.length,
     breakdown,
   };
 }
@@ -742,7 +606,7 @@ export function getArchivableData(cutoffMonths = 12): ArchivableInfo {
   const allTx = loadTransactions();
   const cutoff = new Date();
   cutoff.setMonth(cutoff.getMonth() - cutoffMonths);
-  const cutoffStr = cutoff.toISOString().substring(0, 10);
+  const cutoffStr = `${cutoff.getFullYear()}-${String(cutoff.getMonth() + 1).padStart(2, '0')}-${String(cutoff.getDate()).padStart(2, '0')}`;
 
   const older = allTx.filter((t) => t.date && t.date < cutoffStr);
 
@@ -783,7 +647,7 @@ export function getArchivableData(cutoffMonths = 12): ArchivableInfo {
 /**
  * Archives all data older than cutoffMonths (1 year) into a JSON or CSV file,
  * downloads it with an accurate structured filename (e.g. PruFin_Archive_2024-01-01_to_2025-01-01.json),
- * and removes them from the active database to prevent indefinite storage growth.
+ * and keeps them in the active database until the user explicitly deletes them.
  */
 export function archiveAndExportOldData(format: 'json' | 'csv' = 'json', cutoffMonths = 12): {
   success: boolean;
@@ -801,11 +665,11 @@ export function archiveAndExportOldData(format: 'json' | 'csv' = 'json', cutoffM
   }
 
   const { transactions: oldTx, startDate, endDate, totalExpense, totalIncome } = archivable;
-  const fileName = `PruFin_Archive_${startDate}_to_${endDate}.${format}`;
+  const fileName = `BruFin_Archive_${startDate}_to_${endDate}.${format}`;
 
   if (format === 'json') {
     const archivePayload = {
-      archiveTitle: 'PruFin Historical Archive',
+      archiveTitle: 'BruFin Historical Export',
       retentionPolicy: '1 Year Retention',
       exportedAt: new Date().toISOString(),
       dateRange: { start: startDate, end: endDate },
@@ -824,7 +688,7 @@ export function archiveAndExportOldData(format: 'json' | 'csv' = 'json', cutoffM
     a.href = url;
     a.download = fileName;
     a.click();
-    URL.revokeObjectURL(url);
+    window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
   } else {
     const headers = [
       'Timestamp',
@@ -836,7 +700,11 @@ export function archiveAndExportOldData(format: 'json' | 'csv' = 'json', cutoffM
       'Date',
       'Remarks',
     ];
-    const escape = (val: string) => `"${(val || '').replace(/"/g, '""')}"`;
+    const escape = (value: unknown) => {
+      let val = String(value ?? '');
+      if (/^[\s\u0000-\u001f]*[=+@-]/.test(val)) val = `'${val}`;
+      return `"${val.replace(/"/g, '""')}"`;
+    };
     const rows = oldTx.map((t) => [
       escape(t.timestamp || t.date),
       escape(t.type),
@@ -855,31 +723,13 @@ export function archiveAndExportOldData(format: 'json' | 'csv' = 'json', cutoffM
     a.href = url;
     a.download = fileName;
     a.click();
-    URL.revokeObjectURL(url);
+    window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
   }
-
-  // Remove archived transactions from active database
-  const allTx = loadTransactions();
-  const oldIds = new Set(oldTx.map((t) => t.id));
-  const remaining = allTx.filter((t) => !oldIds.has(t.id));
-  saveTransactions(remaining);
-
-  // Log in archive history
-  saveArchiveRecord({
-    id: `arch_${Date.now()}`,
-    archivedAt: new Date().toISOString(),
-    count: oldTx.length,
-    dateRange: `${startDate} to ${endDate}`,
-    fileName,
-    format,
-    totalExpense,
-    totalIncome,
-  });
 
   return {
     success: true,
     count: oldTx.length,
     fileName,
-    message: `Successfully archived ${oldTx.length} records (${startDate} to ${endDate}) to ${fileName}. Active database pruned!`,
+    message: `Exported ${oldTx.length} records (${startDate} to ${endDate}) to ${fileName}. Records remain safely in your active data.`,
   };
 }

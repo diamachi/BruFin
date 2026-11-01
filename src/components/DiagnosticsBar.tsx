@@ -20,7 +20,7 @@ export const DiagnosticsBar: React.FC<Props> = ({ onOpenDetails, onDismiss }) =>
   const [archivable, setArchivable] = useState<ArchivableInfo | null>(null);
 
   const updateMetrics = () => {
-    setStorage(getStorageDiagnostics());
+    void getStorageDiagnostics().then(setStorage).catch((error) => console.error('Could not estimate local database storage', error));
     setMemory(getMemoryDiagnostics());
     setArchivable(getArchivableData(12));
   };
@@ -42,7 +42,7 @@ export const DiagnosticsBar: React.FC<Props> = ({ onOpenDetails, onDismiss }) =>
       : 'bg-emerald-500';
 
   return (
-    <div className="w-full bg-[#59171B] dark:bg-[#181A1A] text-white border-t border-[#FED7B8]/30 dark:border-[#363C3A] px-3 sm:px-4 py-1.5 transition-colors shadow-sm text-[11px] font-mono">
+    <div className="w-full bg-[#59171B] dark:bg-[#181A1A] text-white border-t border-[#FED7B8]/30 dark:border-[#363B44] px-3 sm:px-4 py-1.5 transition-colors shadow-sm text-[11px] font-mono">
       <div className="max-w-4xl mx-auto flex items-center justify-between gap-2">
         {/* Clickable Status Chips */}
         <button
@@ -52,11 +52,11 @@ export const DiagnosticsBar: React.FC<Props> = ({ onOpenDetails, onDismiss }) =>
         >
           {/* Storage Badge */}
           <div className="flex items-center space-x-1 shrink-0">
-            <HardDrive className="w-3.5 h-3.5 text-[#FED7B8] dark:text-[#EF6448]" />
-            <span className="text-[#FED7B8] dark:text-[#F4F6F5] font-semibold">
+            <HardDrive className="w-3.5 h-3.5 text-[#FED7B8] dark:text-[#FF927A]" />
+            <span className="text-[#FED7B8] dark:text-[#F2F3F5] font-semibold">
               {storage.totalFormatted}
             </span>
-            <span className="text-white/60 dark:text-[#A0A8A5] text-[10px]">
+            <span className="text-white/60 dark:text-[#A5ACB7] text-[10px]">
               ({storage.percentOfQuota.toFixed(1)}%)
             </span>
           </div>
@@ -65,14 +65,14 @@ export const DiagnosticsBar: React.FC<Props> = ({ onOpenDetails, onDismiss }) =>
 
           {/* RAM Badge */}
           <div className="flex items-center space-x-1.5 shrink-0">
-            <Cpu className="w-3.5 h-3.5 text-[#FED7B8] dark:text-[#EF6448]" />
+            <Cpu className="w-3.5 h-3.5 text-[#FED7B8] dark:text-[#FF927A]" />
             <span className="relative flex h-2 w-2">
               <span
                 className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${ramStatusColor}`}
               />
               <span className={`relative inline-flex rounded-full h-2 w-2 ${ramStatusColor}`} />
             </span>
-            <span className="text-[#FED7B8] dark:text-[#F4F6F5] font-semibold">
+            <span className="text-[#FED7B8] dark:text-[#F2F3F5] font-semibold">
               RAM: {memory.usedMB}
             </span>
           </div>
@@ -85,7 +85,7 @@ export const DiagnosticsBar: React.FC<Props> = ({ onOpenDetails, onDismiss }) =>
             </div>
           )}
 
-          <ChevronRight className="w-3 h-3 text-white/50 dark:text-[#A0A8A5] ml-auto shrink-0" />
+          <ChevronRight className="w-3 h-3 text-white/50 dark:text-[#A5ACB7] ml-auto shrink-0" />
         </button>
 
         {/* Dismiss / Hide Button */}

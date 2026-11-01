@@ -20,6 +20,10 @@ export function getTodayDateString(): string {
   return `${year}-${month}-${day}`;
 }
 
+export function getCurrentMonthKey(date: Date = new Date()): string {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+}
+
 export function getCurrentTimestampString(): string {
   const d = new Date();
   const dateStr = getTodayDateString();

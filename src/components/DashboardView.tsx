@@ -19,8 +19,8 @@ import {
   Landmark,
   Edit2,
 } from 'lucide-react';
-import { Transaction, RecurringPayment, CreditCard, BankAccount, MonthlyAccountBalance } from '../types';
-import { formatINR, getGreetingMessage, formatDateLabel, formatMonthYear } from '../utils/dateUtils';
+import { Transaction, RecurringPayment, CreditCard, MonthlyAccountBalance } from '../types';
+import { formatINR, getGreetingMessage, formatDateLabel, formatMonthYear, getCurrentMonthKey } from '../utils/dateUtils';
 import { getCategoryMeta } from '../utils/categories';
 import { getRecurringPaymentStatuses, getUnifiedMonthlyBalance } from '../utils/storage';
 import { CategoryIcon } from './CategoryIcon';
@@ -31,7 +31,6 @@ interface Props {
   monthlyTarget: number;
   recurringPayments?: RecurringPayment[];
   creditCards: CreditCard[];
-  bankAccounts?: BankAccount[];
   monthlyBalances?: MonthlyAccountBalance[];
   selectedMonth: string; // YYYY-MM or 'All'
   onNavigateToTransactions: () => void;
@@ -44,7 +43,6 @@ interface Props {
   onOpenAddRecurring?: () => void;
   onPostRecurring?: (rec: RecurringPayment) => void;
   onPostAllDueRecurring?: () => void;
-  onOpenHelp?: () => void;
 }
 
 export const DashboardView: React.FC<Props> = ({
@@ -52,7 +50,6 @@ export const DashboardView: React.FC<Props> = ({
   monthlyTarget,
   recurringPayments = [],
   creditCards,
-  bankAccounts = [],
   monthlyBalances = [],
   selectedMonth,
   onNavigateToTransactions,
@@ -65,25 +62,28 @@ export const DashboardView: React.FC<Props> = ({
   onOpenAddRecurring,
   onPostRecurring,
   onPostAllDueRecurring,
-  onOpenHelp,
 }) => {
   const greeting = getGreetingMessage();
 
   const activeMonthKey = selectedMonth === 'All'
-    ? (transactions[0]?.date ? transactions[0].date.substring(0, 7) : new Date().toISOString().substring(0, 7))
+    ? (transactions[0]?.date ? transactions[0].date.substring(0, 7) : getCurrentMonthKey())
     : selectedMonth;
 
-  const currentMonthTransactions = transactions.filter(
-    (t) => t.date && t.date.startsWith(activeMonthKey)
-  );
-
-  const totalExpense = currentMonthTransactions
-    .filter((t) => t.type === 'Expense')
-    .reduce((sum, t) => sum + t.amount, 0);
-
-  const totalIncome = currentMonthTransactions
-    .filter((t) => t.type === 'Income')
-    .reduce((sum, t) => sum + t.amount, 0);
+  const { totalExpense, totalIncome, ccSpending } = useMemo(() => {
+    let expense = 0;
+    let income = 0;
+    let cardSpend = 0;
+    transactions.forEach((t) => {
+      if (!t.date?.startsWith(activeMonthKey)) return;
+      if (t.type === 'Expense') {
+        expense += t.amount;
+        if ((t.paymentMode || '').toLowerCase().includes('credit card')) cardSpend += t.amount;
+      } else if (t.type === 'Income') {
+        income += t.amount;
+      }
+    });
+    return { totalExpense: expense, totalIncome: income, ccSpending: cardSpend };
+  }, [transactions, activeMonthKey]);
 
   const netSavings = totalIncome - totalExpense;
   const remainingBudget = monthlyTarget - totalExpense;
@@ -91,14 +91,10 @@ export const DashboardView: React.FC<Props> = ({
   const targetSpentPercent = Math.min(100, Math.round((totalExpense / (monthlyTarget || 1)) * 100));
 
   // Credit card spending for the month
-  const ccSpending = currentMonthTransactions
-    .filter((t) => t.type === 'Expense' && t.paymentMode.toLowerCase().includes('credit card'))
-    .reduce((sum, t) => sum + t.amount, 0);
-
   // Recurring payments status for current active month
-  const recurringStatuses = getRecurringPaymentStatuses(recurringPayments, transactions, activeMonthKey);
-  const dueRecurringCount = recurringStatuses.filter((s) => !s.isPaid).length;
-  const recurringTotal = recurringPayments.reduce((sum, r) => sum + r.amount, 0);
+  const recurringStatuses = useMemo(() => getRecurringPaymentStatuses(recurringPayments, transactions, activeMonthKey), [recurringPayments, transactions, activeMonthKey]);
+  const dueRecurringCount = recurringStatuses.filter((s) => s.isActive && !s.isPaid).length;
+  const recurringTotal = recurringStatuses.filter((s) => s.isActive).reduce((sum, s) => sum + s.recurring.amount, 0);
 
   // Unified Bank & Cash Balance for active month (single total balance)
   const unifiedBal = useMemo(() => {
@@ -113,19 +109,19 @@ export const DashboardView: React.FC<Props> = ({
   return (
     <div className="space-y-4 animate-fadeIn">
       {/* 1. Greeting & EOM Banner */}
-      <div className="p-4 sm:p-5 rounded-3xl bg-white dark:bg-[#272B2A] border border-[#FED7B8] dark:border-[#363C3A] shadow-sm flex items-center justify-between gap-3 transition-colors">
+      <div className="p-4 sm:p-5 rounded-3xl bg-white dark:bg-[#22252A] border border-[#FED7B8] dark:border-[#363B44] shadow-sm flex items-center justify-between gap-3 transition-colors">
         <div className="space-y-0.5 min-w-0">
-          <div className="flex items-center space-x-1.5 text-slate-500 dark:text-[#A0A8A5] text-[11px] font-semibold uppercase tracking-wider">
+          <div className="flex items-center space-x-1.5 text-slate-500 dark:text-[#A5ACB7] text-[11px] font-semibold uppercase tracking-wider">
             <Calendar className="w-3.5 h-3.5 shrink-0" />
             <span className="truncate">Monitor • {greeting.dateText}</span>
           </div>
-          <p className="text-slate-900 dark:text-[#F4F6F5] text-sm sm:text-base font-bold truncate">
+          <p className="text-slate-900 dark:text-[#F2F3F5] text-sm sm:text-base font-bold truncate">
             {greeting.daysLeft === 0 ? "Today is month end!" : `${greeting.daysLeft} more days to EOM`}
           </p>
         </div>
         <div className="flex items-center space-x-3 text-right shrink-0">
           <div>
-            <span className="text-[10px] text-slate-400 dark:text-[#A0A8A5] block uppercase font-bold">Target</span>
+            <span className="text-[10px] text-slate-400 dark:text-[#A5ACB7] block uppercase font-bold">Target</span>
             <span className="text-sm sm:text-base font-black text-slate-700 dark:text-slate-200">{formatINR(monthlyTarget)}</span>
           </div>
         </div>
@@ -135,16 +131,16 @@ export const DashboardView: React.FC<Props> = ({
       <div className={`p-5 rounded-3xl border transition-all shadow-sm dark:shadow-xl ${
         isBudgetOvershot
           ? 'bg-rose-50/50 dark:bg-rose-950/20 border-rose-200 dark:border-rose-900/40'
-          : 'bg-white dark:bg-[#272B2A] border-[#FED7B8] dark:border-[#363C3A]'
+          : 'bg-white dark:bg-[#22252A] border-[#FED7B8] dark:border-[#363B44]'
       }`}>
         <div className="flex items-center justify-between mb-3 gap-2 flex-wrap">
-          <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-[#A0A8A5]">
+          <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-[#A5ACB7]">
             Monthly Target Status
           </span>
           <span className={`px-3 py-1 rounded-full text-xs font-bold border flex items-center gap-1.5 shrink-0 ${
             isBudgetOvershot
               ? 'bg-rose-100 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 border-rose-200 dark:border-rose-800/40'
-              : 'bg-[#FDF4E7] dark:bg-[#EF6448]/15 text-[#996520] dark:text-[#EF6448] border-[#F5DEBE] dark:border-[#EF6448]/30'
+              : 'bg-[#FDF4E7] dark:bg-[#B84E3B]/15 text-[#996520] dark:text-[#FF927A] border-[#F5DEBE] dark:border-[#EF6448]/30'
           }`}>
             {isBudgetOvershot ? (
               <>
@@ -163,7 +159,7 @@ export const DashboardView: React.FC<Props> = ({
         {/* Dynamic Status Message */}
         <div className="mb-4">
           <h2 className={`text-2xl sm:text-3xl font-black tracking-tight ${
-            isBudgetOvershot ? 'text-rose-700 dark:text-rose-400' : 'text-[#996520] dark:text-[#EF6448]'
+            isBudgetOvershot ? 'text-rose-700 dark:text-rose-400' : 'text-[#996520] dark:text-[#FF927A]'
           }`}>
             {isBudgetOvershot
               ? `Overshot by ${formatINR(Math.abs(remainingBudget))}`
@@ -188,14 +184,14 @@ export const DashboardView: React.FC<Props> = ({
             </button>
             <span>{targetSpentPercent}%</span>
           </div>
-          <div className="w-full h-2 bg-slate-100 dark:bg-[#1C1F1E] rounded-full overflow-hidden p-0.5 border border-[#FED7B8] dark:border-[#363C3A]">
+          <div className="w-full h-2 bg-slate-100 dark:bg-[#1B1E22] rounded-full overflow-hidden p-0.5 border border-[#FED7B8] dark:border-[#363B44]">
             <div
               className={`h-full rounded-full transition-all duration-500 ${
                 targetSpentPercent > 100
                   ? 'bg-rose-500 dark:bg-rose-400'
                   : targetSpentPercent > 80
                   ? 'bg-amber-500 dark:bg-amber-400'
-                  : 'bg-[#B87B2E] dark:bg-[#EF6448]'
+                  : 'bg-[#B87B2E] dark:bg-[#B84E3B]'
               }`}
               style={{ width: `${Math.min(100, targetSpentPercent)}%` }}
             />
@@ -203,10 +199,10 @@ export const DashboardView: React.FC<Props> = ({
         </div>
 
         {/* Quick Navigate Buttons: Expenses & Income */}
-        <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100 dark:border-[#363C3A]">
+        <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100 dark:border-[#363B44]">
           <button
             onClick={onNavigateToTransactions}
-            className="p-3 rounded-2xl bg-slate-50 dark:bg-[#1C1F1E] hover:bg-slate-100 dark:hover:bg-[#363C3A]/60 border border-[#FED7B8] dark:border-[#363C3A] flex items-center justify-between text-left transition-all group"
+            className="p-3 rounded-2xl bg-slate-50 dark:bg-[#1B1E22] hover:bg-slate-100 dark:hover:bg-[#363C3A]/60 border border-[#FED7B8] dark:border-[#363B44] flex items-center justify-between text-left transition-all group"
           >
             <div>
               <span className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold flex items-center gap-1">
@@ -219,13 +215,13 @@ export const DashboardView: React.FC<Props> = ({
 
           <button
             onClick={onNavigateToIncome}
-            className="p-3 rounded-2xl bg-slate-50 dark:bg-[#1C1F1E] hover:bg-slate-100 dark:hover:bg-[#363C3A]/60 border border-[#FED7B8] dark:border-[#363C3A] flex items-center justify-between text-left transition-all group"
+            className="p-3 rounded-2xl bg-slate-50 dark:bg-[#1B1E22] hover:bg-slate-100 dark:hover:bg-[#363C3A]/60 border border-[#FED7B8] dark:border-[#363B44] flex items-center justify-between text-left transition-all group"
           >
             <div>
               <span className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold flex items-center gap-1">
-                <ArrowUpRight className="w-3 h-3 text-[#996520] dark:text-[#EF6448]" /> Income
+                <ArrowUpRight className="w-3 h-3 text-[#996520] dark:text-[#FF927A]" /> Income
               </span>
-              <span className="text-xs font-extrabold text-[#996520] dark:text-[#EF6448] block mt-0.5">{formatINR(totalIncome)}</span>
+              <span className="text-xs font-extrabold text-[#996520] dark:text-[#FF927A] block mt-0.5">{formatINR(totalIncome)}</span>
             </div>
             <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-800 dark:group-hover:text-white transition-colors" />
           </button>
@@ -235,10 +231,10 @@ export const DashboardView: React.FC<Props> = ({
       {/* 3. Dedicated Income Card */}
       <div
         onClick={onNavigateToIncome}
-        className="p-4 rounded-3xl bg-white dark:bg-[#272B2A] border border-[#FED7B8] dark:border-[#363C3A] hover:border-slate-300 dark:hover:border-slate-700 cursor-pointer transition-all shadow-sm flex items-center justify-between group"
+        className="p-4 rounded-3xl bg-white dark:bg-[#22252A] border border-[#FED7B8] dark:border-[#363B44] hover:border-slate-300 dark:hover:border-slate-700 cursor-pointer transition-all shadow-sm flex items-center justify-between group"
       >
         <div className="flex items-center space-x-3.5">
-          <div className="w-10 h-10 rounded-2xl bg-[#FDF4E7] dark:bg-[#EF6448]/15 text-[#996520] dark:text-[#EF6448] flex items-center justify-center border border-[#F5DEBE] dark:border-[#EF6448]/30">
+          <div className="w-10 h-10 rounded-2xl bg-[#FDF4E7] dark:bg-[#B84E3B]/15 text-[#996520] dark:text-[#FF927A] flex items-center justify-center border border-[#F5DEBE] dark:border-[#EF6448]/30">
             <ArrowUpRight className="w-5 h-5" />
           </div>
           <div>
@@ -251,7 +247,7 @@ export const DashboardView: React.FC<Props> = ({
           </div>
         </div>
         <div className="flex items-center space-x-2">
-          <span className="text-base font-black text-[#996520] dark:text-[#EF6448]">{formatINR(totalIncome)}</span>
+          <span className="text-base font-black text-[#996520] dark:text-[#FF927A]">{formatINR(totalIncome)}</span>
           <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-800 dark:group-hover:text-white transition-colors" />
         </div>
       </div>
@@ -264,7 +260,7 @@ export const DashboardView: React.FC<Props> = ({
       />
 
       {/* 6. Unified Bank & Cash Balances Card */}
-      <div className="p-5 rounded-3xl bg-white dark:bg-[#272B2A] border border-[#FED7B8] dark:border-[#363C3A] shadow-sm space-y-3.5">
+      <div className="p-5 rounded-3xl bg-white dark:bg-[#22252A] border border-[#FED7B8] dark:border-[#363B44] shadow-sm space-y-3.5">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2.5">
             <div className="w-8 h-8 rounded-2xl bg-[#EF6448] flex items-center justify-center text-white shadow-sm shrink-0">
@@ -301,7 +297,7 @@ export const DashboardView: React.FC<Props> = ({
 
         {/* 2-Column Start & End Balance Display */}
         <div className="grid grid-cols-2 gap-2.5">
-          <div className="p-3 rounded-2xl bg-slate-50 dark:bg-[#1C1F1E] border border-[#FED7B8]/60 dark:border-[#363C3A]">
+          <div className="p-3 rounded-2xl bg-slate-50 dark:bg-[#1B1E22] border border-[#FED7B8]/60 dark:border-[#363B44]">
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
               Starting (1st of month)
             </span>
@@ -310,7 +306,7 @@ export const DashboardView: React.FC<Props> = ({
             </span>
           </div>
 
-          <div className="p-3 rounded-2xl bg-slate-50 dark:bg-[#1C1F1E] border border-[#FED7B8]/60 dark:border-[#363C3A]">
+          <div className="p-3 rounded-2xl bg-slate-50 dark:bg-[#1B1E22] border border-[#FED7B8]/60 dark:border-[#363B44]">
             <div className="flex items-center justify-between">
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
                 Ending / Current
@@ -364,10 +360,10 @@ export const DashboardView: React.FC<Props> = ({
         {/* Credit Card Quick Teaser */}
         <div
           onClick={onNavigateToCards}
-          className="p-4 rounded-2xl bg-white dark:bg-[#272B2A] border border-[#FED7B8] dark:border-[#363C3A] hover:border-slate-300 dark:hover:border-slate-700 cursor-pointer transition-all flex items-center justify-between shadow-sm"
+          className="p-4 rounded-2xl bg-white dark:bg-[#22252A] border border-[#FED7B8] dark:border-[#363B44] hover:border-slate-300 dark:hover:border-slate-700 cursor-pointer transition-all flex items-center justify-between shadow-sm"
         >
           <div className="flex items-center space-x-3">
-            <div className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-[#1C1F1E] text-slate-700 dark:text-slate-300 flex items-center justify-center border border-[#FED7B8] dark:border-[#363C3A]">
+            <div className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-[#1B1E22] text-slate-700 dark:text-slate-300 flex items-center justify-center border border-[#FED7B8] dark:border-[#363B44]">
               <Wallet className="w-4 h-4" />
             </div>
             <div>
@@ -385,7 +381,7 @@ export const DashboardView: React.FC<Props> = ({
         {onNavigateToLoans && (
           <div
             onClick={onNavigateToLoans}
-            className="p-4 rounded-2xl bg-white dark:bg-[#272B2A] border border-[#FED7B8] dark:border-[#363C3A] hover:border-slate-300 dark:hover:border-slate-700 cursor-pointer transition-all flex items-center justify-between shadow-sm"
+            className="p-4 rounded-2xl bg-white dark:bg-[#22252A] border border-[#FED7B8] dark:border-[#363B44] hover:border-slate-300 dark:hover:border-slate-700 cursor-pointer transition-all flex items-center justify-between shadow-sm"
           >
             <div className="flex items-center space-x-3">
               <div className="w-9 h-9 rounded-xl bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 flex items-center justify-center border border-rose-200 dark:border-rose-800/40">

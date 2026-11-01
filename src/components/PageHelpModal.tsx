@@ -139,32 +139,32 @@ export const PageHelpModal: React.FC<Props> = ({ tab, isOpen, onClose }) => {
       onClick={onClose}
     >
       <div
-        className="w-full max-w-md bg-[#FFF8F3] dark:bg-[#272B2A] border border-[#FED7B8] dark:border-[#363C3A] rounded-3xl shadow-2xl p-5 sm:p-6 space-y-4 max-h-[90vh] overflow-y-auto"
+        className="w-full max-w-md bg-[#FFF8F3] dark:bg-[#22252A] border border-[#FED7B8] dark:border-[#363B44] rounded-3xl shadow-2xl p-5 sm:p-6 space-y-4 max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-start justify-between border-b border-[#FED7B8] dark:border-[#363C3A] pb-3">
+        <div className="flex items-start justify-between border-b border-[#FED7B8] dark:border-[#363B44] pb-3">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 rounded-2xl bg-[#EF6448] text-white flex items-center justify-center shrink-0 shadow-sm">
               <Icon className="w-5 h-5 stroke-[2]" />
             </div>
             <div>
               <div className="flex items-center space-x-1.5">
-                <h3 className="text-base font-extrabold text-slate-900 dark:text-[#F4F6F5] tracking-tight">
+                <h3 className="text-base font-extrabold text-slate-900 dark:text-[#F2F3F5] tracking-tight">
                   {info.title}
                 </h3>
                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#EF6448]/15 text-[#EF6448] border border-[#EF6448]/30">
                   Help & Guide
                 </span>
               </div>
-              <p className="text-[11px] text-slate-500 dark:text-[#A0A8A5] mt-0.5 font-medium">
+              <p className="text-[11px] text-slate-500 dark:text-[#A5ACB7] mt-0.5 font-medium">
                 {info.tagline}
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded-full text-slate-400 hover:text-slate-700 dark:hover:text-[#F4F6F5] transition-colors cursor-pointer"
+            className="p-1 rounded-full text-slate-400 hover:text-slate-700 dark:hover:text-[#F2F3F5] transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -176,7 +176,7 @@ export const PageHelpModal: React.FC<Props> = ({ tab, isOpen, onClose }) => {
             <HelpCircle className="w-3.5 h-3.5" />
             <span>What This Page Does</span>
           </h4>
-          <ul className="space-y-1.5 bg-white/70 dark:bg-[#1C1F1E] p-3 rounded-2xl border border-[#FED7B8] dark:border-[#363C3A] text-xs text-slate-700 dark:text-[#E8DDD2]">
+          <ul className="space-y-1.5 bg-white/70 dark:bg-[#1B1E22] p-3 rounded-2xl border border-[#FED7B8] dark:border-[#363B44] text-xs text-slate-700 dark:text-[#E8DDD2]">
             {info.whatItDoes.map((item, idx) => (
               <li key={idx} className="flex items-start space-x-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#EF6448] shrink-0 mt-1.5" />
@@ -192,7 +192,7 @@ export const PageHelpModal: React.FC<Props> = ({ tab, isOpen, onClose }) => {
             <CheckCircle2 className="w-3.5 h-3.5" />
             <span>How to Use It</span>
           </h4>
-          <ol className="space-y-2 bg-white/70 dark:bg-[#1C1F1E] p-3 rounded-2xl border border-[#FED7B8] dark:border-[#363C3A] text-xs text-slate-700 dark:text-[#F4F6F5]">
+          <ol className="space-y-2 bg-white/70 dark:bg-[#1B1E22] p-3 rounded-2xl border border-[#FED7B8] dark:border-[#363B44] text-xs text-slate-700 dark:text-[#F2F3F5]">
             {info.howToUse.map((step, idx) => (
               <li key={idx} className="flex items-start space-x-2.5">
                 <span className="w-4 h-4 rounded-full bg-[#EF6448]/15 text-[#EF6448] text-[10px] font-black flex items-center justify-center shrink-0 mt-0.5">
@@ -205,9 +205,9 @@ export const PageHelpModal: React.FC<Props> = ({ tab, isOpen, onClose }) => {
         </div>
 
         {/* Section 3: Pro-tip */}
-        <div className="p-3 rounded-2xl bg-[#FED7B8]/30 dark:bg-[#1C1F1E] border border-[#FED7B8] dark:border-[#363C3A] flex items-start space-x-2.5 text-xs">
+        <div className="p-3 rounded-2xl bg-[#FED7B8]/30 dark:bg-[#1B1E22] border border-[#FED7B8] dark:border-[#363B44] flex items-start space-x-2.5 text-xs">
           <Lightbulb className="w-4 h-4 text-[#EF6448] shrink-0 mt-0.5" />
-          <p className="text-slate-800 dark:text-[#F4F6F5] leading-relaxed">
+          <p className="text-slate-800 dark:text-[#F2F3F5] leading-relaxed">
             <strong className="font-bold text-[#EF6448]">Pro Tip: </strong>
             {info.proTip}
           </p>

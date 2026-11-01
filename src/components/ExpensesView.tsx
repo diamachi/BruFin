@@ -14,7 +14,7 @@ import {
   ChevronUp,
 } from 'lucide-react';
 import { Transaction, CreditCard, PaymentMethodItem, RecurringPayment } from '../types';
-import { formatINR, formatDateLabel, formatMonthYear, getTodayDateString } from '../utils/dateUtils';
+import { formatINR, formatDateLabel, formatMonthYear, getTodayDateString, getCurrentMonthKey } from '../utils/dateUtils';
 import { getCategoryMeta, EXPENSE_CATEGORIES, getPaymentModes } from '../utils/categories';
 import { getRecurringPaymentStatuses } from '../utils/storage';
 import { CategoryIcon } from './CategoryIcon';
@@ -54,7 +54,7 @@ export const ExpensesView: React.FC<Props> = ({
   const [showAllRecurringRules, setShowAllRecurringRules] = useState(false);
 
   const activeMonthKey = selectedMonth === 'All'
-    ? (transactions[0]?.date ? transactions[0].date.substring(0, 7) : new Date().toISOString().substring(0, 7))
+    ? (transactions[0]?.date ? transactions[0].date.substring(0, 7) : getCurrentMonthKey())
     : selectedMonth;
 
   const paymentModes = useMemo(() => getPaymentModes(creditCards, paymentMethods), [creditCards, paymentMethods]);
@@ -66,7 +66,7 @@ export const ExpensesView: React.FC<Props> = ({
 
   // Pending recurring bills that have NOT been added yet this month
   const pendingRecurringBills = useMemo(() => {
-    return recurringStatuses.filter((s) => !s.isPaid);
+    return recurringStatuses.filter((s) => s.isActive && !s.isPaid);
   }, [recurringStatuses]);
 
   const totalPendingAmount = useMemo(() => {
@@ -179,10 +179,10 @@ export const ExpensesView: React.FC<Props> = ({
   return (
     <div className="space-y-4 animate-fadeIn">
       {/* 1. Page Header & Stats Banner (Zero clutter, no redundant add/help buttons) */}
-      <div className="p-4 sm:p-5 rounded-3xl bg-white dark:bg-[#272B2A] border border-[#FED7B8] dark:border-[#363C3A] shadow-sm transition-colors">
+      <div className="p-4 sm:p-5 rounded-3xl bg-white dark:bg-[#22252A] border border-[#FED7B8] dark:border-[#363B44] shadow-sm transition-colors">
         <div className="flex items-center justify-between gap-3">
           <div className="min-w-0">
-            <div className="flex items-center space-x-1.5 text-slate-500 dark:text-[#A0A8A5] text-[11px] font-semibold uppercase tracking-wider">
+            <div className="flex items-center space-x-1.5 text-slate-500 dark:text-[#A5ACB7] text-[11px] font-semibold uppercase tracking-wider">
               <Receipt className="w-3.5 h-3.5 text-[#EF6448] shrink-0" />
               <span className="truncate">Expenses • {selectedMonth === 'All' ? 'All Time' : formatMonthYear(selectedMonth)}</span>
             </div>
@@ -193,12 +193,12 @@ export const ExpensesView: React.FC<Props> = ({
         </div>
 
         {/* Sub-bar with clean stats */}
-        <div className="flex items-center gap-2 mt-2 pt-2 border-t border-[#FED7B8]/40 dark:border-[#363C3A]/60 text-xs">
-          <span className="text-[11px] text-slate-500 dark:text-[#A0A8A5]">
+        <div className="flex items-center gap-2 mt-2 pt-2 border-t border-[#FED7B8]/40 dark:border-[#363B44]/60 text-xs">
+          <span className="text-[11px] text-slate-500 dark:text-[#A5ACB7]">
             {expenseTransactions.length} {expenseTransactions.length === 1 ? 'transaction' : 'transactions'}
           </span>
           <span className="text-slate-300 dark:text-[#4A5250]">•</span>
-          <span className="text-[11px] font-bold text-slate-700 dark:text-[#F4F6F5]">
+          <span className="text-[11px] font-bold text-slate-700 dark:text-[#F2F3F5]">
             Avg: <strong className="text-[#EF6448]">~{formatINR(avgDailyTotal)}</strong>/day
           </span>
         </div>
@@ -206,7 +206,7 @@ export const ExpensesView: React.FC<Props> = ({
 
       {/* 2. RECURRING BILLS CARD: Shows unposted bills at the start of month, disappears when added */}
       {pendingRecurringBills.length > 0 ? (
-        <div className="p-4 rounded-3xl bg-gradient-to-br from-[#FFF8F3] via-white to-[#FDF2E9] dark:from-[#272B2A] dark:via-[#202322] dark:to-[#1C1F1E] border-2 border-[#FED7B8] dark:border-[#363C3A] shadow-md space-y-3.5 animate-fadeIn">
+        <div className="p-4 rounded-3xl bg-gradient-to-br from-[#FFF8F3] via-white to-[#FDF2E9] dark:from-[#272B2A] dark:via-[#202328] dark:to-[#1C1F1E] border-2 border-[#FED7B8] dark:border-[#363B44] shadow-md space-y-3.5 animate-fadeIn">
           {/* Card Header: Single row, clean title with count, zero clutter */}
           <div className="flex items-center justify-between gap-2.5">
             <div className="flex items-center space-x-2.5 min-w-0 flex-1">
@@ -215,15 +215,15 @@ export const ExpensesView: React.FC<Props> = ({
               </div>
               <div className="min-w-0">
                 <div className="flex items-center gap-1.5">
-                  <h3 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-[#F4F6F5] leading-tight truncate">
+                  <h3 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-[#F2F3F5] leading-tight truncate">
                     Recurring Bills Due
                   </h3>
                   <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-[#EF6448]/15 text-[#EF6448] shrink-0">
                     {pendingRecurringBills.length}
                   </span>
                 </div>
-                <p className="text-[10px] sm:text-[11px] text-slate-500 dark:text-[#A0A8A5] mt-0.5 truncate">
-                  Total due: <strong className="text-slate-800 dark:text-[#F4F6F5] font-bold">{formatINR(totalPendingAmount)}</strong>
+                <p className="text-[10px] sm:text-[11px] text-slate-500 dark:text-[#A5ACB7] mt-0.5 truncate">
+                  Total due: <strong className="text-slate-800 dark:text-[#F2F3F5] font-bold">{formatINR(totalPendingAmount)}</strong>
                 </p>
               </div>
             </div>
@@ -243,10 +243,10 @@ export const ExpensesView: React.FC<Props> = ({
             {pendingRecurringBills.map(({ recurring: r }) => (
               <div
                 key={r.id}
-                className="p-3 rounded-2xl bg-white dark:bg-[#1C1F1E] border border-[#FED7B8] dark:border-[#363C3A] shadow-sm flex items-center justify-between gap-2 transition-all hover:border-[#EF6448]/50"
+                className="p-3 rounded-2xl bg-white dark:bg-[#1B1E22] border border-[#FED7B8] dark:border-[#363B44] shadow-sm flex items-center justify-between gap-2 transition-all hover:border-[#EF6448]/50"
               >
                 <div className="min-w-0 flex items-center space-x-2.5">
-                  <div className="w-8 h-8 rounded-xl bg-[#FFF8F3] dark:bg-[#272B2A] flex items-center justify-center text-slate-700 dark:text-slate-300 shrink-0 border border-[#FED7B8]/60 dark:border-[#363C3A]">
+                  <div className="w-8 h-8 rounded-xl bg-[#FFF8F3] dark:bg-[#22252A] flex items-center justify-center text-slate-700 dark:text-slate-300 shrink-0 border border-[#FED7B8]/60 dark:border-[#363B44]">
                     <CategoryIcon name={getCategoryMeta(r.category).icon} className="w-4 h-4" />
                   </div>
                   <div className="truncate">
@@ -297,7 +297,7 @@ export const ExpensesView: React.FC<Props> = ({
         </div>
       ) : (
         /* When all bills are posted or none due, show a clean, subtle bar with manage rules toggle */
-        <div className="p-3 rounded-2xl bg-white dark:bg-[#272B2A] border border-[#FED7B8] dark:border-[#363C3A] shadow-sm flex items-center justify-between text-xs">
+        <div className="p-3 rounded-2xl bg-white dark:bg-[#22252A] border border-[#FED7B8] dark:border-[#363B44] shadow-sm flex items-center justify-between text-xs">
           <div className="flex items-center space-x-2">
             <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
             <span className="font-semibold text-slate-700 dark:text-slate-300">
@@ -319,7 +319,7 @@ export const ExpensesView: React.FC<Props> = ({
             )}
             <button
               onClick={onOpenAddRecurring}
-              className="px-2.5 py-1 rounded-xl bg-[#FFF8F3] dark:bg-[#1C1F1E] text-[#EF6448] border border-[#FED7B8] dark:border-[#363C3A] hover:bg-[#FED7B8]/30 font-bold text-[10px] flex items-center gap-1 transition-colors cursor-pointer"
+              className="px-2.5 py-1 rounded-xl bg-[#FFF8F3] dark:bg-[#1B1E22] text-[#EF6448] border border-[#FED7B8] dark:border-[#363B44] hover:bg-[#FED7B8]/30 font-bold text-[10px] flex items-center gap-1 transition-colors cursor-pointer"
             >
               <Plus className="w-3 h-3" />
               <span>+ New Bill</span>
@@ -330,8 +330,8 @@ export const ExpensesView: React.FC<Props> = ({
 
       {/* Collapsible View of All Configured Recurring Rules */}
       {showAllRecurringRules && recurringPayments.length > 0 && (
-        <div className="p-4 rounded-3xl bg-white dark:bg-[#272B2A] border border-[#FED7B8] dark:border-[#363C3A] shadow-sm space-y-2.5 animate-fadeIn">
-          <div className="flex items-center justify-between border-b border-[#FED7B8]/40 dark:border-[#363C3A] pb-2">
+        <div className="p-4 rounded-3xl bg-white dark:bg-[#22252A] border border-[#FED7B8] dark:border-[#363B44] shadow-sm space-y-2.5 animate-fadeIn">
+          <div className="flex items-center justify-between border-b border-[#FED7B8]/40 dark:border-[#363B44] pb-2">
             <span className="text-xs font-bold text-[#EF6448] flex items-center gap-1.5">
               <Repeat className="w-3.5 h-3.5" />
               <span>All Active Recurring Rules ({recurringPayments.length})</span>
@@ -345,15 +345,17 @@ export const ExpensesView: React.FC<Props> = ({
           </div>
 
           <div className="space-y-1.5">
-            {recurringStatuses.map(({ recurring: r, isPaid }) => (
+            {recurringStatuses.map(({ recurring: r, isPaid, isActive }) => (
               <div
                 key={r.id}
-                className="p-2.5 rounded-xl bg-slate-50 dark:bg-[#1C1F1E] border border-[#FED7B8]/50 dark:border-[#363C3A] flex items-center justify-between text-xs"
+                className="p-2.5 rounded-xl bg-slate-50 dark:bg-[#1B1E22] border border-[#FED7B8]/50 dark:border-[#363B44] flex items-center justify-between text-xs"
               >
                 <div className="truncate pr-2">
                   <div className="flex items-center space-x-1.5">
                     <span className="font-bold text-slate-800 dark:text-slate-200">{r.name}</span>
-                    {isPaid ? (
+                    {!isActive ? (
+                      <span className="text-[9px] px-1.5 py-0.2 rounded bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold">Inactive</span>
+                    ) : isPaid ? (
                       <span className="text-[9px] px-1.5 py-0.2 rounded bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-400 font-bold">
                         ✓ Recorded this month
                       </span>
@@ -386,7 +388,7 @@ export const ExpensesView: React.FC<Props> = ({
               placeholder="Search expenses by title, category, payment mode..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-white dark:bg-[#272B2A] border border-[#FED7B8] dark:border-[#363C3A] rounded-2xl pl-9 pr-8 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-[#EF6448] shadow-sm transition-all"
+              className="w-full bg-white dark:bg-[#22252A] border border-[#FED7B8] dark:border-[#363B44] rounded-2xl pl-9 pr-8 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-[#EF6448] shadow-sm transition-all"
             />
             {searchQuery && (
               <button
@@ -403,7 +405,7 @@ export const ExpensesView: React.FC<Props> = ({
             className={`p-2 rounded-2xl border transition-all cursor-pointer ${
               showFilters || categoryFilter !== 'All' || paymentModeFilter !== 'All'
                 ? 'bg-[#EF6448] text-white border-[#EF6448]'
-                : 'bg-white dark:bg-[#272B2A] text-slate-600 dark:text-slate-400 border-[#FED7B8] dark:border-[#363C3A]'
+                : 'bg-white dark:bg-[#22252A] text-slate-600 dark:text-slate-400 border-[#FED7B8] dark:border-[#363B44]'
             }`}
             title="Filter options"
           >
@@ -413,7 +415,7 @@ export const ExpensesView: React.FC<Props> = ({
 
         {/* Filter Dropdowns */}
         {showFilters && (
-          <div className="p-3 rounded-2xl bg-white dark:bg-[#272B2A] border border-[#FED7B8] dark:border-[#363C3A] shadow-sm space-y-2.5 animate-fadeIn text-xs">
+          <div className="p-3 rounded-2xl bg-white dark:bg-[#22252A] border border-[#FED7B8] dark:border-[#363B44] shadow-sm space-y-2.5 animate-fadeIn text-xs">
             <div className="grid grid-cols-2 gap-2">
               <div>
                 <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
@@ -422,7 +424,7 @@ export const ExpensesView: React.FC<Props> = ({
                 <select
                   value={categoryFilter}
                   onChange={(e) => setCategoryFilter(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-[#1C1F1E] border border-[#FED7B8] dark:border-[#363C3A] rounded-xl px-2.5 py-1.5 text-xs text-slate-800 dark:text-white focus:outline-none"
+                  className="w-full bg-slate-50 dark:bg-[#1B1E22] border border-[#FED7B8] dark:border-[#363B44] rounded-xl px-2.5 py-1.5 text-xs text-slate-800 dark:text-white focus:outline-none"
                 >
                   <option value="All">All Categories</option>
                   {EXPENSE_CATEGORIES.map((c) => (
@@ -438,7 +440,7 @@ export const ExpensesView: React.FC<Props> = ({
                 <select
                   value={paymentModeFilter}
                   onChange={(e) => setPaymentModeFilter(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-[#1C1F1E] border border-[#FED7B8] dark:border-[#363C3A] rounded-xl px-2.5 py-1.5 text-xs text-slate-800 dark:text-white focus:outline-none"
+                  className="w-full bg-slate-50 dark:bg-[#1B1E22] border border-[#FED7B8] dark:border-[#363B44] rounded-xl px-2.5 py-1.5 text-xs text-slate-800 dark:text-white focus:outline-none"
                 >
                   <option value="All">All Payment Modes</option>
                   {paymentModes.map((pm) => (
@@ -466,8 +468,8 @@ export const ExpensesView: React.FC<Props> = ({
       {/* 4. Complete Scrollable Expense List (Grouped by Date, Minimal Cards) */}
       <div className="space-y-4">
         {groupedByDate.length === 0 ? (
-          <div className="p-8 rounded-3xl bg-white dark:bg-[#272B2A] border border-[#FED7B8] dark:border-[#363C3A] text-center space-y-3">
-            <div className="w-12 h-12 rounded-full bg-[#FFF8F3] dark:bg-[#1C1F1E] flex items-center justify-center mx-auto text-[#EF6448]">
+          <div className="p-8 rounded-3xl bg-white dark:bg-[#22252A] border border-[#FED7B8] dark:border-[#363B44] text-center space-y-3">
+            <div className="w-12 h-12 rounded-full bg-[#FFF8F3] dark:bg-[#1B1E22] flex items-center justify-center mx-auto text-[#EF6448]">
               <Receipt className="w-6 h-6 stroke-[1.5]" />
             </div>
             <div>
@@ -500,7 +502,7 @@ export const ExpensesView: React.FC<Props> = ({
                     <div
                       key={t.id}
                       onClick={() => onEditTransaction(t)}
-                      className="p-3 rounded-2xl bg-white dark:bg-[#272B2A] border border-[#FED7B8]/70 dark:border-[#363C3A] shadow-xs flex items-center justify-between gap-3 transition-all hover:border-[#EF6448]/50 cursor-pointer active:scale-[0.99]"
+                      className="p-3 rounded-2xl bg-white dark:bg-[#22252A] border border-[#FED7B8]/70 dark:border-[#363B44] shadow-xs flex items-center justify-between gap-3 transition-all hover:border-[#EF6448]/50 cursor-pointer active:scale-[0.99]"
                     >
                       {/* Left: Category Icon with subtle color tint + Clean Title & Meta */}
                       <div className="flex items-center space-x-3 min-w-0 flex-1">
@@ -511,10 +513,10 @@ export const ExpensesView: React.FC<Props> = ({
                           <CategoryIcon name={meta.icon} className="w-4 h-4" />
                         </div>
                         <div className="min-w-0 flex-1">
-                          <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-[#F4F6F5] truncate leading-tight">
+                          <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-[#F2F3F5] truncate leading-tight">
                             {t.description || t.category}
                           </h4>
-                          <p className="text-[10px] sm:text-[11px] text-slate-400 dark:text-[#A0A8A5] mt-0.5 truncate">
+                          <p className="text-[10px] sm:text-[11px] text-slate-400 dark:text-[#A5ACB7] mt-0.5 truncate">
                             {t.category} • {t.paymentMode.replace('Credit Card - ', 'CC: ')}
                           </p>
                         </div>
