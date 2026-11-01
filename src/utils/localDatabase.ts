@@ -16,18 +16,6 @@ const DATABASE_VERSION = 2;
 const SECTION_STORE = 'sections';
 const TRANSACTIONS_STORE = 'transactions';
 
-const LEGACY_KEYS = {
-  transactions: 'brufin_transactions_v2',
-  creditCards: 'brufin_cards_v2',
-  recurringPayments: 'brufin_recurring_v2',
-  monthlyTarget: 'brufin_target_v2',
-  investments: 'brufin_investments_v2',
-  loans: 'brufin_loans_v2',
-  bankAccounts: 'brufin_accounts_v2',
-  monthlyBalances: 'brufin_balances_v2',
-  paymentMethods: 'brufin_payment_methods_v2',
-} as const;
-
 export interface LocalDatabaseData {
   transactions: Transaction[];
   creditCards: CreditCard[];
@@ -109,27 +97,6 @@ function openDatabase(): Promise<IDBDatabase> {
   return databasePromise;
 }
 
-function readLegacyValue<T>(key: string, fallback: T): T {
-  try {
-    const raw = localStorage.getItem(key);
-    return raw === null ? fallback : JSON.parse(raw) as T;
-  } catch {
-    return fallback;
-  }
-}
-
-function canRemoveLegacyValue(key: string): boolean {
-  try {
-    const raw = localStorage.getItem(key);
-    if (raw === null) return true;
-    const value = JSON.parse(raw) as unknown;
-    if (key === LEGACY_KEYS.monthlyTarget) return typeof value === 'number' && Number.isFinite(value) && value > 0;
-    return Array.isArray(value);
-  } catch {
-    return false;
-  }
-}
-
 function normalizeSection<K extends SectionName>(name: K, value: unknown): LocalDatabaseData[K] {
   if (name === 'monthlyTarget') {
     return (typeof value === 'number' && Number.isFinite(value) && value > 0
@@ -194,36 +161,10 @@ export async function initializeLocalDatabase(): Promise<void> {
     transactionsRequest.onerror = () => reject(transactionsRequest.error || new Error('Could not read local transactions.'));
   });
 
-  let loaded: LocalDatabaseData;
-  if (sections.length > 0 || transactions.length > 0) {
-    loaded = { ...EMPTY_DATA, transactions };
-    for (const section of sections) {
-      if (section.name in EMPTY_DATA) {
-        (loaded as unknown as Record<string, unknown>)[section.name] = normalizeSection(section.name, section.value);
-      }
-    }
-  } else {
-    // One-time migration from the app's previous localStorage layout.
-    loaded = {
-      transactions: readLegacyValue(LEGACY_KEYS.transactions, []),
-      creditCards: readLegacyValue(LEGACY_KEYS.creditCards, []),
-      recurringPayments: readLegacyValue(LEGACY_KEYS.recurringPayments, []),
-      monthlyTarget: readLegacyValue(LEGACY_KEYS.monthlyTarget, DEFAULT_MONTHLY_TARGET),
-      investments: readLegacyValue(LEGACY_KEYS.investments, []),
-      loans: readLegacyValue(LEGACY_KEYS.loans, []),
-      bankAccounts: readLegacyValue(LEGACY_KEYS.bankAccounts, []),
-      monthlyBalances: readLegacyValue(LEGACY_KEYS.monthlyBalances, []),
-      paymentMethods: readLegacyValue(LEGACY_KEYS.paymentMethods, DEFAULT_BASE_PAYMENT_MODES),
-    };
-    loaded = Object.fromEntries(
-      Object.entries(loaded).map(([name, value]) => [name, normalizeSection(name as SectionName, value)])
-    ) as unknown as LocalDatabaseData;
-    await writeSectionsDirect(database, loaded, []);
-
-    // Remove old copies only after the IndexedDB transaction has committed.
-    for (const key of Object.values(LEGACY_KEYS)) {
-      if (!canRemoveLegacyValue(key)) continue;
-      try { localStorage.removeItem(key); } catch { /* IndexedDB copy is already committed. */ }
+  const loaded: LocalDatabaseData = { ...EMPTY_DATA, transactions };
+  for (const section of sections) {
+    if (section.name in EMPTY_DATA) {
+      (loaded as unknown as Record<string, unknown>)[section.name] = normalizeSection(section.name, section.value);
     }
   }
 

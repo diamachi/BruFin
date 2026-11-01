@@ -1,136 +1,158 @@
-# BruFin
+<div align="center">
+  <img src="public/icon.svg" alt="BruFin icon" width="88" />
+  <h1>BruFin</h1>
+  <p><strong>Brewing calmer finances.</strong><br />A private, local-first personal finance tracker for the web and Android.</p>
+  <p>
+    <a href="https://github.com/diamachi/BruFin/actions/workflows/android-apk.yml"><img src="https://github.com/diamachi/BruFin/actions/workflows/android-apk.yml/badge.svg?branch=main" alt="Android build status" /></a>
+  </p>
+</div>
 
-**Brewing calm finances.** BruFin is a local-first personal finance tracker built with React, TypeScript, Vite, and Capacitor. It runs as a web app and can be packaged as an Android app. Financial records stay in the browser or Android WebView on the device; there is no account, bank connection, or cloud service.
+BruFin helps you track day-to-day spending and keep an eye on your wider financial picture. It runs without an account, bank connection, or app backend: your records stay in local browser or Android WebView storage.
+
+<p align="center">
+  <a href="#screenshots">Screenshots</a> ·
+  <a href="#features">Features</a> ·
+  <a href="#privacy--data-storage">Privacy &amp; storage</a> ·
+  <a href="#run-on-the-web">Run on the web</a> ·
+  <a href="#build-for-android">Build for Android</a>
+</p>
 
 ## Screenshots
 
-The dashboard below uses synthetic demo records.
+Screenshots use BruFin's built-in sample data. The same dashboard is shown in both themes.
 
-<p>
+<div align="center">
   <img src="screenshots/dashboard-light.png" alt="BruFin dashboard in light theme" width="49%" />
   <img src="screenshots/dashboard-dark.png" alt="BruFin dashboard in dark theme" width="49%" />
-</p>
+</div>
+
+<p align="center"><sub>Light theme · Dark theme</sub></p>
 
 ## Features
 
-- **Monitor dashboard:** monthly spending target, remaining budget, income and expense totals, expense breakdown, balance snapshot, card spending, and loan overview.
-- **Expense and income tracking:** quick entry, editable records, category and payment method selection, date and notes, recent description suggestions, search, and filters.
-- **Recurring bills:** monthly and split-payment rules, due-day details, pending bill indicators, and manual posting into expenses.
-- **Balances:** record monthly opening and closing liquid balances, review month-to-month changes, and optionally receive start- and end-of-month prompts.
-- **Credit cards:** manage cards, limits, statement dates, and card-linked expense summaries.
-- **Investments:** keep a manual list of mutual funds, fixed deposits, provident fund, and stocks; use the returns calculator for estimates.
-- **Loans:** record loan details and explore estimated payoff time and interest savings from extra monthly payments.
-- **Personalization:** light and dark themes, adjustable display scale, and an optional compact storage and memory monitor beside the BruFin title. Open either capsule to see full diagnostics; hide the monitor from the navbar or Settings.
-- **Data portability:** export a JSON backup or transaction CSV, import a JSON backup, and preview older transaction data before restoring it. The archive viewer supports BruFin JSON archives, BruFin backup JSON, direct transaction arrays, and BruFin transaction CSV exports; it detects duplicates and restores only new entries.
-- **Demo mode:** explore the app with sample data, then clear it to start a personal database.
+| Area | What you can do |
+| --- | --- |
+| **Dashboard** | Review monthly income, spending, budget remaining, category breakdown, balances, card activity, and loans. |
+| **Transactions** | Record income and expenses with categories, dates, payment methods, notes, search, filters, and quick entry. |
+| **Recurring bills** | Set monthly or split-payment schedules, see due dates, and post bills into expenses when paid. |
+| **Balances** | Track opening and closing liquid balances by month, compare changes, and optionally enable balance prompts. |
+| **Cards** | Manage credit cards, limits, statement dates, and card-linked spending. |
+| **Investments & loans** | Keep a manual investment list, estimate returns, record loans, and explore the effect of extra repayments. |
+| **Data tools** | Export JSON backups or transaction CSVs; import backups; preview older BruFin exports and restore only new transactions. |
+| **Personalization** | Switch themes, adjust display scale, and optionally show compact storage and memory diagnostics. |
+| **Demo mode** | Explore with sample records, then clear them and begin with an empty local database. |
 
-## Privacy and data storage
+Investment and loan figures are estimates based on values you enter. BruFin does not fetch live market, bank, or lender data.
 
-BruFin has no application backend. Financial records are stored locally in IndexedDB for the current browser origin or Android app WebView. `localStorage` is used for small app preferences such as theme, display scale, diagnostics, onboarding, and prompt settings; it is not the financial database. New and edited transactions are written by record ID, so each save does not rewrite the full transaction history. Browser storage is tied to the browser profile and origin: for example, `localhost` and a LAN IP address have separate data stores. Clearing browser or app data can remove records, so export a JSON backup regularly and keep that file somewhere safe. Backups are unencrypted and contain financial records; protect them accordingly.
+## Privacy & data storage
 
-The app does not connect to banks, fetch account balances, or sync records between devices. Browser storage can still be cleared by the user or operating system; keep a separate backup. Investment and loan calculations are estimates based on values entered by the user, not live market or lender data.
+BruFin has no application backend and does not sync data between devices. Financial records are stored in an IndexedDB database named `brufin-local` (schema version 2). App preferences such as theme and display scale use `localStorage`.
 
-## Run locally for development
+- **Web:** IndexedDB is managed by the browser and scoped to the exact origin and browser profile. For example, `localhost`, a LAN IP address, and a deployed domain each have separate data. The browser controls the physical files; BruFin does not create a separate database file you can move directly.
+- **Android:** IndexedDB is held in the app's private WebView data area for application ID `com.diamachi.brufin`. Android isolates that storage from other apps; it is not exposed as a normal document or standalone SQLite file.
+- **Backups:** Export a JSON backup regularly if you want a portable copy. Backups are unencrypted and contain financial records, so store them somewhere private. Clearing browser data or clearing/uninstalling the Android app can remove local records.
+
+Browser storage is tied to the browser's origin and profile. IndexedDB is managed by each browser, and its on-disk location varies by browser and operating system; it is usually easiest to inspect it through that browser's developer tools. Android keeps WebView data in app-specific storage managed by the OS.
+
+## Run on the web
 
 ### Requirements
 
-- Node.js compatible with the Vite version in `package-lock.json` (Node 20.19+ or 22.12+).
-- npm, included with Node.js.
+- Node.js 20.19+ or 22.12+ (Vite requirement)
+- npm, included with Node.js
 
-### Install and start
+### Start the development server
 
 From the repository root:
 
 ```bash
 npm ci
-npm run typecheck
-npm test
 npm run dev
 ```
 
-Vite prints the local address, normally [http://localhost:5173](http://localhost:5173). The development server enables hot reload. Data you enter is saved in IndexedDB for that browser origin.
+Open the address Vite prints (normally [http://localhost:5173](http://localhost:5173)). The dev server supports hot reload, and its data stays in IndexedDB for that origin.
 
-To create and preview a production web build:
+### Build and preview
 
 ```bash
+npm run typecheck
+npm test
 npm run build
 npm run preview
 ```
 
-The generated static site is written to `dist/`.
+The static production site is generated in `dist/`. Type checking and the production build are separate steps.
 
-### Portable static server
+### Serve a portable build
 
-After creating the web build with `npm run build`, you can serve the compiled `dist/` folder with Python:
+To serve the already compiled `dist/` folder without Vite:
 
 ```bash
 ./run_portable.sh
 ```
 
-This serves the built app at [http://localhost:5173](http://localhost:5173) without running Vite. It does not compile source or provide hot reload; rebuild with `npm run build` after source changes. Python 3 is required. The server binds to this computer only.
+This requires Python 3, serves only on this computer, and does not compile source or hot reload. Run `npm run build` again after changing source.
 
-## Build the Android app
+## Build for Android
 
 ### Requirements
 
-- Node.js and npm as above.
-- JDK 21.
-- Android SDK with the platform and build tools required by this project (`compileSdkVersion` 36; install Android SDK Platform 36 and Android SDK Build-Tools in Android Studio's SDK Manager).
-- Android platform tools (`adb`) to install the APK on a connected device.
+- Node.js and npm as above
+- JDK 21
+- Android SDK Platform 36 and Android SDK Build-Tools installed through Android Studio's SDK Manager
+- Android platform tools (`adb`) to install on a connected device
 
-Set `JAVA_HOME` to your JDK 21 installation and make sure the Android SDK is configured in `android/local.properties` or `ANDROID_HOME`. Then build and sync the web app into the Android project:
+Set `JAVA_HOME` to JDK 21 and configure the Android SDK in `android/local.properties` or `ANDROID_HOME`. Then sync the web build and compile:
 
 ```bash
 npm ci
 npm run cap:sync
-```
-
-Compile the debug APK:
-
-```bash
 cd android
 ./gradlew assembleDebug
 ```
 
-The APK is generated at `android/app/build/outputs/apk/debug/app-debug.apk`. Install it on a connected Android device with:
+The debug APK is created at `android/app/build/outputs/apk/debug/app-debug.apk`. Install it on a connected device with:
 
 ```bash
 adb install -r android/app/build/outputs/apk/debug/app-debug.apk
 ```
 
-The `build_apk.sh` helper performs these steps too, but expects a local JDK at `./jdk/Contents/Home`. The `jdk/` directory is ignored by Git; use the manual steps above if your JDK is installed elsewhere. This project is configured for a debug APK; release signing is not configured here.
+The `build_apk.sh` helper also builds the APK, but expects a local JDK at `./jdk/Contents/Home`; use the manual steps if JDK 21 is installed elsewhere. Release signing is not configured, so the output is a debug APK.
 
-GitHub Actions builds and verifies the debug APK for pushes and pull requests to `main`, and can also be started manually from the Actions tab. The workflow runs type checking and the database/archive import tests, builds the web assets, syncs Capacitor, compiles the APK, and uploads `brufin-debug-apk` as a 14-day artifact. Pushing a version tag such as `v0.3` runs the same build and then publishes the APK as a GitHub Release asset with generated release notes. Release signing is not configured, so this is a debug APK rather than a signed production build.
+## Continuous integration and releases
+
+GitHub Actions checks the project and builds a debug APK on pushes and pull requests to `main`, and can be started manually from the Actions tab. The workflow runs type checking and the database/archive import tests, builds the web assets, syncs Capacitor, compiles the APK, and uploads `brufin-debug-apk` as a 14-day artifact.
+
+Pushing a version tag such as `v0.3` runs the build and publishes the APK as a GitHub Release asset with generated release notes. Release signing is not configured.
 
 ## Useful commands
 
 | Command | Purpose |
 | --- | --- |
-| `npm ci` | Install the exact dependency versions in the lockfile |
-| `npm run dev` | Start the Vite development server |
+| `npm ci` | Install dependency versions from the lockfile |
+| `npm run dev` | Run the web development server |
+| `npm run typecheck` | Check TypeScript without emitting files |
+| `npm test` | Check local database storage and historical JSON/CSV import |
 | `npm run build` | Build the production web assets |
-| `npm run typecheck` | Run the TypeScript compiler without emitting files |
-| `npm test` | Verify local database migration and historical JSON/CSV import |
-| `npm run preview` | Serve the production bundle locally |
-| `npm run cap:sync` | Build web assets and sync them into the Android project |
+| `npm run preview` | Preview the production web build |
+| `npm run cap:sync` | Build web assets and sync them into Android |
 | `cd android && ./gradlew assembleDebug` | Compile the Android debug APK |
 
-The production build and type check are separate commands.
-
-## Project layout
+## Project structure
 
 ```text
 src/
   components/      App views, forms, modals, navigation, and diagnostics
   data/            Demo data
-  utils/           IndexedDB, legacy migration, archive import, categories, and date helpers
+  utils/           IndexedDB storage, archive import, categories, and date helpers
   App.tsx          App state and view composition
   types.ts         Data model types
 android/           Capacitor Android project
-public/            Web app icons and manifest
+public/            App icon and web manifest
+screenshots/       Light and dark dashboard screenshots
 ```
 
-## Tech stack
+## Built with
 
 - React 19 and TypeScript
 - Vite 8
