@@ -127,21 +127,30 @@ export const App: React.FC = () => {
 
   // Storage & RAM diagnostics state
   const [isDiagnosticsActive, setIsDiagnosticsActive] = useState<boolean>(() => isDiagnosticsEnabled());
+  const [isDiagnosticsExpanded, setIsDiagnosticsExpanded] = useState(false);
   const [isDiagnosticsModalOpen, setIsDiagnosticsModalOpen] = useState(false);
 
   const handleToggleDiagnostics = (enabled: boolean) => {
     setIsDiagnosticsActive(enabled);
     setDiagnosticsEnabled(enabled);
-    showToast(enabled ? 'Diagnostics monitor enabled at top' : 'Diagnostics monitor hidden');
+    if (!enabled) setIsDiagnosticsExpanded(false);
+    showToast(enabled ? 'Diagnostics monitor enabled' : 'Diagnostics monitor hidden');
   };
 
   const handleTapCoffee = () => {
-    setIsDiagnosticsActive((prev) => {
-      const next = !prev;
-      setDiagnosticsEnabled(next);
-      showToast(next ? '⚡ Diagnostics Monitor ON (RAM & Storage)' : 'Diagnostics Monitor OFF');
-      return next;
-    });
+    if (isDiagnosticsExpanded) {
+      setIsDiagnosticsExpanded(false);
+      return;
+    }
+
+    if (!isDiagnosticsActive) {
+      handleToggleDiagnostics(true);
+      // Let the monitor mount in its collapsed state before starting the dropdown animation.
+      window.requestAnimationFrame(() => setIsDiagnosticsExpanded(true));
+      return;
+    }
+
+    setIsDiagnosticsExpanded(true);
   };
 
 
@@ -578,12 +587,15 @@ export const App: React.FC = () => {
           theme={theme}
           onToggleTheme={toggleTheme}
           onTapCoffee={handleTapCoffee}
+          diagnosticsExpanded={isDiagnosticsExpanded}
         >
-          {/* Real-time Storage & RAM Leak Diagnostics Bar (docked below top status bar) */}
+          {/* Compact diagnostics dropdown anchored to the BruFin logo */}
           {isDiagnosticsActive && (
             <DiagnosticsBar
-              onOpenDetails={() => setIsDiagnosticsModalOpen(true)}
-              onDismiss={() => handleToggleDiagnostics(false)}
+              onOpenDetails={() => {
+                setIsDiagnosticsExpanded(false);
+                setIsDiagnosticsModalOpen(true);
+              }}
             />
           )}
         </Navbar>

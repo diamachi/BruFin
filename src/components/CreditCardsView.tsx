@@ -1,9 +1,8 @@
-import React, { useState, useMemo, useRef } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import {
   CreditCard as CardIcon,
-  ChevronLeft,
-  ChevronRight,
+  ChevronDown,
   Plus,
   Edit2,
   Trash2,
@@ -39,6 +38,8 @@ export const CreditCardsView: React.FC<Props> = ({
   onUpdateCreditCards,
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isCardPickerOpen, setIsCardPickerOpen] = useState(false);
+  const cardPickerRef = useRef<HTMLDivElement>(null);
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -105,6 +106,22 @@ export const CreditCardsView: React.FC<Props> = ({
   // Keep index in valid bounds
   const safeIndex = cardStats.length > 0 ? Math.min(currentIndex, cardStats.length - 1) : 0;
   const activeCard = cardStats[safeIndex];
+
+  useEffect(() => {
+    if (!isCardPickerOpen) return;
+    const handlePointerDown = (event: PointerEvent) => {
+      if (!cardPickerRef.current?.contains(event.target as Node)) setIsCardPickerOpen(false);
+    };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setIsCardPickerOpen(false);
+    };
+    document.addEventListener('pointerdown', handlePointerDown);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('pointerdown', handlePointerDown);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isCardPickerOpen]);
 
   const handlePrev = () => {
     if (cardStats.length === 0) return;
@@ -273,6 +290,65 @@ export const CreditCardsView: React.FC<Props> = ({
         /* 3. Single Swipable Card with Outline */
         activeCard && (
           <div className="space-y-3">
+            {cardStats.length > 1 && (
+              <div ref={cardPickerRef} className="relative z-20">
+                <button
+                  type="button"
+                  aria-haspopup="listbox"
+                  aria-expanded={isCardPickerOpen}
+                  onClick={() => setIsCardPickerOpen((open) => !open)}
+                  className="w-full min-h-12 px-4 py-2.5 rounded-2xl flex items-center justify-between gap-3 bg-white dark:bg-[#22252A] border border-[#E8E1DB] dark:border-[#363B44] shadow-sm hover:border-[#EF6448]/60 dark:hover:border-[#EF6448]/60 transition-colors"
+                >
+                  <span className="min-w-0 flex items-center gap-3 text-left">
+                    <span className="w-8 h-8 rounded-xl flex items-center justify-center bg-[#FDF4E7] dark:bg-[#EF6448]/15 text-[#996520] dark:text-[#FF927A] shrink-0">
+                      <CardIcon className="w-4 h-4" />
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block text-xs font-bold text-slate-800 dark:text-[#F2F3F5] truncate">{activeCard.shortName}</span>
+                      <span className="block text-[10px] text-slate-500 dark:text-[#A5ACB7] truncate">{activeCard.bank} ···· {activeCard.last4}</span>
+                    </span>
+                  </span>
+                  <ChevronDown className={`w-4 h-4 text-slate-500 dark:text-[#A5ACB7] shrink-0 transition-transform duration-200 ${isCardPickerOpen ? 'rotate-180' : ''}`} />
+                </button>
+
+                {isCardPickerOpen && (
+                  <div
+                    role="listbox"
+                    aria-label="Choose a credit card"
+                    className="absolute left-0 right-0 top-full mt-2 p-1.5 rounded-2xl bg-white dark:bg-[#22252A] border border-[#E8E1DB] dark:border-[#363B44] shadow-xl shadow-slate-900/10 dark:shadow-black/30 animate-fadeIn"
+                  >
+                    {cardStats.map((card, index) => {
+                      const isSelected = card.id === activeCard.id;
+                      return (
+                        <button
+                          key={card.id}
+                          type="button"
+                          role="option"
+                          aria-selected={isSelected}
+                          onClick={() => {
+                            setCurrentIndex(index);
+                            setIsCardPickerOpen(false);
+                          }}
+                          className={`w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl text-left transition-colors ${
+                            isSelected
+                              ? 'bg-[#FDF4E7] dark:bg-[#EF6448]/15'
+                              : 'hover:bg-slate-50 dark:hover:bg-[#2B3037]'
+                          }`}
+                        >
+                          <span className="min-w-0">
+                            <span className={`block text-xs font-bold truncate ${isSelected ? 'text-[#996520] dark:text-[#FF927A]' : 'text-slate-800 dark:text-[#F2F3F5]'}`}>
+                              {card.shortName}
+                            </span>
+                            <span className="block text-[10px] text-slate-500 dark:text-[#A5ACB7] truncate">{card.bank} ···· {card.last4}</span>
+                          </span>
+                          {isSelected && <span className="w-2 h-2 rounded-full bg-[#EF6448] shrink-0" aria-hidden="true" />}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
             <div
               onTouchStart={handleTouchStart}
               onTouchMove={handleTouchMove}
@@ -359,44 +435,7 @@ export const CreditCardsView: React.FC<Props> = ({
                 </span>
               </div>
 
-              {/* Navigation Arrows for Desktop / 1-click */}
-              {cardStats.length > 1 && (
-                <>
-                  <button
-                    onClick={handlePrev}
-                    className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white dark:bg-[#22252A] hover:bg-slate-100 dark:hover:bg-[#363C3A] border border-[#E8E1DB] dark:border-[#363B44] text-slate-600 dark:text-[#F2F3F5] flex items-center justify-center transition-colors -ml-4 shadow-md"
-                    title="Previous Card"
-                  >
-                    <ChevronLeft className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={handleNext}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white dark:bg-[#22252A] hover:bg-slate-100 dark:hover:bg-[#363C3A] border border-[#E8E1DB] dark:border-[#363B44] text-slate-600 dark:text-[#F2F3F5] flex items-center justify-center transition-colors -mr-4 shadow-md"
-                    title="Next Card"
-                  >
-                    <ChevronRight className="w-4 h-4" />
-                  </button>
-                </>
-              )}
             </div>
-
-            {/* Swipe Indicators (Dots) */}
-            {cardStats.length > 1 && (
-              <div className="flex justify-center items-center space-x-1.5 pt-1">
-                {cardStats.map((card, idx) => (
-                  <button
-                    key={card.id}
-                    onClick={() => setCurrentIndex(idx)}
-                    className={`transition-all rounded-full ${
-                      idx === safeIndex
-                        ? 'w-6 h-1.5 bg-[#59171B] dark:bg-[#B84E3B]'
-                        : 'w-1.5 h-1.5 bg-[#EAD9C8] dark:bg-[#30353D] hover:bg-[#59171B] dark:hover:bg-[#EF6448]'
-                    }`}
-                    title={card.shortName}
-                  />
-                ))}
-              </div>
-            )}
           </div>
         )
       )}

@@ -13,6 +13,20 @@
     var(--safe-area-inset-bottom, 0px),
     var(--android-nav-bar-height, 0px)
   );
+  --chart-ring-track: #D7DEE8;
+  --chart-color-1: #C87868;
+  --chart-color-2: #6F91B8;
+  --chart-color-3: #5E9277;
+  --chart-color-4: #8B77AE;
+  --chart-color-5: #B08A4D;
+  --chart-color-6: #B76F8A;
+  --chart-color-7: #568F97;
+  --chart-color-8: #87995D;
+  --chart-color-9: #737FAF;
+  --chart-color-10: #A96874;
+  --chart-color-11: #5F947B;
+  --chart-color-12: #71808D;
+  --chart-color-13: #B6815D;
 }
 
 @layer base {
@@ -37,6 +51,20 @@
   }
   .dark {
     color-scheme: dark;
+    --chart-ring-track: #3A424D;
+    --chart-color-1: #E9A08C;
+    --chart-color-2: #9BB9D5;
+    --chart-color-3: #92C2A0;
+    --chart-color-4: #BEACE0;
+    --chart-color-5: #E0BE83;
+    --chart-color-6: #DCA0B7;
+    --chart-color-7: #8BC3C6;
+    --chart-color-8: #BCCF8E;
+    --chart-color-9: #AAB6E3;
+    --chart-color-10: #DB929E;
+    --chart-color-11: #90C4AB;
+    --chart-color-12: #B9C5D1;
+    --chart-color-13: #D9A586;
   }
   ::selection {
     background-color: #FED7B8;

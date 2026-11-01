@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import {
-  PieChart,
+  BarChart3,
   Calendar,
   ChevronLeft,
   ChevronRight,
@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import { Transaction } from '../types';
 import { formatINR, formatMonthYear, formatDateLabel, getTodayDateString } from '../utils/dateUtils';
-import { getCategoryMeta } from '../utils/categories';
+import { EXPENSE_CATEGORIES, getCategoryMeta } from '../utils/categories';
 import { CategoryIcon } from './CategoryIcon';
 
 export type DistributionFilterMode = 'monthly' | 'day_wise' | 'specific_date';
@@ -30,16 +30,29 @@ interface Props {
 }
 
 const METHOD_COLORS = [
-  '#EF6448',
-  '#3B82F6',
-  '#10B981',
-  '#8B5CF6',
-  '#F59E0B',
-  '#EC4899',
-  '#06B6D4',
-  '#84CC16',
-  '#6366F1',
+  'var(--chart-color-1)',
+  'var(--chart-color-2)',
+  'var(--chart-color-3)',
+  'var(--chart-color-4)',
+  'var(--chart-color-5)',
+  'var(--chart-color-6)',
+  'var(--chart-color-7)',
+  'var(--chart-color-8)',
+  'var(--chart-color-9)',
+  'var(--chart-color-10)',
+  'var(--chart-color-11)',
+  'var(--chart-color-12)',
+  'var(--chart-color-13)',
 ];
+
+const getCategoryChartColor = (name: string) => {
+  const knownIndex = EXPENSE_CATEGORIES.findIndex((category) => category.name.toLowerCase() === name.toLowerCase());
+  if (knownIndex >= 0) return METHOD_COLORS[knownIndex % METHOD_COLORS.length];
+
+  let hash = 0;
+  for (const character of name.toLowerCase()) hash = (hash * 31 + character.charCodeAt(0)) | 0;
+  return METHOD_COLORS[Math.abs(hash) % METHOD_COLORS.length];
+};
 
 export const ExpenseDistributionCard: React.FC<Props> = ({
   transactions,
@@ -115,7 +128,8 @@ export const ExpenseDistributionCard: React.FC<Props> = ({
         const percent = totalExpenseAmount > 0 ? (data.amount / totalExpenseAmount) * 100 : 0;
         const avgDaily = Math.round(data.amount / daysElapsed);
         const meta = getCategoryMeta(name);
-        return { name, amount: data.amount, count: data.count, percent, avgDaily, meta };
+        const color = getCategoryChartColor(name);
+        return { name, amount: data.amount, count: data.count, percent, avgDaily, meta, color };
       })
       .sort((a, b) => b.amount - a.amount);
   }, [activeExpenses, totalExpenseAmount, daysElapsed]);
@@ -140,27 +154,6 @@ export const ExpenseDistributionCard: React.FC<Props> = ({
       .sort((a, b) => b.amount - a.amount);
   }, [activeExpenses, totalExpenseAmount, daysElapsed]);
 
-  // SVG Slices for Donut Chart
-  const activeSlices = useMemo(() => {
-    const list =
-      chartMode === 'category'
-        ? categoryBreakdown.map((c) => ({ name: c.name, percent: c.percent, color: c.meta.color }))
-        : methodBreakdown.map((m) => ({ name: m.name, percent: m.percent, color: m.color }));
-
-    let accumulated = 0;
-    const C = 238.76; // Circumference for r=38
-    return list.map((item) => {
-      const strokeDash = (item.percent / 100) * C;
-      const strokeOffset = -(accumulated / 100) * C;
-      accumulated += item.percent;
-      return {
-        ...item,
-        dashArray: `${strokeDash} ${C - strokeDash}`,
-        dashOffset: strokeOffset,
-      };
-    });
-  }, [chartMode, categoryBreakdown, methodBreakdown]);
-
   // Helpers to shift specific date by +/- 1 day
   const handleShiftDate = (days: number) => {
     const d = new Date(specificDate);
@@ -184,7 +177,7 @@ export const ExpenseDistributionCard: React.FC<Props> = ({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
         <div className="flex items-center space-x-2.5">
           <div className="w-8 h-8 rounded-2xl bg-[#59171B] dark:bg-[#B84E3B] text-white flex items-center justify-center shadow-sm shrink-0">
-            <PieChart className="w-4 h-4 stroke-[2.5]" />
+            <BarChart3 className="w-4 h-4 stroke-[2.5]" />
           </div>
           <div>
             <div className="flex items-center space-x-2">
@@ -363,105 +356,41 @@ export const ExpenseDistributionCard: React.FC<Props> = ({
           </p>
         </div>
       ) : (
-        <div className="space-y-4">
-          {/* Donut Chart & Center Stats */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-6 py-2">
-            {/* SVG Donut */}
-            <div className="relative w-36 h-36 shrink-0 flex items-center justify-center">
-              <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
-                {/* Background Ring */}
-                <circle
-                  cx="50"
-                  cy="50"
-                  r="38"
-                  fill="transparent"
-                  stroke="currentColor"
-                  strokeWidth="11"
-                  className="text-slate-100 dark:text-[#1C1F1E]"
-                />
-                {/* Active Slices */}
-                {activeSlices.map((slice, i) => (
-                  <circle
-                    key={i}
-                    cx="50"
-                    cy="50"
-                    r="38"
-                    fill="transparent"
-                    stroke={slice.color}
-                    strokeWidth="11"
-                    strokeDasharray={slice.dashArray}
-                    strokeDashoffset={slice.dashOffset}
-                    strokeLinecap="round"
-                    className="transition-all duration-500"
-                  />
-                ))}
-              </svg>
-
-              {/* Center Metrics Pill */}
-              <div className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none px-2">
-                <span className="text-[9px] font-bold text-slate-400 dark:text-[#A5ACB7] uppercase tracking-wider">
-                  {filterMode === 'day_wise' ? 'Daily Avg' : 'Total'}
-                </span>
-                <span className="text-sm font-black text-[#59171B] dark:text-[#FF927A] tracking-tight">
-                  {filterMode === 'day_wise'
-                    ? formatINR(Math.round(totalExpenseAmount / daysElapsed))
-                    : formatINR(totalExpenseAmount)}
-                </span>
-                <span className="text-[9px] text-slate-400 dark:text-slate-500 font-medium">
-                  {activeExpenses.length} {activeExpenses.length === 1 ? 'txn' : 'txns'}
-                </span>
-              </div>
+        <div className="space-y-3">
+          <div className="flex items-center justify-between px-1 py-1">
+            <div>
+              <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                {chartMode === 'category' ? 'Spending by Category' : 'Spending by Payment Method'}
+              </p>
+              <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">
+                {activeExpenses.length} {activeExpenses.length === 1 ? 'transaction' : 'transactions'}
+                {filterMode === 'day_wise' ? ` · ${daysElapsed} ${daysElapsed === 1 ? 'day' : 'days'}` : ''}
+              </p>
             </div>
-
-            {/* Quick Slices Legend */}
-            <div className="flex-1 w-full max-w-sm space-y-1.5">
-              {(chartMode === 'category' ? categoryBreakdown : methodBreakdown).slice(0, 4).map((item: any) => (
-                <div key={item.name} className="flex items-center justify-between text-xs">
-                  <div className="flex items-center space-x-2 truncate">
-                    <span
-                      className="w-2.5 h-2.5 rounded-full shrink-0"
-                      style={{ backgroundColor: item.meta ? item.meta.color : item.color }}
-                    />
-                    <span className="text-slate-700 dark:text-slate-300 font-medium truncate">
-                      {item.name}
-                    </span>
-                  </div>
-                  <div className="flex items-center space-x-2 shrink-0">
-                    <span className="font-bold text-slate-800 dark:text-slate-100">
-                      {filterMode === 'day_wise' ? `${formatINR(item.avgDaily)}/d` : formatINR(item.amount)}
-                    </span>
-                    <span className="text-[10px] text-slate-400 w-8 text-right">
-                      {item.percent.toFixed(0)}%
-                    </span>
-                  </div>
-                </div>
-              ))}
+            <div className="text-right">
+              <p className="text-[9px] font-bold text-slate-400 dark:text-[#A5ACB7] uppercase tracking-wider">
+                {filterMode === 'day_wise' ? 'Daily Average' : 'Total'}
+              </p>
+              <p className="text-sm font-black text-[#59171B] dark:text-[#FF927A] tracking-tight">
+                {formatINR(filterMode === 'day_wise' ? Math.round(totalExpenseAmount / daysElapsed) : totalExpenseAmount)}
+              </p>
             </div>
           </div>
 
-          {/* Itemized Breakdown Bars */}
-          <div className="space-y-2.5 pt-2 border-t border-[#E8E1DB]/40 dark:border-[#363B44]">
-            <div className="flex items-center justify-between text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              <span>{chartMode === 'category' ? 'Category' : 'Payment Method'}</span>
-              <span>
-                {filterMode === 'day_wise' ? 'Avg / Day • Share' : 'Amount • Share'}
-              </span>
-            </div>
-
-            <div className="space-y-2">
+          <div className="space-y-2">
               {(chartMode === 'category' ? categoryBreakdown : methodBreakdown).map((item: any) => {
-                const color = item.meta ? item.meta.color : item.color;
+                const color = item.color;
                 return (
                   <div
                     key={item.name}
-                    className="p-2.5 rounded-2xl bg-slate-50/70 dark:bg-[#1B1E22] border border-[#E8E1DB]/50 dark:border-[#363B44] space-y-1.5 transition-all hover:border-[#59171B]/40 dark:hover:border-[#EF6448]/40"
+                    className="p-2.5 rounded-2xl bg-slate-50/70 dark:bg-[#1B1E22] border border-[#E8E1DB]/50 dark:border-[#363B44] space-y-2 transition-all hover:border-[#59171B]/40 dark:hover:border-[#EF6448]/40"
                   >
                     <div className="flex items-center justify-between text-xs">
                       <div className="flex items-center space-x-2.5 truncate">
                         {item.meta ? (
                           <div
-                            className="w-7 h-7 rounded-xl flex items-center justify-center shrink-0 border border-black/5 dark:border-white/5"
-                            style={{ backgroundColor: `${color}20`, color: color }}
+                            className="w-7 h-7 rounded-xl bg-slate-100 dark:bg-[#30353D] flex items-center justify-center shrink-0 border border-black/5 dark:border-white/5"
+                            style={{ color }}
                           >
                             <CategoryIcon name={item.meta.icon} className="w-3.5 h-3.5" />
                           </div>
@@ -498,12 +427,19 @@ export const ExpenseDistributionCard: React.FC<Props> = ({
                       </div>
                     </div>
 
-                    {/* Progress Bar */}
-                    <div className="w-full h-1.5 bg-slate-200 dark:bg-[#22252A] rounded-full overflow-hidden">
+                    {/* Ranked share bar */}
+                    <div
+                      className="w-full h-2 bg-slate-200/80 dark:bg-[#30353D] rounded-full overflow-hidden"
+                      role="progressbar"
+                      aria-label={`${item.name} share of expenses`}
+                      aria-valuenow={Math.round(item.percent)}
+                      aria-valuemin={0}
+                      aria-valuemax={100}
+                    >
                       <div
                         className="h-full rounded-full transition-all duration-300"
                         style={{
-                          width: `${item.percent}%`,
+                          width: `${Math.min(100, Math.max(0, item.percent))}%`,
                           backgroundColor: color,
                         }}
                       />
@@ -511,7 +447,6 @@ export const ExpenseDistributionCard: React.FC<Props> = ({
                   </div>
                 );
               })}
-            </div>
           </div>
 
           {/* Specific Date: List of transactions on that date */}
