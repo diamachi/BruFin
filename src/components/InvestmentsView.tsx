@@ -130,7 +130,7 @@ export const InvestmentsView: React.FC<Props> = ({
   return (
     <div className="space-y-6 animate-fadeIn">
       {/* Sub-Tab Navigation Switch: Investments vs Loans vs MF Returns Calc */}
-      <div className="flex bg-[#FFF8F3] dark:bg-[#1B1E22] p-1 rounded-2xl border border-[#FED7B8] dark:border-[#363B44] shadow-sm gap-1">
+      <div className="flex bg-[#F7F6F3] dark:bg-[#1B1E22] p-1 rounded-2xl border border-[#E8E1DB] dark:border-[#363B44] shadow-sm gap-1">
         <button
           type="button"
           onClick={() => setActiveSubTab('investments')}
@@ -175,7 +175,7 @@ export const InvestmentsView: React.FC<Props> = ({
       {activeSubTab === 'investments' && (
         <div className="space-y-6 animate-fadeIn">
           {/* 1. Net Worth Portfolio Overview Banner */}
-          <div className="p-4 sm:p-5 rounded-3xl bg-white dark:bg-[#22252A] border border-[#FED7B8] dark:border-[#363B44] shadow-sm space-y-3">
+          <div className="p-4 sm:p-5 rounded-3xl bg-white dark:bg-[#22252A] border border-[#E8E1DB] dark:border-[#363B44] shadow-sm space-y-3">
             <div className="flex items-center space-x-2.5 min-w-0">
               <div className="p-2 rounded-xl bg-[#FDF4E7] dark:bg-[#1B1E22] text-[#EF6448] shrink-0">
                 <TrendingUp className="w-5 h-5 text-[#EF6448]" />
@@ -190,7 +190,7 @@ export const InvestmentsView: React.FC<Props> = ({
               </div>
             </div>
 
-            <div className="p-4 rounded-2xl bg-[#FFF8F3]/60 dark:bg-[#1B1E22] border border-[#FED7B8] dark:border-[#363B44]">
+            <div className="p-4 rounded-2xl bg-[#F7F6F3]/60 dark:bg-[#1B1E22] border border-[#E8E1DB] dark:border-[#363B44]">
               <span className="text-[10px] font-bold text-slate-500 dark:text-[#A5ACB7] uppercase tracking-wider block">
                 Total Invested Capital
               </span>
@@ -203,7 +203,7 @@ export const InvestmentsView: React.FC<Props> = ({
           {/* 2. Asset Class Breakdown Cards */}
           <div className="space-y-4">
             {/* MUTUAL FUNDS SECTION */}
-            <div className="p-4 sm:p-5 rounded-3xl bg-white dark:bg-[#22252A] border border-[#FED7B8] dark:border-[#363B44] shadow-sm space-y-3">
+            <div className="p-4 sm:p-5 rounded-3xl bg-white dark:bg-[#22252A] border border-[#E8E1DB] dark:border-[#363B44] shadow-sm space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
                   <PieChart className="w-4 h-4 text-[#EF6448]" />
@@ -244,7 +244,7 @@ export const InvestmentsView: React.FC<Props> = ({
             </div>
 
             {/* FIXED DEPOSITS SECTION */}
-            <div className="p-4 sm:p-5 rounded-3xl bg-white dark:bg-[#22252A] border border-[#FED7B8] dark:border-[#363B44] shadow-sm space-y-3">
+            <div className="p-4 sm:p-5 rounded-3xl bg-white dark:bg-[#22252A] border border-[#E8E1DB] dark:border-[#363B44] shadow-sm space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
                   <Landmark className="w-4 h-4 text-[#EF6448]" />
@@ -285,7 +285,7 @@ export const InvestmentsView: React.FC<Props> = ({
             </div>
 
             {/* PROVIDENT FUND (PF / EPF / PPF) */}
-            <div className="p-4 sm:p-5 rounded-3xl bg-white dark:bg-[#22252A] border border-[#FED7B8] dark:border-[#363B44] shadow-sm space-y-3">
+            <div className="p-4 sm:p-5 rounded-3xl bg-white dark:bg-[#22252A] border border-[#E8E1DB] dark:border-[#363B44] shadow-sm space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
                   <ShieldCheck className="w-4 h-4 text-[#EF6448]" />
@@ -326,7 +326,7 @@ export const InvestmentsView: React.FC<Props> = ({
             </div>
 
             {/* STOCKS SECTION */}
-            <div className="p-4 sm:p-5 rounded-3xl bg-white dark:bg-[#22252A] border border-[#FED7B8] dark:border-[#363B44] shadow-sm space-y-3">
+            <div className="p-4 sm:p-5 rounded-3xl bg-white dark:bg-[#22252A] border border-[#E8E1DB] dark:border-[#363B44] shadow-sm space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
                   <Building className="w-4 h-4 text-[#EF6448]" />
@@ -345,7 +345,7 @@ export const InvestmentsView: React.FC<Props> = ({
               </div>
 
               {stocks.length === 0 ? (
-                <div className="p-4 rounded-2xl bg-slate-50 dark:bg-[#1B1E22] border border-[#FED7B8] dark:border-[#363B44] text-center space-y-1.5">
+                <div className="p-4 rounded-2xl bg-slate-50 dark:bg-[#1B1E22] border border-[#E8E1DB] dark:border-[#363B44] text-center space-y-1.5">
                   <p className="text-xs text-slate-700 dark:text-[#FF927A] font-medium">No direct stock holdings yet</p>
                   <p className="text-[10px] text-slate-500 dark:text-[#A5ACB7]">
                     Total Stock Value: ₹0. When you purchase equities, tap "Add Stock" to track your portfolio.
@@ -405,8 +405,8 @@ export const InvestmentsView: React.FC<Props> = ({
       {/* MODAL FOR ADDING / EDITING INVESTMENTS */}
       {isModalOpen && createPortal(
         <div className="fixed inset-0 z-50 overflow-y-auto bg-black/75 p-4 flex items-center justify-center animate-fadeIn">
-          <div className="w-full max-w-md max-h-[88vh] overflow-y-auto my-auto bg-white dark:bg-[#22252A] border border-[#FED7B8] dark:border-[#363B44] rounded-3xl shadow-2xl p-5 space-y-4">
-            <div className="flex items-center justify-between border-b border-[#FED7B8] dark:border-[#363B44] pb-3">
+          <div className="w-full max-w-md max-h-[88vh] overflow-y-auto my-auto bg-white dark:bg-[#22252A] border border-[#E8E1DB] dark:border-[#363B44] rounded-3xl shadow-2xl p-5 space-y-4">
+            <div className="flex items-center justify-between border-b border-[#E8E1DB] dark:border-[#363B44] pb-3">
               <h3 className="text-sm font-bold text-slate-900 dark:text-[#F2F3F5]">
                 {editingItem ? 'Edit Investment' : `Add ${formType.replace('_', ' ').toUpperCase()}`}
               </h3>
@@ -425,7 +425,7 @@ export const InvestmentsView: React.FC<Props> = ({
                   placeholder="e.g. Parag Parikh Flexi Cap, HDFC Bank FD..."
                   value={formName}
                   onChange={(e) => setFormName(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-[#1B1E22] border border-[#FED7B8] dark:border-[#363B44] rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-[#F2F3F5]"
+                  className="w-full bg-slate-50 dark:bg-[#1B1E22] border border-[#E8E1DB] dark:border-[#363B44] rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-[#F2F3F5]"
                   required
                 />
               </div>
@@ -440,7 +440,7 @@ export const InvestmentsView: React.FC<Props> = ({
                     value={formInvested}
                     onChange={(e) => setFormInvested(e.target.value)}
                     placeholder="e.g. 50000"
-                    className="w-full bg-slate-50 dark:bg-[#1B1E22] border border-[#FED7B8] dark:border-[#363B44] rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-[#F2F3F5] font-bold"
+                    className="w-full bg-slate-50 dark:bg-[#1B1E22] border border-[#E8E1DB] dark:border-[#363B44] rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-[#F2F3F5] font-bold"
                     required
                   />
                 </div>
@@ -453,7 +453,7 @@ export const InvestmentsView: React.FC<Props> = ({
                     value={formInstitution}
                     onChange={(e) => setFormInstitution(e.target.value)}
                     placeholder="e.g. Groww, Zerodha, HDFC"
-                    className="w-full bg-slate-50 dark:bg-[#1B1E22] border border-[#FED7B8] dark:border-[#363B44] rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-[#F2F3F5]"
+                    className="w-full bg-slate-50 dark:bg-[#1B1E22] border border-[#E8E1DB] dark:border-[#363B44] rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-[#F2F3F5]"
                   />
                 </div>
               </div>
@@ -469,7 +469,7 @@ export const InvestmentsView: React.FC<Props> = ({
                       step="0.05"
                       value={formRate}
                       onChange={(e) => setFormRate(e.target.value)}
-                      className="w-full bg-slate-50 dark:bg-[#1B1E22] border border-[#FED7B8] dark:border-[#363B44] rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-[#F2F3F5]"
+                      className="w-full bg-slate-50 dark:bg-[#1B1E22] border border-[#E8E1DB] dark:border-[#363B44] rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-[#F2F3F5]"
                     />
                   </div>
                   {formType === 'fd' && (
@@ -481,7 +481,7 @@ export const InvestmentsView: React.FC<Props> = ({
                         type="date"
                         value={formMaturity}
                         onChange={(e) => setFormMaturity(e.target.value)}
-                        className="w-full bg-slate-50 dark:bg-[#1B1E22] border border-[#FED7B8] dark:border-[#363B44] rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-[#F2F3F5]"
+                        className="w-full bg-slate-50 dark:bg-[#1B1E22] border border-[#E8E1DB] dark:border-[#363B44] rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-[#F2F3F5]"
                       />
                     </div>
                   )}

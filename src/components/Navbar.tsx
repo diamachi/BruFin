@@ -19,7 +19,7 @@ interface Props {
  */
 export const BruFinLogo: React.FC<{ className?: string }> = ({ className = 'w-9 h-9' }) => (
   <div
-    className={`relative ${className} rounded-2xl bg-gradient-to-br from-[#EF6448] via-[#E05338] to-[#FED7B8] dark:from-[#292D34] dark:via-[#202328] dark:to-[#17191C] p-1.5 flex items-center justify-center shadow-md shadow-[#EF6448]/20 dark:shadow-[#17191C]/80 border border-[#FED7B8]/60 dark:border-[#363B44] text-white dark:text-[#FF927A] shrink-0 select-none transition-transform hover:scale-105`}
+    className={`relative ${className} rounded-2xl bg-gradient-to-br from-[#EF6448] via-[#E05338] to-[#FED7B8] dark:from-[#292D34] dark:via-[#202328] dark:to-[#17191C] p-1.5 flex items-center justify-center shadow-md shadow-[#EF6448]/20 dark:shadow-[#17191C]/80 border border-[#E8E1DB]/60 dark:border-[#363B44] text-white dark:text-[#FF927A] shrink-0 select-none transition-transform hover:scale-105`}
   >
     <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
       {/* Steam Curves */}
@@ -58,7 +58,7 @@ export const Navbar: React.FC<Props> = ({
   children,
 }) => {
   return (
-    <header className="sticky top-0 z-30 bg-[#FFF8F3] dark:bg-[#17191C] border-b border-[#FED7B8] dark:border-[#363B44] transition-colors duration-200 shadow-[0_1px_15px_-4px_rgba(89,23,27,0.08)] dark:shadow-[0_4px_20px_-4px_rgba(0,0,0,0.5)] w-full overflow-hidden">
+    <header className="sticky top-0 z-30 bg-[#F7F6F3] dark:bg-[#17191C] border-b border-[#E8E1DB] dark:border-[#363B44] transition-colors duration-200 shadow-[0_1px_15px_-4px_rgba(89,23,27,0.08)] dark:shadow-[0_4px_20px_-4px_rgba(0,0,0,0.5)] w-full overflow-hidden">
       <div
         className="px-3 sm:px-4"
         style={{
@@ -85,7 +85,7 @@ export const Navbar: React.FC<Props> = ({
                 <span>Bru</span>
                 <span className="text-[#EF6448] ml-0.5">Fin</span>
               </h1>
-              <span className="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-semibold bg-[#FED7B8] dark:bg-[#B84E3B]/15 text-[#EF6448] border border-[#FED7B8] dark:border-[#EF6448]/30">
+              <span className="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-semibold bg-[#FED7B8] dark:bg-[#B84E3B]/15 text-[#EF6448] border border-[#E8E1DB] dark:border-[#EF6448]/30">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#EF6448] mr-1 animate-pulse" />
                 Local
               </span>
@@ -104,7 +104,7 @@ export const Navbar: React.FC<Props> = ({
             <select
               value={selectedMonth}
               onChange={(e) => onSelectMonth(e.target.value)}
-              className="appearance-none bg-white/95 dark:bg-[#22252A] hover:bg-white dark:hover:bg-[#2B3037] text-slate-800 dark:text-[#F2F3F5] text-[11px] sm:text-xs font-semibold pl-6 pr-5 py-1.5 rounded-xl border border-[#FED7B8] dark:border-[#363B44] focus:outline-none cursor-pointer transition-colors shadow-sm w-auto min-w-[100px]"
+              className="appearance-none bg-white/95 dark:bg-[#22252A] hover:bg-white dark:hover:bg-[#2B3037] text-slate-800 dark:text-[#F2F3F5] text-[11px] sm:text-xs font-semibold pl-6 pr-5 py-1.5 rounded-xl border border-[#E8E1DB] dark:border-[#363B44] focus:outline-none cursor-pointer transition-colors shadow-sm w-auto min-w-[100px]"
             >
               <option value="All">All Time</option>
               {availableMonths.map((m) => (
@@ -121,7 +121,7 @@ export const Navbar: React.FC<Props> = ({
             <button
               onClick={onOpenHelp}
               title="Page Guide & Tips"
-              className="p-1.5 sm:p-2 rounded-xl bg-white/95 dark:bg-[#22252A] text-slate-600 dark:text-[#FF927A] hover:text-[#EF6448] dark:hover:text-[#F2F3F5] border border-[#FED7B8] dark:border-[#363B44] hover:border-[#EF6448] transition-all active:scale-95 shadow-sm shrink-0 cursor-pointer"
+              className="p-1.5 sm:p-2 rounded-xl bg-white/95 dark:bg-[#22252A] text-slate-600 dark:text-[#FF927A] hover:text-[#EF6448] dark:hover:text-[#F2F3F5] border border-[#E8E1DB] dark:border-[#363B44] hover:border-[#EF6448] transition-all active:scale-95 shadow-sm shrink-0 cursor-pointer"
             >
               <HelpCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </button>
@@ -131,7 +131,7 @@ export const Navbar: React.FC<Props> = ({
           <button
             onClick={onToggleTheme}
             title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-            className="p-1.5 sm:p-2 rounded-xl bg-white/95 dark:bg-[#22252A] text-slate-600 dark:text-[#FF927A] hover:text-[#EF6448] dark:hover:text-[#F2F3F5] border border-[#FED7B8] dark:border-[#363B44] hover:border-[#EF6448] transition-all active:scale-95 shadow-sm shrink-0 cursor-pointer"
+            className="p-1.5 sm:p-2 rounded-xl bg-white/95 dark:bg-[#22252A] text-slate-600 dark:text-[#FF927A] hover:text-[#EF6448] dark:hover:text-[#F2F3F5] border border-[#E8E1DB] dark:border-[#363B44] hover:border-[#EF6448] transition-all active:scale-95 shadow-sm shrink-0 cursor-pointer"
           >
             {theme === 'dark' ? (
               <Sun className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#EF6448] hover:rotate-45 transition-transform duration-300" />
@@ -144,7 +144,7 @@ export const Navbar: React.FC<Props> = ({
           <button
             onClick={onOpenSettings}
             title="Settings & Backup"
-            className="p-1.5 sm:p-2 rounded-xl bg-white/95 dark:bg-[#22252A] text-slate-600 dark:text-[#FF927A] hover:text-[#EF6448] dark:hover:text-[#F2F3F5] border border-[#FED7B8] dark:border-[#363B44] hover:border-[#EF6448] transition-all active:scale-95 shadow-sm shrink-0 cursor-pointer"
+            className="p-1.5 sm:p-2 rounded-xl bg-white/95 dark:bg-[#22252A] text-slate-600 dark:text-[#FF927A] hover:text-[#EF6448] dark:hover:text-[#F2F3F5] border border-[#E8E1DB] dark:border-[#363B44] hover:border-[#EF6448] transition-all active:scale-95 shadow-sm shrink-0 cursor-pointer"
           >
             <Settings className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           </button>

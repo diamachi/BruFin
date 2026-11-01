@@ -77,11 +77,11 @@ export const DiagnosticsModal: React.FC<Props> = ({
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 animate-fadeIn">
       <div
-        className="w-full max-w-lg bg-white dark:bg-[#22252A] border border-[#FED7B8] dark:border-[#363B44] rounded-3xl shadow-2xl p-5 sm:p-6 space-y-5 max-h-[92vh] overflow-y-auto"
+        className="w-full max-w-lg bg-white dark:bg-[#22252A] border border-[#E8E1DB] dark:border-[#363B44] rounded-3xl shadow-2xl p-5 sm:p-6 space-y-5 max-h-[92vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-[#FED7B8] dark:border-[#363B44] pb-3">
+        <div className="flex items-center justify-between border-b border-[#E8E1DB] dark:border-[#363B44] pb-3">
           <div className="flex items-center space-x-2.5">
             <div className="w-9 h-9 rounded-2xl bg-[#EF6448] text-white flex items-center justify-center shadow-sm">
               <Cpu className="w-5 h-5" />
@@ -122,7 +122,7 @@ export const DiagnosticsModal: React.FC<Props> = ({
         )}
 
         {/* 1. Live RAM / Heap Monitor */}
-        <div className="p-4 rounded-2xl bg-slate-50 dark:bg-[#1B1E22] border border-[#FED7B8] dark:border-[#363B44] space-y-3">
+        <div className="p-4 rounded-2xl bg-slate-50 dark:bg-[#1B1E22] border border-[#E8E1DB] dark:border-[#363B44] space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <Cpu className="w-4 h-4 text-[#59171B] dark:text-[#FF927A]" />
@@ -172,7 +172,7 @@ export const DiagnosticsModal: React.FC<Props> = ({
         </div>
 
         {/* 2. Storage Quota & Breakdown */}
-        <div className="p-4 rounded-2xl bg-slate-50 dark:bg-[#1B1E22] border border-[#FED7B8] dark:border-[#363B44] space-y-3">
+        <div className="p-4 rounded-2xl bg-slate-50 dark:bg-[#1B1E22] border border-[#E8E1DB] dark:border-[#363B44] space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <HardDrive className="w-4 h-4 text-[#59171B] dark:text-[#FF927A]" />
@@ -215,7 +215,7 @@ export const DiagnosticsModal: React.FC<Props> = ({
         </div>
 
         {/* 3. Historical export section */}
-        <div className="p-4 rounded-2xl bg-slate-50 dark:bg-[#1B1E22] border border-[#FED7B8] dark:border-[#363B44] space-y-3.5">
+        <div className="p-4 rounded-2xl bg-slate-50 dark:bg-[#1B1E22] border border-[#E8E1DB] dark:border-[#363B44] space-y-3.5">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <Archive className="w-4 h-4 text-[#59171B] dark:text-[#FF927A]" />
@@ -274,7 +274,7 @@ export const DiagnosticsModal: React.FC<Props> = ({
                 onClick={() => handleArchive('csv')}
                 className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all active:scale-95 ${
                   archivable && archivable.count > 0
-                    ? 'bg-white dark:bg-[#17191C] border border-[#FED7B8] dark:border-[#363B44] text-slate-800 dark:text-[#F2F3F5] hover:bg-slate-50'
+                    ? 'bg-white dark:bg-[#17191C] border border-[#E8E1DB] dark:border-[#363B44] text-slate-800 dark:text-[#F2F3F5] hover:bg-slate-50'
                     : 'bg-slate-200 dark:bg-[#1B1E22] text-slate-400 cursor-not-allowed border border-slate-300 dark:border-slate-800'
                 }`}
                 title="Download older records as a CSV file"
@@ -319,7 +319,7 @@ export const DiagnosticsModal: React.FC<Props> = ({
         </div>
 
         {/* 4. Controls & Visibility Toggle */}
-        <div className="pt-2 border-t border-[#FED7B8] dark:border-[#363B44] flex items-center justify-between">
+        <div className="pt-2 border-t border-[#E8E1DB] dark:border-[#363B44] flex items-center justify-between">
           <button
             onClick={() => onToggleDiagnostics(!isDiagnosticsActive)}
             className="text-xs font-semibold text-slate-600 dark:text-[#A5ACB7] hover:text-[#59171B] dark:hover:text-[#EF6448] flex items-center gap-1.5 transition-colors"

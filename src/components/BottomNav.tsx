@@ -19,7 +19,7 @@ export const BottomNav: React.FC<Props> = ({ activeTab, onTabChange, onOpenQuick
           paddingBottom: 'calc(var(--app-safe-bottom, 0px) + 0.75rem)',
         }}
       >
-        <nav className="relative bg-white/98 dark:bg-[#22252A]/98 border border-[#FED7B8] dark:border-[#363B44] rounded-3xl shadow-xl dark:shadow-[0_8px_30px_rgba(0,0,0,0.7)] px-2 py-1.5 grid grid-cols-2 items-center transition-colors">
+        <nav className="relative bg-white/98 dark:bg-[#22252A]/98 border border-[#E8E1DB] dark:border-[#363B44] rounded-3xl shadow-xl dark:shadow-[0_8px_30px_rgba(0,0,0,0.7)] px-2 py-1.5 grid grid-cols-2 items-center transition-colors">
           {/* Left Half: Monitor & Expenses */}
           <div className="flex items-center justify-around pr-7">
             {/* 1. Monitor */}

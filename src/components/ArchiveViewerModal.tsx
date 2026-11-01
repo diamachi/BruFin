@@ -66,8 +66,8 @@ export const ArchiveViewerModal: React.FC<Props> = ({ transactions, existingTran
 
   return createPortal(
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/75 p-4" role="dialog" aria-modal="true" aria-labelledby="archive-viewer-title">
-      <div className="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-3xl border border-[#FED7B8] bg-white shadow-2xl dark:border-[#363B44] dark:bg-[#22252A]">
-        <header className="flex items-center justify-between border-b border-[#FED7B8] p-4 dark:border-[#363B44]">
+      <div className="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-3xl border border-[#E8E1DB] bg-white shadow-2xl dark:border-[#363B44] dark:bg-[#22252A]">
+        <header className="flex items-center justify-between border-b border-[#E8E1DB] p-4 dark:border-[#363B44]">
           <div className="flex items-center gap-2">
             <Archive className="h-5 w-5 text-[#EF6448]" />
             <div>
@@ -104,7 +104,7 @@ export const ArchiveViewerModal: React.FC<Props> = ({ transactions, existingTran
           {transactions.length > 200 && <p className="mt-2 text-center text-xs text-slate-500">Showing the first 200 records. Restoring will include all {transactions.length}.</p>}
         </div>
 
-        <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-[#FED7B8] p-4 dark:border-[#363B44]">
+        <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-[#E8E1DB] p-4 dark:border-[#363B44]">
           <p className="text-xs text-slate-500 dark:text-slate-400">Duplicate rows are skipped when you restore this archive.</p>
           <div className="flex gap-2">
             <button onClick={onClose} className="rounded-xl border border-slate-200 px-3 py-2 text-xs font-semibold dark:border-[#363B44]">Close</button>

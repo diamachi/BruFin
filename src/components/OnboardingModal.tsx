@@ -18,7 +18,7 @@ export const OnboardingModal: React.FC<Props> = ({
 
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 animate-fadeIn">
-      <div className="w-full max-w-md bg-white dark:bg-[#22252A] border border-[#FED7B8] dark:border-[#363B44] rounded-3xl shadow-2xl p-6 space-y-6 animate-scaleUp">
+      <div className="w-full max-w-md bg-white dark:bg-[#22252A] border border-[#E8E1DB] dark:border-[#363B44] rounded-3xl shadow-2xl p-6 space-y-6 animate-scaleUp">
         {/* App Branding */}
         <div className="text-center space-y-2">
           <div className="inline-flex p-3 rounded-2xl bg-[#EF6448] text-white shadow-md mb-1">
@@ -68,7 +68,7 @@ export const OnboardingModal: React.FC<Props> = ({
           {/* Option 2: Clean Slate */}
           <button
             onClick={onSelectFresh}
-            className="w-full p-4 rounded-2xl text-left bg-white dark:bg-[#1B1E22] border border-[#FED7B8] dark:border-[#363B44] hover:border-slate-400 dark:hover:border-slate-600 hover:shadow-md transition-all group cursor-pointer"
+            className="w-full p-4 rounded-2xl text-left bg-white dark:bg-[#1B1E22] border border-[#E8E1DB] dark:border-[#363B44] hover:border-slate-400 dark:hover:border-slate-600 hover:shadow-md transition-all group cursor-pointer"
           >
             <div className="flex items-start justify-between">
               <div className="space-y-1 pr-3">
@@ -87,7 +87,7 @@ export const OnboardingModal: React.FC<Props> = ({
         </div>
 
         {/* Privacy Note */}
-        <div className="pt-2 border-t border-[#FED7B8]/70 dark:border-[#363B44] flex items-center justify-center space-x-2 text-[11px] text-slate-400 dark:text-slate-500">
+        <div className="pt-2 border-t border-[#E8E1DB]/70 dark:border-[#363B44] flex items-center justify-center space-x-2 text-[11px] text-slate-400 dark:text-slate-500">
           <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
           <span>Zero cloud tracking • Offline-first • Open source</span>
         </div>

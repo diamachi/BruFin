@@ -523,11 +523,11 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#FFF8F3] dark:bg-[#17191C] text-slate-800 dark:text-[#F2F3F5] flex flex-col justify-between selection:bg-[#FED7B8] selection:text-[#202322] dark:selection:bg-[#EF6448]/30 dark:selection:text-[#EF6448] font-sans antialiased transition-colors duration-200">
+    <div className="min-h-screen bg-[#F7F6F3] dark:bg-[#17191C] text-slate-800 dark:text-[#F2F3F5] flex flex-col justify-between selection:bg-[#FED7B8] selection:text-[#202322] dark:selection:bg-[#EF6448]/30 dark:selection:text-[#EF6448] font-sans antialiased transition-colors duration-200">
       {/* Toast Notification */}
       {toastMessage && (
         <div
-          className="fixed left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-2xl bg-[#EF6448] text-white text-xs font-semibold shadow-xl border border-[#FED7B8] dark:border-[#363B44] backdrop-blur-md animate-bounce"
+          className="fixed left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-2xl bg-[#EF6448] text-white text-xs font-semibold shadow-xl border border-[#E8E1DB] dark:border-[#363B44] backdrop-blur-md animate-bounce"
           style={{
             top: 'calc(var(--app-safe-top, 0px) + 4.5rem)',
           }}
@@ -537,7 +537,7 @@ export const App: React.FC = () => {
       )}
 
       {/* Phone Frame Toggle on Desktop */}
-      <div className="hidden lg:flex fixed right-4 bottom-4 z-40 items-center space-x-2 bg-white/90 dark:bg-[#22252A] border border-[#FED7B8] dark:border-[#363B44] rounded-2xl p-1.5 shadow-xl">
+      <div className="hidden lg:flex fixed right-4 bottom-4 z-40 items-center space-x-2 bg-white/90 dark:bg-[#22252A] border border-[#E8E1DB] dark:border-[#363B44] rounded-2xl p-1.5 shadow-xl">
         <button
           onClick={() => setIsPhoneFrame(false)}
           className={`p-2 rounded-xl text-xs font-medium flex items-center gap-1.5 transition-colors ${
@@ -564,7 +564,7 @@ export const App: React.FC = () => {
       <div
         className={`w-full mx-auto transition-all duration-300 flex-1 flex flex-col ${
           isPhoneFrame
-            ? 'max-w-md my-6 rounded-[40px] border-8 border-[#FED7B8] dark:border-[#363B44] shadow-2xl overflow-hidden bg-[#FFF8F3] dark:bg-[#17191C] relative min-h-[820px]'
+            ? 'max-w-md my-6 rounded-[40px] border-8 border-[#E8E1DB] dark:border-[#363B44] shadow-2xl overflow-hidden bg-[#F7F6F3] dark:bg-[#17191C] relative min-h-[820px]'
             : 'max-w-2xl'
         }`}
       >
@@ -590,7 +590,7 @@ export const App: React.FC = () => {
 
         {/* Demo Mode Notice Banner */}
         {isDemoMode && (
-          <div className="bg-gradient-to-r from-[#FDF4E7] via-[#FFF8F3] to-[#FDF4E7] dark:from-[#272B2A] dark:via-[#202328] dark:to-[#272B2A] border-b border-[#FED7B8] dark:border-[#363B44] px-4 py-2 flex items-center justify-between gap-2.5 text-xs animate-fadeIn">
+          <div className="bg-gradient-to-r from-[#FDF4E7] via-[#FFF8F3] to-[#FDF4E7] dark:from-[#272B2A] dark:via-[#202328] dark:to-[#272B2A] border-b border-[#E8E1DB] dark:border-[#363B44] px-4 py-2 flex items-center justify-between gap-2.5 text-xs animate-fadeIn">
             <div className="flex items-center space-x-2 truncate">
               <span className="text-sm">☕</span>
               <span className="font-bold text-[#EF6448]">Demo Mode:</span>
