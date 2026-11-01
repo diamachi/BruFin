@@ -1,67 +1,133 @@
-# Finman - Aesthetic Local Android Personal Finance App
+# Bru Fin
 
-A standalone, aesthetic, and **100% portable & local** Android finance tracker that combines the data modeling and analytics of **`Budget Tracker.xlsx`** with the streamlined entry workflow of the **`Budgeting.pdf` Google Form**.
+**Brewing calm finances.** Bru Fin is a local-first personal finance tracker built with React, TypeScript, Vite, and Capacitor. It runs as a web app and can be packaged as an Android app. Transactions and settings are stored in the browser or Android WebView on the device; there is no account, bank connection, or cloud service.
 
----
+## Screenshots
 
-## 🌟 App Structure & Features
+The dashboard below uses synthetic demo records.
 
-### 1. 📱 Clean Single Bottom Navigation Bar
-Only **one** navigation bar exists across the entire app at the bottom:
-- **Monitor**: Central financial dashboard tracking monthly budget target vs expenses, interactive category distribution, income stream card, recent velocity trends, and recurring commitments.
-- **Balances**: Record and track bank account balances at the start and end of every month with visual net difference ($\Delta$) trends.
-- **(+) Quick Add FAB**: Instant transaction entry form matching `Budgeting.pdf`.
-- **Cards**: Minimalist, swipeable credit cards (1 card in view at a time with swipe indicators and filtered transactions).
-- **Invest**: Mutual fund returns calculator, mutual fund holdings, fixed deposits, provident fund, and stock portfolios.
+<p>
+  <img src="screenshots/dashboard-light.png" alt="Bru Fin dashboard in light theme" width="49%" />
+  <img src="screenshots/dashboard-dark.png" alt="Bru Fin dashboard in dark theme" width="49%" />
+</p>
 
-### 2. 🏛️ Bank Balances & Monthly Net Delta (`Balances` Tab)
-- **Stating Balances**: State your Opening Balance (Start of Month) and Closing Balance (End of Month) for each bank account (HDFC, SBI, ICICI, or custom accounts).
-- **Net Wealth Difference ($\Delta$)**:
-  - Automatically calculates $\text{Closing} - \text{Opening}$ for each account and in total across all accounts.
-  - Highlights whether your cash reserves expanded ($+\text{₹}$) or experienced a net drawdown ($-\text{₹}$).
-- **Monthly Difference Trends**:
-  - Multi-month trend visual showing the net difference month-over-month.
-  - Quick insights into your monthly cash accumulation velocity.
+## Features
 
-### 3. 📝 Budgeting Quick-Add Form (From `Budgeting.pdf`)
-- **Expense vs. Income Switcher**: One-tap toggle with animated state indicators.
-- **Full Category Taxonomy**:
-  - *Expense*: Dining out / Food Delivery, Groceries, Rent / Maintenance, Utilities, Commute, Subscriptions, Clothes / Personal, Medical, Gifts, Travel, Insurance, Loan EMI, Other.
-  - *Income*: Salary, Cashback / Refunds, Interest, Dividend, Gifts, Other.
-- **Quick Amount Chips**: Instant +50, +100, +200, +500, +1000, +2000 increment buttons.
-- **Smart Description Autocomplete**: Suggests recent descriptions from your historical logs.
-- **Payment Mode Selector**: Includes UPI, Cash, Debit Card, and all credit cards.
-- **Date & Remarks**: Autofills to today; lets you add custom filter tags and notes.
+- **Monitor dashboard:** monthly spending target, remaining budget, income and expense totals, expense breakdown, balance snapshot, card spending, and loan overview.
+- **Expense and income tracking:** quick entry, editable records, category and payment method selection, date and notes, recent description suggestions, search, and filters.
+- **Recurring bills:** monthly and split-payment rules, due-day details, pending bill indicators, and manual posting into expenses.
+- **Balances:** record monthly opening and closing liquid balances, review month-to-month changes, and optionally receive start- and end-of-month prompts.
+- **Credit cards:** manage cards, limits, statement dates, and card-linked expense summaries.
+- **Investments:** keep a manual list of mutual funds, fixed deposits, provident fund, and stocks; use the returns calculator for estimates.
+- **Loans:** record loan details and explore estimated payoff time and interest savings from extra monthly payments.
+- **Personalization:** light and dark themes, adjustable display scale, and optional storage and memory diagnostics.
+- **Data portability:** export a JSON backup or transaction CSV, and import a JSON backup.
+- **Demo mode:** explore the app with sample data, then clear it to start a personal database.
 
-### 4. 💳 Minimalist Swipable Credit Cards
-- **Clean Outline & Minimal Info**: Only 1 card in view at a time with swipe indicators (`• • • •`).
-- **Displays What Matters**: Bank and card name, statement billing cycle day, spent this cycle, remaining limit, and a hairline utilization bar.
-- Filtered transactions for the active card are displayed directly below.
+## Privacy and data storage
 
-### 5. 💼 Investments Portfolio & Calculator
-- **Mutual Fund Returns Calculator**: Exact replica of your uploaded design with interactive sliders, Donut visual, and Lumpsum / SIP compounding.
-- **Asset Classes**: Mutual Funds, Fixed Deposits (FDs), Provident Fund (EPF/PPF), and Stocks (initialized to ₹0).
+Bru Fin has no application backend. It stores its data in `localStorage` for the current browser origin or Android app WebView. Browser storage is tied to the browser profile and origin: for example, `localhost` and a LAN IP address have separate data stores. Clearing browser or app data can remove records, so export a JSON backup regularly and keep that file somewhere safe. The JSON backup is unencrypted and contains financial records; protect it accordingly.
 
----
+The app does not connect to banks, fetch account balances, or sync records between devices. Investment and loan calculations are estimates based on values entered by the user, not live market or lender data.
 
-## 🚀 How to Run & Build
+## Run locally for development
 
-### 1. Instant Run on Mac (Zero Dependencies)
+### Requirements
+
+- Node.js compatible with the Vite version in `package-lock.json` (Node 20.19+ or 22.12+).
+- npm, included with Node.js.
+
+### Install and start
+
+From the repository root:
+
+```bash
+npm ci
+npm run dev
+```
+
+Vite prints the local address, normally [http://localhost:5173](http://localhost:5173). The development server enables hot reload. Data you enter is saved in that browser origin's local storage.
+
+To create and preview a production web build:
+
+```bash
+npm run build
+npm run preview
+```
+
+The generated static site is written to `dist/`.
+
+### Portable static server
+
+After creating the web build with `npm run build`, you can serve the compiled `dist/` folder with Python:
+
 ```bash
 ./run_portable.sh
 ```
-Opens in your browser at `http://localhost:5173`.
 
-### 2. Install on Android Phone (10 Seconds)
-1. Ensure your phone is on the same Wi-Fi.
-2. Open Chrome on Android and visit:
-   ```text
-   http://<YOUR_LOCAL_IP>:5173
-   ```
-3. Tap **⋮** $\rightarrow$ **"Install app"** (or **"Add to Home Screen"**).
+This serves the built app at [http://localhost:5173](http://localhost:5173) without running Vite. It does not compile source or provide hot reload; rebuild with `npm run build` after source changes. Python 3 is required. The portable server listens on all network interfaces, so other devices on the same network may be able to reach it.
 
-### 3. Build Native Android APK with Local JDK
+## Build the Android app
+
+### Requirements
+
+- Node.js and npm as above.
+- JDK 21.
+- Android SDK with the platform and build tools required by this project (`compileSdkVersion` 36; install Android SDK Platform 36 and Android SDK Build-Tools in Android Studio's SDK Manager).
+- Android platform tools (`adb`) to install the APK on a connected device.
+
+Set `JAVA_HOME` to your JDK 21 installation and make sure the Android SDK is configured in `android/local.properties` or `ANDROID_HOME`. Then build and sync the web app into the Android project:
+
 ```bash
-./build_apk.sh
+npm ci
+npm run cap:sync
 ```
-Compiles the debug APK using the local JDK at `./jdk`.
+
+Compile the debug APK:
+
+```bash
+cd android
+./gradlew assembleDebug
+```
+
+The APK is generated at `android/app/build/outputs/apk/debug/app-debug.apk`. Install it on a connected Android device with:
+
+```bash
+adb install -r android/app/build/outputs/apk/debug/app-debug.apk
+```
+
+The `build_apk.sh` helper performs these steps too, but expects a local JDK at `./jdk/Contents/Home`. The `jdk/` directory is ignored by Git; use the manual steps above if your JDK is installed elsewhere. This project is configured for a debug APK; release signing is not configured here.
+
+## Useful commands
+
+| Command | Purpose |
+| --- | --- |
+| `npm ci` | Install the exact dependency versions in the lockfile |
+| `npm run dev` | Start the Vite development server |
+| `npm run build` | Build the production web assets |
+| `npm run preview` | Serve the production bundle locally |
+| `npm run cap:sync` | Build web assets and sync them into the Android project |
+| `cd android && ./gradlew assembleDebug` | Compile the Android debug APK |
+
+The current `build` script does not run TypeScript type checking. Run `npx tsc --noEmit` separately when you want a type check.
+
+## Project layout
+
+```text
+src/
+  components/      App views, forms, modals, navigation, and diagnostics
+  data/            Demo data
+  utils/           Local storage, categories, and date/currency helpers
+  App.tsx          App state and view composition
+  types.ts         Data model types
+android/           Capacitor Android project
+public/            Web app icons and manifest
+```
+
+## Tech stack
+
+- React 19 and TypeScript
+- Vite 8
+- Tailwind CSS 4
+- Capacitor 8 for Android
+- Lucide icons
