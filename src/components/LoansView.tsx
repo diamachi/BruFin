@@ -8,7 +8,6 @@ import {
   Trash2,
   X,
   Zap,
-  TrendingUp,
   TrendingDown,
 } from 'lucide-react';
 import { LoanItem } from '../types';
@@ -17,11 +16,9 @@ import { formatINR, getTodayDateString } from '../utils/dateUtils';
 interface Props {
   loans: LoanItem[];
   onUpdateLoans: (loans: LoanItem[]) => void;
-  onNavigateToInvestments?: () => void;
-  onOpenHelp?: () => void;
 }
 
-export const LoansView: React.FC<Props> = ({ loans, onUpdateLoans, onNavigateToInvestments, onOpenHelp }) => {
+export const LoansView: React.FC<Props> = ({ loans, onUpdateLoans }) => {
   const [selectedLoanId, setSelectedLoanId] = useState<string>(loans[0]?.id || '');
   const [extraPayment, setExtraPayment] = useState<number>(1000);
 

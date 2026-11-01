@@ -617,7 +617,6 @@ export const App: React.FC = () => {
             <DashboardView
               transactions={transactions}
               monthlyTarget={monthlyTarget}
-              recurringPayments={recurringPayments}
               creditCards={creditCards}
               monthlyBalances={monthlyBalances}
               selectedMonth={selectedMonth}
@@ -626,14 +625,7 @@ export const App: React.FC = () => {
               onNavigateToCards={() => setActiveTab('cards')}
               onNavigateToLoans={() => setActiveTab('loans')}
               onNavigateToBalances={() => setActiveTab('balances')}
-              onOpenQuickAdd={() => {
-                setEditingTransaction(null);
-                setIsQuickAddOpen(true);
-              }}
               onOpenUpdateBalance={handleOpenUpdateBalance}
-              onOpenAddRecurring={() => setIsAddRecurringOpen(true)}
-              onPostRecurring={handlePostRecurring}
-              onPostAllDueRecurring={handlePostAllDueRecurring}
             />
           )}
 
@@ -647,10 +639,6 @@ export const App: React.FC = () => {
                 setIsQuickAddOpen(true);
               }}
               onDeleteTransaction={handleDeleteTransaction}
-              onOpenQuickAdd={() => {
-                setEditingTransaction(null);
-                setIsQuickAddOpen(true);
-              }}
               onOpenAddRecurring={() => setIsAddRecurringOpen(true)}
               onPostRecurring={handlePostRecurring}
               onPostAllDueRecurring={handlePostAllDueRecurring}

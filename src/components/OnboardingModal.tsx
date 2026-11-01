@@ -1,6 +1,6 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
-import { Sparkles, ArrowRight, ShieldCheck, Database, Check } from 'lucide-react';
+import { ArrowRight, ShieldCheck } from 'lucide-react';
 import { BruFinLogo } from './Navbar';
 
 interface Props {
@@ -25,7 +25,7 @@ export const OnboardingModal: React.FC<Props> = ({
             <BruFinLogo className="w-8 h-8" />
           </div>
           <h2 className="text-2xl font-black text-slate-900 dark:text-[#F2F3F5] tracking-tight">
-            Welcome to Bru Fin
+            Welcome to BruFin
           </h2>
           <p className="text-xs text-[#EF6448] font-medium">
             Brewing Calm Finances • Local-First & Private

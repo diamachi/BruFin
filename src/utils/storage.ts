@@ -402,7 +402,7 @@ export function postRecurringPaymentToExpenses(
 
 export function exportDatabaseJSON(): void {
   const data = {
-    appName: 'Bru Fin',
+    appName: 'BruFin',
     version: 2,
     exportedAt: new Date().toISOString(),
     transactions: loadTransactions(),

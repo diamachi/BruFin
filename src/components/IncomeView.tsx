@@ -4,7 +4,6 @@ import {
   Filter,
   Trash2,
   Edit2,
-  ArrowUpRight,
   X,
   Plus,
   Coins,
@@ -24,7 +23,6 @@ interface Props {
   onBackToMonitor: () => void;
   creditCards?: CreditCard[];
   paymentMethods?: PaymentMethodItem[];
-  onOpenHelp?: () => void;
 }
 
 export const IncomeView: React.FC<Props> = ({
@@ -36,7 +34,6 @@ export const IncomeView: React.FC<Props> = ({
   onBackToMonitor,
   creditCards = [],
   paymentMethods = [],
-  onOpenHelp,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('All');

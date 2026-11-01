@@ -1,20 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { createPortal } from 'react-dom';
-import {
-  Landmark,
-  TrendingUp,
-  TrendingDown,
-  Plus,
-  Edit2,
-  Calendar,
-  X,
-  Check,
-  ArrowRight,
-  ArrowUpRight,
-  ArrowDownRight,
-  Sparkles,
-  BarChart3,
-} from 'lucide-react';
+import { Landmark, Plus, Edit2, Calendar, X, Check } from 'lucide-react';
 import { MonthlyAccountBalance } from '../types';
 import { formatINR, formatMonthYear, getCurrentMonthKey } from '../utils/dateUtils';
 import { getUnifiedMonthlyBalance, updateUnifiedMonthlyBalance } from '../utils/storage';
@@ -23,14 +9,12 @@ interface Props {
   monthlyBalances: MonthlyAccountBalance[];
   selectedMonth: string;
   onUpdateBalances: (balances: MonthlyAccountBalance[]) => void;
-  onOpenHelp?: () => void;
 }
 
 export const BalancesView: React.FC<Props> = ({
   monthlyBalances,
   selectedMonth,
   onUpdateBalances,
-  onOpenHelp,
 }) => {
   // Active month key (if selectedMonth is All, pick latest recorded month or current month)
   const activeMonth = useMemo(() => {

@@ -26,7 +26,7 @@ const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
 const renderStartupMessage = (message: string, canRetry: boolean) => root.render(
   <main className="min-h-screen bg-[#F7F6F3] dark:bg-[#17191C] text-slate-800 dark:text-[#F2F3F5] flex items-center justify-center p-6 font-sans">
     <section className="max-w-md rounded-3xl border border-[#E8E1DB] dark:border-[#363B44] bg-white dark:bg-[#22252A] p-6 text-center shadow-lg">
-      <h1 className="text-lg font-black">Bru Fin local database</h1>
+      <h1 className="text-lg font-black">BruFin local database</h1>
       <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{message}</p>
       {canRetry && <button onClick={bootApp} className="mt-4 rounded-xl bg-[#59171B] px-4 py-2 text-sm font-bold text-white">Retry</button>}
     </section>

@@ -11,12 +11,7 @@ import {
   CheckCircle2,
   Database,
   FileSpreadsheet,
-  Smartphone,
-  CreditCard,
-  Banknote,
   Landmark,
-  HelpCircle,
-  Wallet,
   Cpu,
   Archive,
   Type,
@@ -381,7 +376,7 @@ export const SettingsModal: React.FC<Props> = ({
                   className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
                     diagnosticsEnabled ? 'bg-[#EF6448]' : 'bg-slate-300 dark:bg-slate-700'
                   }`}
-                  title="Toggle storage and RAM diagnostics bar"
+                  title="Toggle the storage and RAM diagnostics monitor"
                 >
                   <span
                     className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white dark:bg-[#1B1E22] shadow ring-0 transition duration-200 ease-in-out ${

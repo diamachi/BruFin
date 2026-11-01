@@ -8,10 +8,6 @@ import {
   Edit2,
   Trash2,
   X,
-  Check,
-  Calendar,
-  Layers,
-  Sparkles,
 } from 'lucide-react';
 import { Transaction, CreditCard } from '../types';
 import { formatINR, formatDateLabel, getCurrentMonthKey } from '../utils/dateUtils';
@@ -24,7 +20,6 @@ interface Props {
   selectedMonth: string;
   onEditTransaction: (t: Transaction) => void;
   onUpdateCreditCards: (cards: CreditCard[]) => void;
-  onOpenHelp?: () => void;
 }
 
 const COLOR_PRESETS = [
@@ -42,7 +37,6 @@ export const CreditCardsView: React.FC<Props> = ({
   selectedMonth,
   onEditTransaction,
   onUpdateCreditCards,
-  onOpenHelp,
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
 

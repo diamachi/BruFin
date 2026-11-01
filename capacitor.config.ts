@@ -2,7 +2,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'com.peeyush.brufin',
-  appName: 'Bru Fin',
+  appName: 'BruFin',
   webDir: 'dist'
 };
 

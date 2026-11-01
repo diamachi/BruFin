@@ -25,13 +25,11 @@ interface Props {
   selectedMonth: string;
   onEditTransaction: (t: Transaction) => void;
   onDeleteTransaction: (id: string) => void;
-  onOpenQuickAdd: () => void;
   onOpenAddRecurring: () => void;
   onPostRecurring: (rec: RecurringPayment) => void;
   onPostAllDueRecurring: () => void;
   creditCards?: CreditCard[];
   paymentMethods?: PaymentMethodItem[];
-  onOpenHelp?: () => void;
 }
 
 export const ExpensesView: React.FC<Props> = ({
@@ -40,7 +38,6 @@ export const ExpensesView: React.FC<Props> = ({
   selectedMonth,
   onEditTransaction,
   onDeleteTransaction,
-  onOpenQuickAdd,
   onOpenAddRecurring,
   onPostRecurring,
   onPostAllDueRecurring,

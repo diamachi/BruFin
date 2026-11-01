@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Check, Landmark, Calendar, Sparkles, TrendingUp, BellOff } from 'lucide-react';
+import { X, Check, Landmark } from 'lucide-react';
 import { MonthlyAccountBalance } from '../types';
 import { formatINR, formatMonthYear } from '../utils/dateUtils';
 import { getUnifiedMonthlyBalance, setDismissedBalancePrompt, setBalancePromptsEnabled } from '../utils/storage';
