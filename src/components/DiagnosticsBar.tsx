@@ -42,7 +42,7 @@ export const DiagnosticsBar: React.FC<Props> = ({ onOpenDetails, onDismiss }) =>
       : 'bg-emerald-500';
 
   return (
-    <div className="w-full bg-[#59171B] dark:bg-[#181A1A] text-white border-t border-[#FED7B8]/30 dark:border-[#363B44] px-3 sm:px-4 py-1.5 transition-colors shadow-sm text-[11px] font-mono">
+    <div className="w-full bg-[#59171B] dark:bg-[#181A1A] text-white border-t border-[#E8E1DB]/30 dark:border-[#363B44] px-3 sm:px-4 py-1.5 transition-colors shadow-sm text-[11px] font-mono">
       <div className="max-w-4xl mx-auto flex items-center justify-between gap-2">
         {/* Clickable Status Chips */}
         <button

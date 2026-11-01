@@ -179,7 +179,7 @@ export const ExpenseDistributionCard: React.FC<Props> = ({
 
   return (
     <div
-      className={`p-4 sm:p-5 rounded-3xl bg-white dark:bg-[#22252A] border border-[#FED7B8] dark:border-[#363B44] shadow-sm space-y-4 transition-colors ${className}`}
+      className={`p-4 sm:p-5 rounded-3xl bg-white dark:bg-[#22252A] border border-[#E8E1DB] dark:border-[#363B44] shadow-sm space-y-4 transition-colors ${className}`}
     >
       {/* Top Header: Title, Subtitle, and Optional "View All" link */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
@@ -231,9 +231,9 @@ export const ExpenseDistributionCard: React.FC<Props> = ({
       </div>
 
       {/* Primary Filter Tabs: Monthly vs Day-wise vs Specific Date */}
-      <div className="flex flex-wrap items-center justify-between gap-2 border-y border-[#FED7B8]/40 dark:border-[#363B44] py-2.5">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-y border-[#E8E1DB]/40 dark:border-[#363B44] py-2.5">
         {/* Time Filters */}
-        <div className="flex bg-[#FFF8F3] dark:bg-[#1B1E22] p-1 rounded-xl border border-[#FED7B8] dark:border-[#363B44] text-[10px] font-bold">
+        <div className="flex bg-[#F7F6F3] dark:bg-[#1B1E22] p-1 rounded-xl border border-[#E8E1DB] dark:border-[#363B44] text-[10px] font-bold">
           <button
             type="button"
             onClick={() => setFilterMode('monthly')}
@@ -275,7 +275,7 @@ export const ExpenseDistributionCard: React.FC<Props> = ({
         </div>
 
         {/* View Toggle: By Category vs By Method */}
-        <div className="flex bg-[#FFF8F3] dark:bg-[#1B1E22] p-1 rounded-xl border border-[#FED7B8] dark:border-[#363B44] text-[10px] font-bold">
+        <div className="flex bg-[#F7F6F3] dark:bg-[#1B1E22] p-1 rounded-xl border border-[#E8E1DB] dark:border-[#363B44] text-[10px] font-bold">
           <button
             type="button"
             onClick={() => setChartMode('category')}
@@ -305,12 +305,12 @@ export const ExpenseDistributionCard: React.FC<Props> = ({
 
       {/* Specific Date Picker Toolbar (visible when 'specific_date' is active) */}
       {filterMode === 'specific_date' && (
-        <div className="p-3 rounded-2xl bg-slate-50 dark:bg-[#1B1E22] border border-[#FED7B8] dark:border-[#363B44] flex flex-wrap items-center justify-between gap-2 text-xs animate-fadeIn">
+        <div className="p-3 rounded-2xl bg-slate-50 dark:bg-[#1B1E22] border border-[#E8E1DB] dark:border-[#363B44] flex flex-wrap items-center justify-between gap-2 text-xs animate-fadeIn">
           <div className="flex items-center space-x-1.5">
             <button
               type="button"
               onClick={() => handleShiftDate(-1)}
-              className="p-1.5 rounded-xl bg-white dark:bg-[#22252A] border border-[#FED7B8] dark:border-[#363B44] hover:bg-slate-100 dark:hover:bg-[#2B3037] text-slate-700 dark:text-white transition-colors"
+              className="p-1.5 rounded-xl bg-white dark:bg-[#22252A] border border-[#E8E1DB] dark:border-[#363B44] hover:bg-slate-100 dark:hover:bg-[#2B3037] text-slate-700 dark:text-white transition-colors"
               title="Previous Day"
             >
               <ChevronLeft className="w-3.5 h-3.5" />
@@ -320,13 +320,13 @@ export const ExpenseDistributionCard: React.FC<Props> = ({
               type="date"
               value={specificDate}
               onChange={(e) => setSpecificDate(e.target.value)}
-              className="bg-white dark:bg-[#22252A] border border-[#FED7B8] dark:border-[#363B44] rounded-xl px-2.5 py-1 text-xs font-semibold text-slate-900 dark:text-white focus:outline-none cursor-pointer"
+              className="bg-white dark:bg-[#22252A] border border-[#E8E1DB] dark:border-[#363B44] rounded-xl px-2.5 py-1 text-xs font-semibold text-slate-900 dark:text-white focus:outline-none cursor-pointer"
             />
 
             <button
               type="button"
               onClick={() => handleShiftDate(1)}
-              className="p-1.5 rounded-xl bg-white dark:bg-[#22252A] border border-[#FED7B8] dark:border-[#363B44] hover:bg-slate-100 dark:hover:bg-[#2B3037] text-slate-700 dark:text-white transition-colors"
+              className="p-1.5 rounded-xl bg-white dark:bg-[#22252A] border border-[#E8E1DB] dark:border-[#363B44] hover:bg-slate-100 dark:hover:bg-[#2B3037] text-slate-700 dark:text-white transition-colors"
               title="Next Day"
             >
               <ChevronRight className="w-3.5 h-3.5" />
@@ -335,7 +335,7 @@ export const ExpenseDistributionCard: React.FC<Props> = ({
             <button
               type="button"
               onClick={handleSetToday}
-              className="px-2 py-1 rounded-xl bg-[#FFF8F3] dark:bg-[#22252A] text-[#59171B] dark:text-[#FF927A] border border-[#FED7B8] dark:border-[#363B44] text-[10px] font-bold hover:bg-[#FED7B8]/40 transition-colors"
+              className="px-2 py-1 rounded-xl bg-[#F7F6F3] dark:bg-[#22252A] text-[#59171B] dark:text-[#FF927A] border border-[#E8E1DB] dark:border-[#363B44] text-[10px] font-bold hover:bg-[#FED7B8]/40 transition-colors"
             >
               Today
             </button>
@@ -352,7 +352,7 @@ export const ExpenseDistributionCard: React.FC<Props> = ({
 
       {/* Content Area: Chart & Breakdown or Empty State */}
       {activeExpenses.length === 0 ? (
-        <div className="text-center py-8 px-4 rounded-2xl bg-slate-50/60 dark:bg-[#1B1E22]/60 border border-dashed border-[#FED7B8] dark:border-[#363B44] text-slate-400 dark:text-slate-500 text-xs space-y-1.5">
+        <div className="text-center py-8 px-4 rounded-2xl bg-slate-50/60 dark:bg-[#1B1E22]/60 border border-dashed border-[#E8E1DB] dark:border-[#363B44] text-slate-400 dark:text-slate-500 text-xs space-y-1.5">
           <Sparkles className="w-5 h-5 mx-auto text-slate-400/70" />
           <p className="font-semibold text-slate-600 dark:text-slate-400">
             {filterMode === 'specific_date'
@@ -441,7 +441,7 @@ export const ExpenseDistributionCard: React.FC<Props> = ({
           </div>
 
           {/* Itemized Breakdown Bars */}
-          <div className="space-y-2.5 pt-2 border-t border-[#FED7B8]/40 dark:border-[#363B44]">
+          <div className="space-y-2.5 pt-2 border-t border-[#E8E1DB]/40 dark:border-[#363B44]">
             <div className="flex items-center justify-between text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               <span>{chartMode === 'category' ? 'Category' : 'Payment Method'}</span>
               <span>
@@ -455,7 +455,7 @@ export const ExpenseDistributionCard: React.FC<Props> = ({
                 return (
                   <div
                     key={item.name}
-                    className="p-2.5 rounded-2xl bg-slate-50/70 dark:bg-[#1B1E22] border border-[#FED7B8]/50 dark:border-[#363B44] space-y-1.5 transition-all hover:border-[#59171B]/40 dark:hover:border-[#EF6448]/40"
+                    className="p-2.5 rounded-2xl bg-slate-50/70 dark:bg-[#1B1E22] border border-[#E8E1DB]/50 dark:border-[#363B44] space-y-1.5 transition-all hover:border-[#59171B]/40 dark:hover:border-[#EF6448]/40"
                   >
                     <div className="flex items-center justify-between text-xs">
                       <div className="flex items-center space-x-2.5 truncate">
@@ -517,7 +517,7 @@ export const ExpenseDistributionCard: React.FC<Props> = ({
 
           {/* Specific Date: List of transactions on that date */}
           {filterMode === 'specific_date' && activeExpenses.length > 0 && (
-            <div className="pt-2 border-t border-[#FED7B8]/40 dark:border-[#363B44] space-y-2">
+            <div className="pt-2 border-t border-[#E8E1DB]/40 dark:border-[#363B44] space-y-2">
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
                 Transactions on {formatDateLabel(specificDate)} ({activeExpenses.length})
               </span>
@@ -528,7 +528,7 @@ export const ExpenseDistributionCard: React.FC<Props> = ({
                     <div
                       key={t.id}
                       onClick={() => onEditTransaction?.(t)}
-                      className={`p-2.5 rounded-xl bg-white dark:bg-[#22252A] border border-[#FED7B8]/60 dark:border-[#363B44] flex items-center justify-between gap-2 transition-all ${
+                      className={`p-2.5 rounded-xl bg-white dark:bg-[#22252A] border border-[#E8E1DB]/60 dark:border-[#363B44] flex items-center justify-between gap-2 transition-all ${
                         onEditTransaction ? 'cursor-pointer hover:border-[#59171B] dark:hover:border-[#EF6448]' : ''
                       }`}
                     >

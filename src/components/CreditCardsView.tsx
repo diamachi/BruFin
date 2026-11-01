@@ -28,7 +28,7 @@ interface Props {
 }
 
 const COLOR_PRESETS = [
-  { name: 'Wine Velvet', colorHex: '#59171B', gradient: 'from-[#59171B] via-[#7B2028] to-[#FED7B8]', pastelBg: 'bg-[#FFF8F3] text-[#59171B] border-[#FED7B8]', pastelText: 'text-[#59171B]', pastelBorder: 'border-[#FED7B8]' },
+  { name: 'Wine Velvet', colorHex: '#59171B', gradient: 'from-[#59171B] via-[#7B2028] to-[#FED7B8]', pastelBg: 'bg-[#F7F6F3] text-[#59171B] border-[#E8E1DB]', pastelText: 'text-[#59171B]', pastelBorder: 'border-[#E8E1DB]' },
   { name: 'Peach Blush', colorHex: '#FED7B8', gradient: 'from-[#FED7B8] via-[#F8C197] to-[#59171B]', pastelBg: 'bg-[#FED7B8] text-[#59171B] border-[#59171B]', pastelText: 'text-[#59171B]', pastelBorder: 'border-[#59171B]' },
   { name: 'Espresso Mocha', colorHex: '#1F1C19', gradient: 'from-[#2E2822] via-[#1F1C19] to-[#141210]', pastelBg: 'bg-[#2E2822] text-[#FED7B8] border-[#38322B]', pastelText: 'text-[#FED7B8]', pastelBorder: 'border-[#38322B]' },
   { name: 'Honey Gold', colorHex: '#B87B2E', gradient: 'from-[#B87B2E] via-[#D49544] to-[#26211C]', pastelBg: 'bg-[#FDF4E7] text-[#996520] border-[#F5DEBE]', pastelText: 'text-[#996520]', pastelBorder: 'border-[#B87B2E]' },
@@ -262,7 +262,7 @@ export const CreditCardsView: React.FC<Props> = ({
 
       {/* 2. Empty State if no cards exist */}
       {cardStats.length === 0 ? (
-        <div className="p-8 text-center rounded-3xl bg-white dark:bg-[#22252A] border border-[#FED7B8] dark:border-[#363B44] shadow-sm space-y-3">
+        <div className="p-8 text-center rounded-3xl bg-white dark:bg-[#22252A] border border-[#E8E1DB] dark:border-[#363B44] shadow-sm space-y-3">
           <CardIcon className="w-12 h-12 text-slate-400 dark:text-[#FF927A]/60 mx-auto" />
           <h3 className="text-sm font-bold text-slate-800 dark:text-[#F2F3F5]">No Credit Cards Added</h3>
           <p className="text-xs text-slate-500 dark:text-[#A5ACB7] max-w-xs mx-auto">
@@ -283,7 +283,7 @@ export const CreditCardsView: React.FC<Props> = ({
               onTouchStart={handleTouchStart}
               onTouchMove={handleTouchMove}
               onTouchEnd={handleTouchEnd}
-              className="relative w-full rounded-3xl bg-white dark:bg-[#22252A] border border-[#FED7B8] dark:border-[#363B44] p-6 shadow-md dark:shadow-2xl transition-all duration-300 backdrop-blur-md select-none"
+              className="relative w-full rounded-3xl bg-white dark:bg-[#22252A] border border-[#E8E1DB] dark:border-[#363B44] p-6 shadow-md dark:shadow-2xl transition-all duration-300 backdrop-blur-md select-none"
             >
               {/* Top row: Name, Statement cycle & Actions */}
               <div className="flex items-center justify-between mb-6">
@@ -297,7 +297,7 @@ export const CreditCardsView: React.FC<Props> = ({
                 </div>
 
                 <div className="flex items-center space-x-1.5">
-                  <span className="text-[11px] font-semibold text-slate-700 dark:text-[#FF927A] bg-[#FFF8F3] dark:bg-[#1B1E22] px-2.5 py-1 rounded-full border border-[#FED7B8] dark:border-[#363B44]">
+                  <span className="text-[11px] font-semibold text-slate-700 dark:text-[#FF927A] bg-[#F7F6F3] dark:bg-[#1B1E22] px-2.5 py-1 rounded-full border border-[#E8E1DB] dark:border-[#363B44]">
                     Stmt: {activeCard.statementDay}th
                   </span>
                   <button
@@ -343,7 +343,7 @@ export const CreditCardsView: React.FC<Props> = ({
                     {activeCard.utilization.toFixed(1)}% used
                   </span>
                 </div>
-                <div className="w-full h-1.5 bg-[#FFF8F3] dark:bg-[#1B1E22] rounded-full overflow-hidden border border-[#FED7B8] dark:border-[#363B44]">
+                <div className="w-full h-1.5 bg-[#F7F6F3] dark:bg-[#1B1E22] rounded-full overflow-hidden border border-[#E8E1DB] dark:border-[#363B44]">
                   <div
                     className={`h-full rounded-full transition-all duration-300 ${
                       activeCard.utilization > 70
@@ -358,7 +358,7 @@ export const CreditCardsView: React.FC<Props> = ({
               </div>
 
               {/* Bottom: Card number mask */}
-              <div className="flex justify-between items-center pt-2 border-t border-[#FED7B8] dark:border-[#363B44] text-[11px] font-mono text-slate-500 dark:text-[#A5ACB7]">
+              <div className="flex justify-between items-center pt-2 border-t border-[#E8E1DB] dark:border-[#363B44] text-[11px] font-mono text-slate-500 dark:text-[#A5ACB7]">
                 <span>•••• •••• •••• {activeCard.last4}</span>
                 <span className="text-[10px] text-slate-500 dark:text-[#A5ACB7] uppercase tracking-wider font-sans">
                   {activeCard.expenses.length} transaction{activeCard.expenses.length !== 1 ? 's' : ''}
@@ -370,14 +370,14 @@ export const CreditCardsView: React.FC<Props> = ({
                 <>
                   <button
                     onClick={handlePrev}
-                    className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white dark:bg-[#22252A] hover:bg-slate-100 dark:hover:bg-[#363C3A] border border-[#FED7B8] dark:border-[#363B44] text-slate-600 dark:text-[#F2F3F5] flex items-center justify-center transition-colors -ml-4 shadow-md"
+                    className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white dark:bg-[#22252A] hover:bg-slate-100 dark:hover:bg-[#363C3A] border border-[#E8E1DB] dark:border-[#363B44] text-slate-600 dark:text-[#F2F3F5] flex items-center justify-center transition-colors -ml-4 shadow-md"
                     title="Previous Card"
                   >
                     <ChevronLeft className="w-4 h-4" />
                   </button>
                   <button
                     onClick={handleNext}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white dark:bg-[#22252A] hover:bg-slate-100 dark:hover:bg-[#363C3A] border border-[#FED7B8] dark:border-[#363B44] text-slate-600 dark:text-[#F2F3F5] flex items-center justify-center transition-colors -mr-4 shadow-md"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white dark:bg-[#22252A] hover:bg-slate-100 dark:hover:bg-[#363C3A] border border-[#E8E1DB] dark:border-[#363B44] text-slate-600 dark:text-[#F2F3F5] flex items-center justify-center transition-colors -mr-4 shadow-md"
                     title="Next Card"
                   >
                     <ChevronRight className="w-4 h-4" />
@@ -409,7 +409,7 @@ export const CreditCardsView: React.FC<Props> = ({
 
       {/* 4. Filtered Transactions for this single active card */}
       {activeCard && (
-        <div className="p-5 rounded-3xl bg-white dark:bg-[#22252A] border border-[#FED7B8] dark:border-[#363B44] shadow-sm space-y-3">
+        <div className="p-5 rounded-3xl bg-white dark:bg-[#22252A] border border-[#E8E1DB] dark:border-[#363B44] shadow-sm space-y-3">
           <div className="flex items-center justify-between">
             <h4 className="text-xs font-bold text-slate-900 dark:text-[#F2F3F5] uppercase tracking-wider">
               {activeCard.shortName} Expenses
@@ -420,11 +420,11 @@ export const CreditCardsView: React.FC<Props> = ({
           </div>
 
           {activeCard.expenses.length === 0 ? (
-            <div className="text-center py-8 rounded-2xl bg-slate-50 dark:bg-[#1B1E22] border border-[#FED7B8] dark:border-[#363B44] text-xs text-slate-500 dark:text-[#A5ACB7]">
+            <div className="text-center py-8 rounded-2xl bg-slate-50 dark:bg-[#1B1E22] border border-[#E8E1DB] dark:border-[#363B44] text-xs text-slate-500 dark:text-[#A5ACB7]">
               No transactions recorded for this card in {selectedMonth === 'All' ? 'the log' : selectedMonth}.
             </div>
           ) : (
-            <div className="rounded-2xl bg-slate-50 dark:bg-[#1B1E22] border border-[#FED7B8] dark:border-[#363B44] divide-y divide-slate-200/80 dark:divide-[#363B44] overflow-hidden">
+            <div className="rounded-2xl bg-slate-50 dark:bg-[#1B1E22] border border-[#E8E1DB] dark:border-[#363B44] divide-y divide-slate-200/80 dark:divide-[#363B44] overflow-hidden">
               {activeCard.expenses.map((t) => {
                 const meta = getCategoryMeta(t.category);
                 return (
@@ -464,10 +464,10 @@ export const CreditCardsView: React.FC<Props> = ({
       {isModalOpen && createPortal(
         <div className="fixed inset-0 z-50 overflow-y-auto bg-black/75 p-4 flex items-center justify-center animate-fadeIn">
           <div 
-            className="w-full max-w-md max-h-[88vh] overflow-y-auto my-auto bg-white dark:bg-[#22252A] border border-[#FED7B8] dark:border-[#363B44] rounded-3xl shadow-2xl p-5 space-y-4"
+            className="w-full max-w-md max-h-[88vh] overflow-y-auto my-auto bg-white dark:bg-[#22252A] border border-[#E8E1DB] dark:border-[#363B44] rounded-3xl shadow-2xl p-5 space-y-4"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between border-b border-[#FED7B8] dark:border-[#363B44] pb-3">
+            <div className="flex items-center justify-between border-b border-[#E8E1DB] dark:border-[#363B44] pb-3">
               <div>
                 <h3 className="text-sm font-bold text-slate-900 dark:text-[#F2F3F5]">
                   {editingCard ? 'Edit Credit Card' : 'Add Credit Card'}
@@ -491,7 +491,7 @@ export const CreditCardsView: React.FC<Props> = ({
                   placeholder="e.g. HDFC Millennia, SBI Cashback, Amex Gold"
                   value={formShortName}
                   onChange={(e) => setFormShortName(e.target.value)}
-                  className="w-full bg-[#FFF8F3] dark:bg-[#1B1E22] border border-[#FED7B8] dark:border-[#363B44] rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-[#F2F3F5] focus:outline-none"
+                  className="w-full bg-[#F7F6F3] dark:bg-[#1B1E22] border border-[#E8E1DB] dark:border-[#363B44] rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-[#F2F3F5] focus:outline-none"
                   required
                 />
               </div>
@@ -505,7 +505,7 @@ export const CreditCardsView: React.FC<Props> = ({
                   placeholder="e.g. HDFC Bank, SBI Card, ICICI, Axis"
                   value={formBank}
                   onChange={(e) => setFormBank(e.target.value)}
-                  className="w-full bg-[#FFF8F3] dark:bg-[#1B1E22] border border-[#FED7B8] dark:border-[#363B44] rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-[#F2F3F5] focus:outline-none"
+                  className="w-full bg-[#F7F6F3] dark:bg-[#1B1E22] border border-[#E8E1DB] dark:border-[#363B44] rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-[#F2F3F5] focus:outline-none"
                 />
               </div>
 
@@ -519,7 +519,7 @@ export const CreditCardsView: React.FC<Props> = ({
                     placeholder="e.g. 150000"
                     value={formLimit}
                     onChange={(e) => setFormLimit(e.target.value)}
-                    className="w-full bg-[#FFF8F3] dark:bg-[#1B1E22] border border-[#FED7B8] dark:border-[#363B44] rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-[#F2F3F5] font-bold focus:outline-none"
+                    className="w-full bg-[#F7F6F3] dark:bg-[#1B1E22] border border-[#E8E1DB] dark:border-[#363B44] rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-[#F2F3F5] font-bold focus:outline-none"
                     required
                   />
                 </div>
@@ -535,7 +535,7 @@ export const CreditCardsView: React.FC<Props> = ({
                     placeholder="20"
                     value={formStatementDay}
                     onChange={(e) => setFormStatementDay(e.target.value)}
-                    className="w-full bg-[#FFF8F3] dark:bg-[#1B1E22] border border-[#FED7B8] dark:border-[#363B44] rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-[#F2F3F5] focus:outline-none"
+                    className="w-full bg-[#F7F6F3] dark:bg-[#1B1E22] border border-[#E8E1DB] dark:border-[#363B44] rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-[#F2F3F5] focus:outline-none"
                   />
                 </div>
               </div>
@@ -550,7 +550,7 @@ export const CreditCardsView: React.FC<Props> = ({
                   placeholder="e.g. 4521"
                   value={formLast4}
                   onChange={(e) => setFormLast4(e.target.value)}
-                  className="w-full bg-[#FFF8F3] dark:bg-[#1B1E22] border border-[#FED7B8] dark:border-[#363B44] rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-[#F2F3F5] font-mono focus:outline-none"
+                  className="w-full bg-[#F7F6F3] dark:bg-[#1B1E22] border border-[#E8E1DB] dark:border-[#363B44] rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-[#F2F3F5] font-mono focus:outline-none"
                 />
               </div>
 

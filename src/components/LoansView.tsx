@@ -166,7 +166,7 @@ export const LoansView: React.FC<Props> = ({ loans, onUpdateLoans, onNavigateToI
   return (
     <div className="space-y-6 animate-fadeIn">
       {/* 1. Global Debt Overview */}
-      <div className="p-5 rounded-3xl bg-white dark:bg-[#22252A] border border-[#FED7B8] dark:border-[#363B44] shadow-sm space-y-4">
+      <div className="p-5 rounded-3xl bg-white dark:bg-[#22252A] border border-[#E8E1DB] dark:border-[#363B44] shadow-sm space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <div className="p-2 rounded-xl bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400">
@@ -189,7 +189,7 @@ export const LoansView: React.FC<Props> = ({ loans, onUpdateLoans, onNavigateToI
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-          <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-[#1B1E22] border border-[#FED7B8] dark:border-[#363B44]">
+          <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-[#1B1E22] border border-[#E8E1DB] dark:border-[#363B44]">
             <span className="text-[10px] font-bold text-slate-500 dark:text-[#A5ACB7] uppercase tracking-wider block">
               Total Outstanding Debt
             </span>
@@ -201,7 +201,7 @@ export const LoansView: React.FC<Props> = ({ loans, onUpdateLoans, onNavigateToI
             </span>
           </div>
 
-          <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-[#1B1E22] border border-[#FED7B8] dark:border-[#363B44]">
+          <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-[#1B1E22] border border-[#E8E1DB] dark:border-[#363B44]">
             <span className="text-[10px] font-bold text-slate-500 dark:text-[#A5ACB7] uppercase tracking-wider block">
               Monthly EMI Commitment
             </span>
@@ -217,7 +217,7 @@ export const LoansView: React.FC<Props> = ({ loans, onUpdateLoans, onNavigateToI
 
       {/* 2. Select Loan to Predict */}
       {loans.length === 0 ? (
-        <div className="p-8 text-center rounded-3xl bg-white dark:bg-[#22252A] border border-[#FED7B8] dark:border-[#363B44] shadow-sm space-y-3">
+        <div className="p-8 text-center rounded-3xl bg-white dark:bg-[#22252A] border border-[#E8E1DB] dark:border-[#363B44] shadow-sm space-y-3">
           <div className="w-12 h-12 rounded-2xl bg-rose-50 dark:bg-rose-500/10 text-rose-500 flex items-center justify-center mx-auto">
             <TrendingDown className="w-6 h-6" />
           </div>
@@ -242,7 +242,7 @@ export const LoansView: React.FC<Props> = ({ loans, onUpdateLoans, onNavigateToI
                 className={`px-3.5 py-2 rounded-2xl text-xs font-bold transition-all border shrink-0 flex items-center gap-2 ${
                   l.id === activeLoan?.id
                     ? 'bg-rose-50 dark:bg-rose-500/20 text-rose-700 dark:text-rose-300 border-rose-300 dark:border-rose-500/50 shadow-sm'
-                    : 'bg-white dark:bg-[#1B1E22] border-[#FED7B8] dark:border-[#363B44] text-slate-600 dark:text-[#A5ACB7] hover:text-slate-900 dark:hover:text-[#F2F3F5]'
+                    : 'bg-white dark:bg-[#1B1E22] border-[#E8E1DB] dark:border-[#363B44] text-slate-600 dark:text-[#A5ACB7] hover:text-slate-900 dark:hover:text-[#F2F3F5]'
                 }`}
               >
                 <span>{l.name}</span>
@@ -252,9 +252,9 @@ export const LoansView: React.FC<Props> = ({ loans, onUpdateLoans, onNavigateToI
           </div>
 
           {activeLoan && (
-            <div className="p-5 sm:p-6 rounded-3xl bg-white dark:bg-[#22252A] border border-[#FED7B8] dark:border-[#363B44] shadow-sm space-y-6">
+            <div className="p-5 sm:p-6 rounded-3xl bg-white dark:bg-[#22252A] border border-[#E8E1DB] dark:border-[#363B44] shadow-sm space-y-6">
               {/* Active Loan Details Header */}
-              <div className="flex items-center justify-between border-b border-[#FED7B8] dark:border-[#363B44] pb-4">
+              <div className="flex items-center justify-between border-b border-[#E8E1DB] dark:border-[#363B44] pb-4">
                 <div>
                   <h3 className="text-base font-bold text-slate-900 dark:text-[#F2F3F5] tracking-tight">{activeLoan.name}</h3>
                   <p className="text-xs text-slate-500 dark:text-[#A5ACB7]">
@@ -292,7 +292,7 @@ export const LoansView: React.FC<Props> = ({ loans, onUpdateLoans, onNavigateToI
                   </div>
 
                   {/* Simulator Slider: "What if you pay extra?" */}
-                  <div className="p-4 rounded-2xl bg-white dark:bg-[#17191C] border border-[#FED7B8] dark:border-[#363B44] space-y-3.5 shadow-xs">
+                  <div className="p-4 rounded-2xl bg-white dark:bg-[#17191C] border border-[#E8E1DB] dark:border-[#363B44] space-y-3.5 shadow-xs">
                     <div className="flex items-center justify-between gap-2 flex-wrap">
                       <div className="flex items-center space-x-1.5 text-xs font-bold text-[#EF6448]">
                         <Zap className="w-4 h-4 fill-current" />
@@ -321,7 +321,7 @@ export const LoansView: React.FC<Props> = ({ loans, onUpdateLoans, onNavigateToI
                     </div>
 
                     {extraPayment > 0 && calculation.monthsSaved > 0 && (
-                      <div className="p-3 rounded-xl bg-[#FFF8F3] dark:bg-[#1B1E22] border border-[#FED7B8] dark:border-[#363B44] text-xs text-slate-700 dark:text-[#F2F3F5] flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 animate-fadeIn">
+                      <div className="p-3 rounded-xl bg-[#F7F6F3] dark:bg-[#1B1E22] border border-[#E8E1DB] dark:border-[#363B44] text-xs text-slate-700 dark:text-[#F2F3F5] flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 animate-fadeIn">
                         <span>⚡ You become debt-free <strong className="text-[#EF6448]">{calculation.monthsSaved} months sooner</strong></span>
                         <span className="text-[#EF6448] font-bold">Save {formatINR(calculation.interestSaved)}</span>
                       </div>
@@ -330,15 +330,15 @@ export const LoansView: React.FC<Props> = ({ loans, onUpdateLoans, onNavigateToI
 
                   {/* Metric Breakdown Table */}
                   <div className="grid grid-cols-3 gap-2 text-center pt-2">
-                    <div className="p-3 rounded-2xl bg-slate-50 dark:bg-[#1B1E22] border border-[#FED7B8] dark:border-[#363B44]">
+                    <div className="p-3 rounded-2xl bg-slate-50 dark:bg-[#1B1E22] border border-[#E8E1DB] dark:border-[#363B44]">
                       <span className="text-[10px] text-slate-500 dark:text-[#A5ACB7] block uppercase font-medium">Principal</span>
                       <span className="text-xs sm:text-sm font-bold text-slate-800 dark:text-[#F2F3F5]">{formatINR(activeLoan.currentPrincipal)}</span>
                     </div>
-                    <div className="p-3 rounded-2xl bg-slate-50 dark:bg-[#1B1E22] border border-[#FED7B8] dark:border-[#363B44]">
+                    <div className="p-3 rounded-2xl bg-slate-50 dark:bg-[#1B1E22] border border-[#E8E1DB] dark:border-[#363B44]">
                       <span className="text-[10px] text-slate-500 dark:text-[#A5ACB7] block uppercase font-medium">Total Interest</span>
                       <span className="text-xs sm:text-sm font-bold text-rose-600 dark:text-rose-400">{formatINR(calculation.totalInterest)}</span>
                     </div>
-                    <div className="p-3 rounded-2xl bg-slate-50 dark:bg-[#1B1E22] border border-[#FED7B8] dark:border-[#363B44]">
+                    <div className="p-3 rounded-2xl bg-slate-50 dark:bg-[#1B1E22] border border-[#E8E1DB] dark:border-[#363B44]">
                       <span className="text-[10px] text-slate-500 dark:text-[#A5ACB7] block uppercase font-medium">Total Paid</span>
                       <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-[#F2F3F5]">{formatINR(calculation.totalPayment)}</span>
                     </div>
@@ -357,8 +357,8 @@ export const LoansView: React.FC<Props> = ({ loans, onUpdateLoans, onNavigateToI
       {/* Modal for adding/editing loan */}
       {isModalOpen && createPortal(
         <div className="fixed inset-0 z-50 overflow-y-auto bg-black/75 p-4 flex items-center justify-center animate-fadeIn">
-          <div className="w-full max-w-md max-h-[88vh] overflow-y-auto my-auto bg-white dark:bg-[#22252A] border border-[#FED7B8] dark:border-[#363B44] rounded-3xl shadow-2xl p-5 space-y-4">
-            <div className="flex items-center justify-between border-b border-[#FED7B8] dark:border-[#363B44] pb-3">
+          <div className="w-full max-w-md max-h-[88vh] overflow-y-auto my-auto bg-white dark:bg-[#22252A] border border-[#E8E1DB] dark:border-[#363B44] rounded-3xl shadow-2xl p-5 space-y-4">
+            <div className="flex items-center justify-between border-b border-[#E8E1DB] dark:border-[#363B44] pb-3">
               <h3 className="text-sm font-bold text-slate-900 dark:text-[#F2F3F5]">
                 {editingLoan ? 'Edit Loan' : 'Add New Loan'}
               </h3>
@@ -377,7 +377,7 @@ export const LoansView: React.FC<Props> = ({ loans, onUpdateLoans, onNavigateToI
                   placeholder="e.g. Personal Loan, Car Loan, Tech Loan..."
                   value={formName}
                   onChange={(e) => setFormName(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-[#1B1E22] border border-[#FED7B8] dark:border-[#363B44] rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-[#F2F3F5]"
+                  className="w-full bg-slate-50 dark:bg-[#1B1E22] border border-[#E8E1DB] dark:border-[#363B44] rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-[#F2F3F5]"
                   required
                 />
               </div>
@@ -391,7 +391,7 @@ export const LoansView: React.FC<Props> = ({ loans, onUpdateLoans, onNavigateToI
                   placeholder="e.g. HDFC Bank, SBI, ICICI..."
                   value={formLender}
                   onChange={(e) => setFormLender(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-[#1B1E22] border border-[#FED7B8] dark:border-[#363B44] rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-[#F2F3F5]"
+                  className="w-full bg-slate-50 dark:bg-[#1B1E22] border border-[#E8E1DB] dark:border-[#363B44] rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-[#F2F3F5]"
                 />
               </div>
 
@@ -405,7 +405,7 @@ export const LoansView: React.FC<Props> = ({ loans, onUpdateLoans, onNavigateToI
                     placeholder="e.g. 150000"
                     value={formPrincipal}
                     onChange={(e) => setFormPrincipal(e.target.value)}
-                    className="w-full bg-slate-50 dark:bg-[#1B1E22] border border-[#FED7B8] dark:border-[#363B44] rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-[#F2F3F5] font-bold"
+                    className="w-full bg-slate-50 dark:bg-[#1B1E22] border border-[#E8E1DB] dark:border-[#363B44] rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-[#F2F3F5] font-bold"
                     required
                   />
                 </div>
@@ -420,7 +420,7 @@ export const LoansView: React.FC<Props> = ({ loans, onUpdateLoans, onNavigateToI
                     placeholder="e.g. 10.5"
                     value={formRate}
                     onChange={(e) => setFormRate(e.target.value)}
-                    className="w-full bg-slate-50 dark:bg-[#1B1E22] border border-[#FED7B8] dark:border-[#363B44] rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-[#F2F3F5] font-bold"
+                    className="w-full bg-slate-50 dark:bg-[#1B1E22] border border-[#E8E1DB] dark:border-[#363B44] rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-[#F2F3F5] font-bold"
                     required
                   />
                 </div>
@@ -435,7 +435,7 @@ export const LoansView: React.FC<Props> = ({ loans, onUpdateLoans, onNavigateToI
                   placeholder="e.g. 4500"
                   value={formPayment}
                   onChange={(e) => setFormPayment(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-[#1B1E22] border border-[#FED7B8] dark:border-[#363B44] rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-[#F2F3F5] font-bold"
+                  className="w-full bg-slate-50 dark:bg-[#1B1E22] border border-[#E8E1DB] dark:border-[#363B44] rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-[#F2F3F5] font-bold"
                   required
                 />
               </div>

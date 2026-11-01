@@ -109,7 +109,7 @@ export const DashboardView: React.FC<Props> = ({
   return (
     <div className="space-y-4 animate-fadeIn">
       {/* 1. Greeting & EOM Banner */}
-      <div className="p-4 sm:p-5 rounded-3xl bg-white dark:bg-[#22252A] border border-[#FED7B8] dark:border-[#363B44] shadow-sm flex items-center justify-between gap-3 transition-colors">
+      <div className="p-4 sm:p-5 rounded-3xl bg-white dark:bg-[#22252A] border border-[#E8E1DB] dark:border-[#363B44] shadow-sm flex items-center justify-between gap-3 transition-colors">
         <div className="space-y-0.5 min-w-0">
           <div className="flex items-center space-x-1.5 text-slate-500 dark:text-[#A5ACB7] text-[11px] font-semibold uppercase tracking-wider">
             <Calendar className="w-3.5 h-3.5 shrink-0" />
@@ -131,7 +131,7 @@ export const DashboardView: React.FC<Props> = ({
       <div className={`p-5 rounded-3xl border transition-all shadow-sm dark:shadow-xl ${
         isBudgetOvershot
           ? 'bg-rose-50/50 dark:bg-rose-950/20 border-rose-200 dark:border-rose-900/40'
-          : 'bg-white dark:bg-[#22252A] border-[#FED7B8] dark:border-[#363B44]'
+          : 'bg-white dark:bg-[#22252A] border-[#E8E1DB] dark:border-[#363B44]'
       }`}>
         <div className="flex items-center justify-between mb-3 gap-2 flex-wrap">
           <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-[#A5ACB7]">
@@ -184,7 +184,7 @@ export const DashboardView: React.FC<Props> = ({
             </button>
             <span>{targetSpentPercent}%</span>
           </div>
-          <div className="w-full h-2 bg-slate-100 dark:bg-[#1B1E22] rounded-full overflow-hidden p-0.5 border border-[#FED7B8] dark:border-[#363B44]">
+          <div className="w-full h-2 bg-slate-100 dark:bg-[#1B1E22] rounded-full overflow-hidden p-0.5 border border-[#E8E1DB] dark:border-[#363B44]">
             <div
               className={`h-full rounded-full transition-all duration-500 ${
                 targetSpentPercent > 100
@@ -202,7 +202,7 @@ export const DashboardView: React.FC<Props> = ({
         <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100 dark:border-[#363B44]">
           <button
             onClick={onNavigateToTransactions}
-            className="p-3 rounded-2xl bg-slate-50 dark:bg-[#1B1E22] hover:bg-slate-100 dark:hover:bg-[#363C3A]/60 border border-[#FED7B8] dark:border-[#363B44] flex items-center justify-between text-left transition-all group"
+            className="p-3 rounded-2xl bg-slate-50 dark:bg-[#1B1E22] hover:bg-slate-100 dark:hover:bg-[#363C3A]/60 border border-[#E8E1DB] dark:border-[#363B44] flex items-center justify-between text-left transition-all group"
           >
             <div>
               <span className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold flex items-center gap-1">
@@ -215,7 +215,7 @@ export const DashboardView: React.FC<Props> = ({
 
           <button
             onClick={onNavigateToIncome}
-            className="p-3 rounded-2xl bg-slate-50 dark:bg-[#1B1E22] hover:bg-slate-100 dark:hover:bg-[#363C3A]/60 border border-[#FED7B8] dark:border-[#363B44] flex items-center justify-between text-left transition-all group"
+            className="p-3 rounded-2xl bg-slate-50 dark:bg-[#1B1E22] hover:bg-slate-100 dark:hover:bg-[#363C3A]/60 border border-[#E8E1DB] dark:border-[#363B44] flex items-center justify-between text-left transition-all group"
           >
             <div>
               <span className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold flex items-center gap-1">
@@ -231,7 +231,7 @@ export const DashboardView: React.FC<Props> = ({
       {/* 3. Dedicated Income Card */}
       <div
         onClick={onNavigateToIncome}
-        className="p-4 rounded-3xl bg-white dark:bg-[#22252A] border border-[#FED7B8] dark:border-[#363B44] hover:border-slate-300 dark:hover:border-slate-700 cursor-pointer transition-all shadow-sm flex items-center justify-between group"
+        className="p-4 rounded-3xl bg-white dark:bg-[#22252A] border border-[#E8E1DB] dark:border-[#363B44] hover:border-slate-300 dark:hover:border-slate-700 cursor-pointer transition-all shadow-sm flex items-center justify-between group"
       >
         <div className="flex items-center space-x-3.5">
           <div className="w-10 h-10 rounded-2xl bg-[#FDF4E7] dark:bg-[#B84E3B]/15 text-[#996520] dark:text-[#FF927A] flex items-center justify-center border border-[#F5DEBE] dark:border-[#EF6448]/30">
@@ -260,7 +260,7 @@ export const DashboardView: React.FC<Props> = ({
       />
 
       {/* 6. Unified Bank & Cash Balances Card */}
-      <div className="p-5 rounded-3xl bg-white dark:bg-[#22252A] border border-[#FED7B8] dark:border-[#363B44] shadow-sm space-y-3.5">
+      <div className="p-5 rounded-3xl bg-white dark:bg-[#22252A] border border-[#E8E1DB] dark:border-[#363B44] shadow-sm space-y-3.5">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2.5">
             <div className="w-8 h-8 rounded-2xl bg-[#EF6448] flex items-center justify-center text-white shadow-sm shrink-0">
@@ -297,7 +297,7 @@ export const DashboardView: React.FC<Props> = ({
 
         {/* 2-Column Start & End Balance Display */}
         <div className="grid grid-cols-2 gap-2.5">
-          <div className="p-3 rounded-2xl bg-slate-50 dark:bg-[#1B1E22] border border-[#FED7B8]/60 dark:border-[#363B44]">
+          <div className="p-3 rounded-2xl bg-slate-50 dark:bg-[#1B1E22] border border-[#E8E1DB]/60 dark:border-[#363B44]">
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
               Starting (1st of month)
             </span>
@@ -306,7 +306,7 @@ export const DashboardView: React.FC<Props> = ({
             </span>
           </div>
 
-          <div className="p-3 rounded-2xl bg-slate-50 dark:bg-[#1B1E22] border border-[#FED7B8]/60 dark:border-[#363B44]">
+          <div className="p-3 rounded-2xl bg-slate-50 dark:bg-[#1B1E22] border border-[#E8E1DB]/60 dark:border-[#363B44]">
             <div className="flex items-center justify-between">
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
                 Ending / Current
@@ -360,10 +360,10 @@ export const DashboardView: React.FC<Props> = ({
         {/* Credit Card Quick Teaser */}
         <div
           onClick={onNavigateToCards}
-          className="p-4 rounded-2xl bg-white dark:bg-[#22252A] border border-[#FED7B8] dark:border-[#363B44] hover:border-slate-300 dark:hover:border-slate-700 cursor-pointer transition-all flex items-center justify-between shadow-sm"
+          className="p-4 rounded-2xl bg-white dark:bg-[#22252A] border border-[#E8E1DB] dark:border-[#363B44] hover:border-slate-300 dark:hover:border-slate-700 cursor-pointer transition-all flex items-center justify-between shadow-sm"
         >
           <div className="flex items-center space-x-3">
-            <div className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-[#1B1E22] text-slate-700 dark:text-slate-300 flex items-center justify-center border border-[#FED7B8] dark:border-[#363B44]">
+            <div className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-[#1B1E22] text-slate-700 dark:text-slate-300 flex items-center justify-center border border-[#E8E1DB] dark:border-[#363B44]">
               <Wallet className="w-4 h-4" />
             </div>
             <div>
@@ -381,7 +381,7 @@ export const DashboardView: React.FC<Props> = ({
         {onNavigateToLoans && (
           <div
             onClick={onNavigateToLoans}
-            className="p-4 rounded-2xl bg-white dark:bg-[#22252A] border border-[#FED7B8] dark:border-[#363B44] hover:border-slate-300 dark:hover:border-slate-700 cursor-pointer transition-all flex items-center justify-between shadow-sm"
+            className="p-4 rounded-2xl bg-white dark:bg-[#22252A] border border-[#E8E1DB] dark:border-[#363B44] hover:border-slate-300 dark:hover:border-slate-700 cursor-pointer transition-all flex items-center justify-between shadow-sm"
           >
             <div className="flex items-center space-x-3">
               <div className="w-9 h-9 rounded-xl bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 flex items-center justify-center border border-rose-200 dark:border-rose-800/40">

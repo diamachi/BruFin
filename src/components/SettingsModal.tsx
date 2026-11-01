@@ -194,11 +194,11 @@ export const SettingsModal: React.FC<Props> = ({
   return createPortal(
     <div className="fixed inset-0 z-50 overflow-y-auto bg-black/75 p-4 flex items-center justify-center animate-fadeIn">
       <div 
-        className="w-full max-w-lg max-h-[88vh] my-auto bg-[#FFF8F3] dark:bg-[#22252A] border border-[#FED7B8] dark:border-[#363B44] rounded-3xl shadow-2xl flex flex-col overflow-hidden text-slate-800 dark:text-[#F2F3F5]"
+        className="w-full max-w-lg max-h-[88vh] my-auto bg-[#F7F6F3] dark:bg-[#22252A] border border-[#E8E1DB] dark:border-[#363B44] rounded-3xl shadow-2xl flex flex-col overflow-hidden text-slate-800 dark:text-[#F2F3F5]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="px-5 py-4 border-b border-[#FED7B8] dark:border-[#363B44] flex items-center justify-between bg-[#FFF8F3] dark:bg-[#22252A]">
+        <div className="px-5 py-4 border-b border-[#E8E1DB] dark:border-[#363B44] flex items-center justify-between bg-[#F7F6F3] dark:bg-[#22252A]">
           <div className="flex items-center space-x-2">
             <Database className="w-5 h-5 text-[#EF6448]" />
             <h2 className="text-base font-bold text-slate-900 dark:text-[#F2F3F5] tracking-tight">Settings & Preferences</h2>
@@ -214,7 +214,7 @@ export const SettingsModal: React.FC<Props> = ({
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-5 space-y-6">
           {/* 1. Monthly Expense Target */}
-          <div className="p-4 rounded-2xl bg-white dark:bg-[#17191C] border border-[#FED7B8] dark:border-[#363B44] space-y-3 shadow-xs">
+          <div className="p-4 rounded-2xl bg-white dark:bg-[#17191C] border border-[#E8E1DB] dark:border-[#363B44] space-y-3 shadow-xs">
             <h3 className="text-xs font-bold text-slate-900 dark:text-[#F2F3F5] uppercase tracking-wider">
               Monthly Budget Target
             </h3>
@@ -230,7 +230,7 @@ export const SettingsModal: React.FC<Props> = ({
                   type="number"
                   value={targetInput}
                   onChange={(e) => setTargetInput(e.target.value)}
-                  className="w-full bg-[#FFF8F3] dark:bg-[#1B1E22] border border-[#FED7B8] dark:border-[#363B44] rounded-xl pl-7 pr-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none"
+                  className="w-full bg-[#F7F6F3] dark:bg-[#1B1E22] border border-[#E8E1DB] dark:border-[#363B44] rounded-xl pl-7 pr-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none"
                 />
               </div>
               <button
@@ -244,7 +244,7 @@ export const SettingsModal: React.FC<Props> = ({
           </div>
 
           {/* Display & Text Size Scaling */}
-          <div className="p-4 rounded-2xl bg-white dark:bg-[#17191C] border border-[#FED7B8] dark:border-[#363B44] space-y-3.5 shadow-xs">
+          <div className="p-4 rounded-2xl bg-white dark:bg-[#17191C] border border-[#E8E1DB] dark:border-[#363B44] space-y-3.5 shadow-xs">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <Type className="w-4 h-4 text-[#EF6448]" />
@@ -262,7 +262,7 @@ export const SettingsModal: React.FC<Props> = ({
             </p>
 
             {/* Scale Segmented Presets */}
-            <div className="grid grid-cols-5 gap-1.5 p-1 bg-[#FFF8F3] dark:bg-[#1B1E22] rounded-xl border border-[#FED7B8] dark:border-[#363B44]">
+            <div className="grid grid-cols-5 gap-1.5 p-1 bg-[#F7F6F3] dark:bg-[#1B1E22] rounded-xl border border-[#E8E1DB] dark:border-[#363B44]">
               {APP_SCALE_PRESETS.map((preset) => {
                 const isSelected = Math.abs(appScale - preset.value) < 0.02;
                 return (
@@ -305,7 +305,7 @@ export const SettingsModal: React.FC<Props> = ({
             </div>
 
             {/* Quick Live Preview Box */}
-            <div className="p-2.5 rounded-xl bg-white dark:bg-[#1B1E22] border border-dashed border-[#FED7B8] dark:border-[#363B44] flex items-center justify-between text-xs">
+            <div className="p-2.5 rounded-xl bg-white dark:bg-[#1B1E22] border border-dashed border-[#E8E1DB] dark:border-[#363B44] flex items-center justify-between text-xs">
               <div>
                 <div className="font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
                   <span>☕ BruFin Preview</span>
@@ -330,7 +330,7 @@ export const SettingsModal: React.FC<Props> = ({
           </div>
 
           {/* Monthly Balance Check-in Prompts Toggle */}
-          <div className="p-4 rounded-2xl bg-white dark:bg-[#17191C] border border-[#FED7B8] dark:border-[#363B44] flex items-center justify-between gap-3 shadow-xs">
+          <div className="p-4 rounded-2xl bg-white dark:bg-[#17191C] border border-[#E8E1DB] dark:border-[#363B44] flex items-center justify-between gap-3 shadow-xs">
             <div className="space-y-0.5">
               <div className="flex items-center space-x-2">
                 <Landmark className="w-4 h-4 text-[#EF6448]" />
@@ -361,7 +361,7 @@ export const SettingsModal: React.FC<Props> = ({
           </div>
 
           {/* Storage & RAM Live Monitor Toggle */}
-          <div className="p-4 rounded-2xl bg-white dark:bg-[#17191C] border border-[#FED7B8] dark:border-[#363B44] space-y-3 shadow-xs">
+          <div className="p-4 rounded-2xl bg-white dark:bg-[#17191C] border border-[#E8E1DB] dark:border-[#363B44] space-y-3 shadow-xs">
             <div className="flex items-center justify-between gap-3">
               <div className="space-y-0.5">
                 <div className="flex items-center space-x-2">
@@ -399,7 +399,7 @@ export const SettingsModal: React.FC<Props> = ({
                   onClose();
                   onOpenDiagnostics();
                 }}
-                className="w-full py-2 px-3 rounded-xl bg-[#FFF8F3] dark:bg-[#1B1E22] hover:bg-slate-100 dark:hover:bg-[#363C3A] border border-[#FED7B8] dark:border-[#363B44] text-slate-700 dark:text-[#F2F3F5] text-xs font-semibold transition-all flex items-center justify-center gap-1.5"
+                className="w-full py-2 px-3 rounded-xl bg-[#F7F6F3] dark:bg-[#1B1E22] hover:bg-slate-100 dark:hover:bg-[#363C3A] border border-[#E8E1DB] dark:border-[#363B44] text-slate-700 dark:text-[#F2F3F5] text-xs font-semibold transition-all flex items-center justify-center gap-1.5"
               >
                 <Archive className="w-3.5 h-3.5 text-[#EF6448]" />
                 <span>Open Storage & 1-Year Retention Center</span>
@@ -408,7 +408,7 @@ export const SettingsModal: React.FC<Props> = ({
           </div>
 
           {/* 2. Manage Pre-Existing Payment Methods */}
-          <div className="p-4 rounded-2xl bg-white dark:bg-[#17191C] border border-[#FED7B8] dark:border-[#363B44] space-y-3 shadow-xs">
+          <div className="p-4 rounded-2xl bg-white dark:bg-[#17191C] border border-[#E8E1DB] dark:border-[#363B44] space-y-3 shadow-xs">
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-xs font-bold text-slate-900 dark:text-[#F2F3F5] uppercase tracking-wider">
@@ -429,7 +429,7 @@ export const SettingsModal: React.FC<Props> = ({
 
             {/* Inline Add Method Form */}
             {showAddPaymentMethod && (
-              <form onSubmit={handleAddPaymentMethod} className="p-3.5 rounded-xl bg-[#FFF8F3] dark:bg-[#1B1E22] border border-[#FED7B8] dark:border-[#363B44] space-y-3 animate-fadeIn">
+              <form onSubmit={handleAddPaymentMethod} className="p-3.5 rounded-xl bg-[#F7F6F3] dark:bg-[#1B1E22] border border-[#E8E1DB] dark:border-[#363B44] space-y-3 animate-fadeIn">
                 <div>
                   <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
                     Method Name <span className="text-rose-500">*</span>
@@ -439,7 +439,7 @@ export const SettingsModal: React.FC<Props> = ({
                     placeholder="e.g. Sodexo Meal Card, Cheque, Forex Card..."
                     value={newMethodName}
                     onChange={(e) => setNewMethodName(e.target.value)}
-                    className="w-full bg-white dark:bg-[#17191C] border border-[#FED7B8] dark:border-[#363B44] rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none"
+                    className="w-full bg-white dark:bg-[#17191C] border border-[#E8E1DB] dark:border-[#363B44] rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none"
                     required
                   />
                 </div>
@@ -460,7 +460,7 @@ export const SettingsModal: React.FC<Props> = ({
                         className={`p-2 rounded-xl text-[11px] font-medium flex items-center gap-1.5 border transition-all cursor-pointer ${
                           newMethodIcon === opt.icon
                             ? 'bg-[#EF6448] text-white border-[#EF6448] shadow-sm font-bold'
-                            : 'bg-slate-50 dark:bg-[#1B1E22] border-[#FED7B8] dark:border-[#363B44] text-slate-600 dark:text-slate-400'
+                            : 'bg-slate-50 dark:bg-[#1B1E22] border-[#E8E1DB] dark:border-[#363B44] text-slate-600 dark:text-slate-400'
                         }`}
                       >
                         <CategoryIcon name={opt.icon} className="w-3.5 h-3.5 shrink-0" />
@@ -484,7 +484,7 @@ export const SettingsModal: React.FC<Props> = ({
               {paymentMethods.map((pm) => (
                 <div
                   key={pm.id}
-                  className="p-2.5 rounded-xl bg-white dark:bg-[#1B1E22] border border-[#FED7B8] dark:border-[#363B44] flex items-center justify-between transition-colors"
+                  className="p-2.5 rounded-xl bg-white dark:bg-[#1B1E22] border border-[#E8E1DB] dark:border-[#363B44] flex items-center justify-between transition-colors"
                 >
                   <div className="flex items-center space-x-2.5">
                     <div className="w-7 h-7 rounded-lg bg-slate-100 dark:bg-[#1B1E22] text-slate-600 dark:text-slate-300 flex items-center justify-center">
@@ -524,7 +524,7 @@ export const SettingsModal: React.FC<Props> = ({
           </div>
 
           {/* 3. Manage Recurring Payments */}
-          <div className="p-4 rounded-2xl bg-white dark:bg-[#17191C] border border-[#FED7B8] dark:border-[#363B44] space-y-3 shadow-xs">
+          <div className="p-4 rounded-2xl bg-white dark:bg-[#17191C] border border-[#E8E1DB] dark:border-[#363B44] space-y-3 shadow-xs">
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-xs font-bold text-slate-900 dark:text-[#F2F3F5] uppercase tracking-wider">
@@ -542,21 +542,21 @@ export const SettingsModal: React.FC<Props> = ({
             </div>
 
             {showAddRecurring && (
-              <form onSubmit={handleAddRecurring} className="p-3 rounded-xl bg-[#FFF8F3] dark:bg-[#1B1E22] border border-[#FED7B8] dark:border-[#363B44] space-y-2 animate-fadeIn">
+              <form onSubmit={handleAddRecurring} className="p-3 rounded-xl bg-[#F7F6F3] dark:bg-[#1B1E22] border border-[#E8E1DB] dark:border-[#363B44] space-y-2 animate-fadeIn">
                 <div className="grid grid-cols-2 gap-2">
                   <input
                     type="text"
                     placeholder="Name (e.g. Netflix)"
                     value={recName}
                     onChange={(e) => setRecName(e.target.value)}
-                    className="w-full bg-white dark:bg-[#17191C] border border-[#FED7B8] dark:border-[#363B44] rounded-lg px-2.5 py-1.5 text-xs text-slate-900 dark:text-white"
+                    className="w-full bg-white dark:bg-[#17191C] border border-[#E8E1DB] dark:border-[#363B44] rounded-lg px-2.5 py-1.5 text-xs text-slate-900 dark:text-white"
                   />
                   <input
                     type="number"
                     placeholder="Amount (₹)"
                     value={recAmount}
                     onChange={(e) => setRecAmount(e.target.value)}
-                    className="w-full bg-white dark:bg-[#17191C] border border-[#FED7B8] dark:border-[#363B44] rounded-lg px-2.5 py-1.5 text-xs text-slate-900 dark:text-white"
+                    className="w-full bg-white dark:bg-[#17191C] border border-[#E8E1DB] dark:border-[#363B44] rounded-lg px-2.5 py-1.5 text-xs text-slate-900 dark:text-white"
                   />
                 </div>
                 <input
@@ -564,7 +564,7 @@ export const SettingsModal: React.FC<Props> = ({
                   placeholder="Validity (e.g. Till Dec 2026)"
                   value={recValidity}
                   onChange={(e) => setRecValidity(e.target.value)}
-                  className="w-full bg-white dark:bg-[#17191C] border border-[#FED7B8] dark:border-[#363B44] rounded-lg px-2.5 py-1.5 text-xs text-slate-900 dark:text-white"
+                  className="w-full bg-white dark:bg-[#17191C] border border-[#E8E1DB] dark:border-[#363B44] rounded-lg px-2.5 py-1.5 text-xs text-slate-900 dark:text-white"
                 />
                 <button
                   type="submit"
@@ -597,7 +597,7 @@ export const SettingsModal: React.FC<Props> = ({
           </div>
 
           {/* 4. Demo Mode & Database State */}
-          <div className="p-4 rounded-2xl bg-white dark:bg-[#17191C] border border-[#FED7B8] dark:border-[#363B44] space-y-3 shadow-xs">
+          <div className="p-4 rounded-2xl bg-white dark:bg-[#17191C] border border-[#E8E1DB] dark:border-[#363B44] space-y-3 shadow-xs">
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-xs font-bold text-slate-900 dark:text-[#F2F3F5] uppercase tracking-wider">
@@ -640,7 +640,7 @@ export const SettingsModal: React.FC<Props> = ({
                       onClose();
                     }
                   }}
-                  className="flex-1 py-2 px-3 rounded-xl bg-[#FFF8F3] dark:bg-[#1B1E22] hover:bg-slate-100 dark:hover:bg-[#363C3A] border border-[#FED7B8] dark:border-[#363B44] text-slate-700 dark:text-slate-200 text-xs font-semibold transition-all flex items-center justify-center gap-1.5"
+                  className="flex-1 py-2 px-3 rounded-xl bg-[#F7F6F3] dark:bg-[#1B1E22] hover:bg-slate-100 dark:hover:bg-[#363C3A] border border-[#E8E1DB] dark:border-[#363B44] text-slate-700 dark:text-slate-200 text-xs font-semibold transition-all flex items-center justify-center gap-1.5"
                 >
                   <Database className="w-3.5 h-3.5 text-[#B87B2E] dark:text-[#FF927A]" />
                   <span>Load Sample Demo Data</span>
@@ -650,7 +650,7 @@ export const SettingsModal: React.FC<Props> = ({
           </div>
 
           {/* 5. Backup & Export / Import */}
-          <div className="p-4 rounded-2xl bg-white dark:bg-[#17191C] border border-[#FED7B8] dark:border-[#363B44] space-y-3 shadow-xs">
+          <div className="p-4 rounded-2xl bg-white dark:bg-[#17191C] border border-[#E8E1DB] dark:border-[#363B44] space-y-3 shadow-xs">
             <h3 className="text-xs font-bold text-slate-900 dark:text-[#F2F3F5] uppercase tracking-wider">
               Backup & Data Portability
             </h3>
@@ -661,7 +661,7 @@ export const SettingsModal: React.FC<Props> = ({
             <div className="grid grid-cols-2 gap-2 pt-1">
               <button
                 onClick={exportDatabaseJSON}
-                className="p-3 rounded-xl bg-[#FFF8F3] dark:bg-[#1B1E22] hover:bg-slate-100 dark:hover:bg-[#363C3A] border border-[#FED7B8] dark:border-[#363B44] text-left transition-colors flex items-center space-x-2 text-xs font-semibold text-slate-700 dark:text-slate-200 cursor-pointer"
+                className="p-3 rounded-xl bg-[#F7F6F3] dark:bg-[#1B1E22] hover:bg-slate-100 dark:hover:bg-[#363C3A] border border-[#E8E1DB] dark:border-[#363B44] text-left transition-colors flex items-center space-x-2 text-xs font-semibold text-slate-700 dark:text-slate-200 cursor-pointer"
               >
                 <Download className="w-4 h-4 text-[#EF6448] shrink-0" />
                 <span>Export JSON Backup</span>
@@ -669,7 +669,7 @@ export const SettingsModal: React.FC<Props> = ({
 
               <button
                 onClick={exportTransactionsCSV}
-                className="p-3 rounded-xl bg-[#FFF8F3] dark:bg-[#1B1E22] hover:bg-slate-100 dark:hover:bg-[#363C3A] border border-[#FED7B8] dark:border-[#363B44] text-left transition-colors flex items-center space-x-2 text-xs font-semibold text-slate-700 dark:text-slate-200 cursor-pointer"
+                className="p-3 rounded-xl bg-[#F7F6F3] dark:bg-[#1B1E22] hover:bg-slate-100 dark:hover:bg-[#363C3A] border border-[#E8E1DB] dark:border-[#363B44] text-left transition-colors flex items-center space-x-2 text-xs font-semibold text-slate-700 dark:text-slate-200 cursor-pointer"
               >
                 <FileSpreadsheet className="w-4 h-4 text-[#EF6448] shrink-0" />
                 <span>Export to Excel / CSV</span>
@@ -677,7 +677,7 @@ export const SettingsModal: React.FC<Props> = ({
             </div>
 
             <div className="pt-2">
-              <label className="block p-3 rounded-xl bg-[#FFF8F3] dark:bg-[#1B1E22] hover:bg-slate-100 dark:hover:bg-[#363C3A] border border-dashed border-[#FED7B8] dark:border-[#363B44] text-center cursor-pointer transition-colors text-xs text-slate-600 dark:text-slate-300 font-semibold">
+              <label className="block p-3 rounded-xl bg-[#F7F6F3] dark:bg-[#1B1E22] hover:bg-slate-100 dark:hover:bg-[#363C3A] border border-dashed border-[#E8E1DB] dark:border-[#363B44] text-center cursor-pointer transition-colors text-xs text-slate-600 dark:text-slate-300 font-semibold">
                 <Upload className="w-4 h-4 text-[#EF6448] inline mr-2" />
                 <span>Import JSON Backup File</span>
                 <input
@@ -688,7 +688,7 @@ export const SettingsModal: React.FC<Props> = ({
                 />
               </label>
             </div>
-            <label className="block cursor-pointer rounded-xl border border-dashed border-[#FED7B8] bg-[#FFF8F3] p-3 text-center text-xs font-semibold text-slate-600 transition-colors hover:bg-slate-100 dark:border-[#363B44] dark:bg-[#1B1E22] dark:text-slate-300 dark:hover:bg-[#363C3A]">
+            <label className="block cursor-pointer rounded-xl border border-dashed border-[#E8E1DB] bg-[#F7F6F3] p-3 text-center text-xs font-semibold text-slate-600 transition-colors hover:bg-slate-100 dark:border-[#363B44] dark:bg-[#1B1E22] dark:text-slate-300 dark:hover:bg-[#363C3A]">
               <Archive className="mr-2 inline h-4 w-4 text-[#EF6448]" />
               <span>View or Restore Historical JSON / CSV</span>
               <input type="file" accept=".json,.csv,application/json,text/csv" onChange={handleHistoricalFileChange} className="hidden" />
