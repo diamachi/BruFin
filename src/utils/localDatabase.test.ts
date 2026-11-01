@@ -1,5 +1,5 @@
 import 'fake-indexeddb/auto';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { Transaction } from '../types';
 import { parseHistoricalDataFile } from './archiveImport';
 
@@ -8,7 +8,17 @@ function makeFile(name: string, contents: string): File {
 }
 
 describe('local IndexedDB and historical data import', () => {
-  it('upgrades the local database, persists updates, and reads export formats', async () => {
+  it('upgrades the prior database, migrates localStorage, persists updates, and reads export formats', async () => {
+    const values = new Map<string, string>();
+    Object.defineProperty(globalThis, 'localStorage', {
+      configurable: true,
+      value: {
+        getItem: (key: string) => values.get(key) ?? null,
+        setItem: (key: string, value: string) => values.set(key, String(value)),
+        removeItem: (key: string) => values.delete(key),
+      },
+    });
+
     const legacyTransaction: Transaction = {
       id: 'legacy-1', type: 'Expense', category: 'Food', description: 'Coffee',
       amount: 120, paymentMode: 'UPI', date: '2024-01-05',
@@ -31,6 +41,21 @@ describe('local IndexedDB and historical data import', () => {
     await database.initializeLocalDatabase();
     expect(database.getLocalDatabaseData().transactions).toEqual([legacyTransaction]);
     expect(database.getLocalDatabaseData().monthlyTarget).toBe(60000);
+
+    await new Promise<void>((resolve, reject) => {
+      const request = indexedDB.deleteDatabase('brufin-local');
+      request.onsuccess = () => resolve();
+      request.onerror = () => reject(request.error);
+      request.onblocked = () => reject(new Error('Database connection did not close for migration test.'));
+    });
+    values.set('brufin_transactions_v2', JSON.stringify([legacyTransaction]));
+    values.set('brufin_target_v2', '65000');
+    vi.resetModules();
+    database = await import('./localDatabase');
+    await database.initializeLocalDatabase();
+    expect(database.getLocalDatabaseData().transactions).toEqual([legacyTransaction]);
+    expect(database.getLocalDatabaseData().monthlyTarget).toBe(65000);
+    expect(values.has('brufin_transactions_v2')).toBe(false);
 
     const updated = [{ ...legacyTransaction, description: 'Updated coffee' }];
     await database.saveLocalDatabaseSections({ transactions: updated });
