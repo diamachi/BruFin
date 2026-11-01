@@ -1,6 +1,6 @@
 # Bru Fin
 
-**Brewing calm finances.** Bru Fin is a local-first personal finance tracker built with React, TypeScript, Vite, and Capacitor. It runs as a web app and can be packaged as an Android app. Transactions and settings are stored in the browser or Android WebView on the device; there is no account, bank connection, or cloud service.
+**Brewing calm finances.** Bru Fin is a local-first personal finance tracker built with React, TypeScript, Vite, and Capacitor. It runs as a web app and can be packaged as an Android app. Financial records stay in the browser or Android WebView on the device; there is no account, bank connection, or cloud service.
 
 ## Screenshots
 
@@ -21,14 +21,14 @@ The dashboard below uses synthetic demo records.
 - **Investments:** keep a manual list of mutual funds, fixed deposits, provident fund, and stocks; use the returns calculator for estimates.
 - **Loans:** record loan details and explore estimated payoff time and interest savings from extra monthly payments.
 - **Personalization:** light and dark themes, adjustable display scale, and optional storage and memory diagnostics.
-- **Data portability:** export a JSON backup or transaction CSV, and import a JSON backup.
+- **Data portability:** export a JSON backup or transaction CSV, import a JSON backup, and preview or restore older BruFin JSON/CSV transaction exports.
 - **Demo mode:** explore the app with sample data, then clear it to start a personal database.
 
 ## Privacy and data storage
 
-Bru Fin has no application backend. It stores its data in `localStorage` for the current browser origin or Android app WebView. Browser storage is tied to the browser profile and origin: for example, `localhost` and a LAN IP address have separate data stores. Clearing browser or app data can remove records, so export a JSON backup regularly and keep that file somewhere safe. The JSON backup is unencrypted and contains financial records; protect it accordingly.
+Bru Fin has no application backend. Financial records are stored locally in IndexedDB for the current browser origin or Android app WebView. On first launch after this update, Bru Fin migrates existing records from its previous `localStorage` keys into IndexedDB, then removes those old copies after the migration commits. Browser storage is tied to the browser profile and origin: for example, `localhost` and a LAN IP address have separate data stores. Clearing browser or app data can remove records, so export a JSON backup regularly and keep that file somewhere safe. Backups are unencrypted and contain financial records; protect them accordingly.
 
-The app does not connect to banks, fetch account balances, or sync records between devices. Investment and loan calculations are estimates based on values entered by the user, not live market or lender data.
+The app does not connect to banks, fetch account balances, or sync records between devices. Browser storage can still be cleared by the user or operating system; keep a separate backup. Investment and loan calculations are estimates based on values entered by the user, not live market or lender data.
 
 ## Run locally for development
 
@@ -43,10 +43,12 @@ From the repository root:
 
 ```bash
 npm ci
+npm run typecheck
+npm test
 npm run dev
 ```
 
-Vite prints the local address, normally [http://localhost:5173](http://localhost:5173). The development server enables hot reload. Data you enter is saved in that browser origin's local storage.
+Vite prints the local address, normally [http://localhost:5173](http://localhost:5173). The development server enables hot reload. Data you enter is saved in IndexedDB for that browser origin.
 
 To create and preview a production web build:
 
@@ -98,6 +100,8 @@ adb install -r android/app/build/outputs/apk/debug/app-debug.apk
 
 The `build_apk.sh` helper performs these steps too, but expects a local JDK at `./jdk/Contents/Home`. The `jdk/` directory is ignored by Git; use the manual steps above if your JDK is installed elsewhere. This project is configured for a debug APK; release signing is not configured here.
 
+GitHub Actions also builds the debug APK for pushes and pull requests to `main`. Download `brufin-debug-apk` from the completed workflow run’s artifacts. Release signing is not configured.
+
 ## Useful commands
 
 | Command | Purpose |
@@ -105,11 +109,13 @@ The `build_apk.sh` helper performs these steps too, but expects a local JDK at `
 | `npm ci` | Install the exact dependency versions in the lockfile |
 | `npm run dev` | Start the Vite development server |
 | `npm run build` | Build the production web assets |
+| `npm run typecheck` | Run the TypeScript compiler without emitting files |
+| `npm test` | Verify local database migration and historical JSON/CSV import |
 | `npm run preview` | Serve the production bundle locally |
 | `npm run cap:sync` | Build web assets and sync them into the Android project |
 | `cd android && ./gradlew assembleDebug` | Compile the Android debug APK |
 
-The current `build` script does not run TypeScript type checking. Run `npx tsc --noEmit` separately when you want a type check.
+The production build and type check are separate commands.
 
 ## Project layout
 
@@ -117,7 +123,7 @@ The current `build` script does not run TypeScript type checking. Run `npx tsc -
 src/
   components/      App views, forms, modals, navigation, and diagnostics
   data/            Demo data
-  utils/           Local storage, categories, and date/currency helpers
+  utils/           IndexedDB, legacy migration, archive import, categories, and date helpers
   App.tsx          App state and view composition
   types.ts         Data model types
 android/           Capacitor Android project

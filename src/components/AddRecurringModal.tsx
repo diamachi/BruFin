@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { X, Check, Calculator, CalendarClock, Sparkles, Repeat } from 'lucide-react';
 import { RecurringPayment, CreditCard, PaymentMethodItem } from '../types';
 import { EXPENSE_CATEGORIES, getPaymentModes } from '../utils/categories';
-import { formatINR } from '../utils/dateUtils';
+import { formatINR, getCurrentMonthKey } from '../utils/dateUtils';
 
 interface Props {
   isOpen: boolean;
@@ -89,7 +89,7 @@ export const AddRecurringModal: React.FC<Props> = ({
     let finalMonths: number | undefined;
     let validityText = 'Ongoing';
 
-    const currentYearMonth = new Date().toISOString().substring(0, 7);
+    const currentYearMonth = getCurrentMonthKey();
 
     if (billingMode === 'total_split') {
       const tot = parseFloat(totalAmount);
@@ -140,19 +140,17 @@ export const AddRecurringModal: React.FC<Props> = ({
     onClose();
   };
 
-  if (!isOpen) return null;
-
   return createPortal(
     <div className="fixed inset-0 z-50 overflow-y-auto bg-black/75 p-4 flex items-center justify-center animate-fadeIn">
       <div 
-        className="w-full max-w-md bg-white dark:bg-[#1C1F1E] border border-[#FED7B8] dark:border-[#363C3A] rounded-3xl shadow-2xl p-5 space-y-4 max-h-[88vh] overflow-y-auto my-auto"
+        className="w-full max-w-md bg-white dark:bg-[#1B1E22] border border-[#FED7B8] dark:border-[#363B44] rounded-3xl shadow-2xl p-5 space-y-4 max-h-[88vh] overflow-y-auto my-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-[#FED7B8] dark:border-[#363C3A] pb-3">
+        <div className="flex items-center justify-between border-b border-[#FED7B8] dark:border-[#363B44] pb-3">
           <div>
-            <h3 className="text-sm font-bold text-[#59171B] dark:text-[#EF6448] flex items-center gap-1.5">
-              <CalendarClock className="w-4 h-4 text-[#8C2735] dark:text-[#EF6448]" />
+            <h3 className="text-sm font-bold text-[#59171B] dark:text-[#FF927A] flex items-center gap-1.5">
+              <CalendarClock className="w-4 h-4 text-[#8C2735] dark:text-[#FF927A]" />
               <span>{initialData ? 'Edit Recurring Bill' : 'Add Monthly Recurring Bill'}</span>
             </h3>
             <p className="text-[11px] text-slate-500 dark:text-slate-400">
@@ -178,13 +176,13 @@ export const AddRecurringModal: React.FC<Props> = ({
           <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">
             How is this bill calculated?
           </label>
-          <div className="grid grid-cols-2 gap-2 p-1 bg-slate-100 dark:bg-[#272B2A] rounded-2xl border border-[#FED7B8]/40 dark:border-[#363C3A]">
+          <div className="grid grid-cols-2 gap-2 p-1 bg-slate-100 dark:bg-[#22252A] rounded-2xl border border-[#FED7B8]/40 dark:border-[#363B44]">
             <button
               type="button"
               onClick={() => setBillingMode('monthly')}
               className={`py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
                 billingMode === 'monthly'
-                  ? 'bg-white dark:bg-[#1C1F1E] text-[#59171B] dark:text-[#EF6448] shadow-sm border border-[#FED7B8] dark:border-[#363C3A]'
+                  ? 'bg-white dark:bg-[#1B1E22] text-[#59171B] dark:text-[#FF927A] shadow-sm border border-[#FED7B8] dark:border-[#363B44]'
                   : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
@@ -196,7 +194,7 @@ export const AddRecurringModal: React.FC<Props> = ({
               onClick={() => setBillingMode('total_split')}
               className={`py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
                 billingMode === 'total_split'
-                  ? 'bg-white dark:bg-[#1C1F1E] text-[#59171B] dark:text-[#EF6448] shadow-sm border border-[#FED7B8] dark:border-[#363C3A]'
+                  ? 'bg-white dark:bg-[#1B1E22] text-[#59171B] dark:text-[#FF927A] shadow-sm border border-[#FED7B8] dark:border-[#363B44]'
                   : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
@@ -220,7 +218,7 @@ export const AddRecurringModal: React.FC<Props> = ({
                 setName(e.target.value);
                 setError('');
               }}
-              className="w-full bg-slate-50 dark:bg-[#1C1F1E] border border-[#FED7B8] dark:border-[#363C3A] rounded-xl px-3.5 py-2.5 text-xs text-slate-900 dark:text-white font-medium focus:outline-none focus:ring-1 focus:ring-[#EF6448]"
+              className="w-full bg-slate-50 dark:bg-[#1B1E22] border border-[#FED7B8] dark:border-[#363B44] rounded-xl px-3.5 py-2.5 text-xs text-slate-900 dark:text-white font-medium focus:outline-none focus:ring-1 focus:ring-[#EF6448]"
               required
             />
           </div>
@@ -242,14 +240,14 @@ export const AddRecurringModal: React.FC<Props> = ({
                       setMonthlyAmount(e.target.value);
                       setError('');
                     }}
-                    className="w-full bg-slate-50 dark:bg-[#1C1F1E] border border-[#FED7B8] dark:border-[#363C3A] rounded-xl pl-8 pr-3.5 py-2.5 text-xs text-slate-900 dark:text-white font-bold focus:outline-none focus:ring-1 focus:ring-[#EF6448]"
+                    className="w-full bg-slate-50 dark:bg-[#1B1E22] border border-[#FED7B8] dark:border-[#363B44] rounded-xl pl-8 pr-3.5 py-2.5 text-xs text-slate-900 dark:text-white font-bold focus:outline-none focus:ring-1 focus:ring-[#EF6448]"
                     required
                   />
                 </div>
               </div>
 
               {/* Duration: Ongoing vs Months */}
-              <div className="flex items-center justify-between p-2.5 bg-slate-50 dark:bg-[#1C1F1E] rounded-xl border border-[#FED7B8]/50 dark:border-[#363C3A]">
+              <div className="flex items-center justify-between p-2.5 bg-slate-50 dark:bg-[#1B1E22] rounded-xl border border-[#FED7B8]/50 dark:border-[#363B44]">
                 <div className="flex items-center space-x-2">
                   <input
                     type="checkbox"
@@ -270,7 +268,7 @@ export const AddRecurringModal: React.FC<Props> = ({
                       max="120"
                       value={durationMonths}
                       onChange={(e) => setDurationMonths(e.target.value)}
-                      className="w-14 bg-white dark:bg-[#1C1F1E] border border-[#FED7B8] dark:border-[#363C3A] rounded-lg px-2 py-1 text-xs text-center font-bold text-slate-900 dark:text-white"
+                      className="w-14 bg-white dark:bg-[#1B1E22] border border-[#FED7B8] dark:border-[#363B44] rounded-lg px-2 py-1 text-xs text-center font-bold text-slate-900 dark:text-white"
                     />
                     <span className="text-[11px] text-slate-500 dark:text-slate-400">mos</span>
                   </div>
@@ -278,7 +276,7 @@ export const AddRecurringModal: React.FC<Props> = ({
               </div>
             </div>
           ) : (
-            <div className="space-y-3 p-3 rounded-2xl bg-[#FFF8F3] dark:bg-[#272B2A] border border-[#FED7B8] dark:border-[#363C3A]">
+            <div className="space-y-3 p-3 rounded-2xl bg-[#FFF8F3] dark:bg-[#22252A] border border-[#FED7B8] dark:border-[#363B44]">
               <div className="grid grid-cols-2 gap-2.5">
                 <div>
                   <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">
@@ -294,7 +292,7 @@ export const AddRecurringModal: React.FC<Props> = ({
                         setTotalAmount(e.target.value);
                         setError('');
                       }}
-                      className="w-full bg-white dark:bg-[#1C1F1E] border border-[#FED7B8] dark:border-[#363C3A] rounded-xl pl-7 pr-3 py-2 text-xs text-slate-900 dark:text-white font-bold focus:outline-none"
+                      className="w-full bg-white dark:bg-[#1B1E22] border border-[#FED7B8] dark:border-[#363B44] rounded-xl pl-7 pr-3 py-2 text-xs text-slate-900 dark:text-white font-bold focus:outline-none"
                       required
                     />
                   </div>
@@ -314,18 +312,18 @@ export const AddRecurringModal: React.FC<Props> = ({
                       setDurationMonths(e.target.value);
                       setError('');
                     }}
-                    className="w-full bg-white dark:bg-[#1C1F1E] border border-[#FED7B8] dark:border-[#363C3A] rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white font-bold text-center focus:outline-none"
+                    className="w-full bg-white dark:bg-[#1B1E22] border border-[#FED7B8] dark:border-[#363B44] rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white font-bold text-center focus:outline-none"
                     required
                   />
                 </div>
               </div>
 
               {/* Calculated Monthly Banner */}
-              <div className="p-2 rounded-xl bg-white/80 dark:bg-[#1C1F1E] border border-[#FED7B8] dark:border-[#363C3A] flex items-center justify-between">
+              <div className="p-2 rounded-xl bg-white/80 dark:bg-[#1B1E22] border border-[#FED7B8] dark:border-[#363B44] flex items-center justify-between">
                 <span className="text-[11px] font-medium text-slate-600 dark:text-slate-400">
                   Monthly Commitment:
                 </span>
-                <span className="text-xs font-black text-[#59171B] dark:text-[#EF6448]">
+                <span className="text-xs font-black text-[#59171B] dark:text-[#FF927A]">
                   {formatINR(computedMonthly)} / month
                 </span>
               </div>
@@ -345,7 +343,7 @@ export const AddRecurringModal: React.FC<Props> = ({
                 placeholder="5"
                 value={dueDay}
                 onChange={(e) => setDueDay(e.target.value)}
-                className="w-full bg-slate-50 dark:bg-[#1C1F1E] border border-[#FED7B8] dark:border-[#363C3A] rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white font-bold focus:outline-none"
+                className="w-full bg-slate-50 dark:bg-[#1B1E22] border border-[#FED7B8] dark:border-[#363B44] rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white font-bold focus:outline-none"
               />
               <div className="flex gap-1 mt-1">
                 {[1, 5, 10, 15, 25].map((d) => (
@@ -356,7 +354,7 @@ export const AddRecurringModal: React.FC<Props> = ({
                     className={`text-[9px] px-1.5 py-0.5 rounded font-bold transition-colors cursor-pointer ${
                       dueDay === d.toString()
                         ? 'bg-[#EF6448] text-white shadow-xs'
-                        : 'bg-slate-100 dark:bg-[#1C1F1E] text-slate-500 hover:text-slate-800'
+                        : 'bg-slate-100 dark:bg-[#1B1E22] text-slate-500 hover:text-slate-800'
                     }`}
                   >
                     {d}th
@@ -372,7 +370,7 @@ export const AddRecurringModal: React.FC<Props> = ({
               <select
                 value={paymentMode}
                 onChange={(e) => setPaymentMode(e.target.value)}
-                className="w-full bg-slate-50 dark:bg-[#1C1F1E] border border-[#FED7B8] dark:border-[#363C3A] rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-white font-medium focus:outline-none"
+                className="w-full bg-slate-50 dark:bg-[#1B1E22] border border-[#FED7B8] dark:border-[#363B44] rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-white font-medium focus:outline-none"
               >
                 {paymentModes.map((pm) => (
                   <option key={pm.name} value={pm.name}>{pm.name}</option>
@@ -389,7 +387,7 @@ export const AddRecurringModal: React.FC<Props> = ({
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              className="w-full bg-slate-50 dark:bg-[#1C1F1E] border border-[#FED7B8] dark:border-[#363C3A] rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-white font-medium focus:outline-none"
+              className="w-full bg-slate-50 dark:bg-[#1B1E22] border border-[#FED7B8] dark:border-[#363B44] rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-white font-medium focus:outline-none"
             >
               {EXPENSE_CATEGORIES.map((c) => (
                 <option key={c.name} value={c.name}>{c.name}</option>
@@ -398,9 +396,9 @@ export const AddRecurringModal: React.FC<Props> = ({
           </div>
 
           {/* Live Preview Card */}
-          <div className="p-3 rounded-2xl bg-amber-50/60 dark:bg-[#1C1F1E]/60 border border-amber-200/60 dark:border-[#363C3A] flex items-center justify-between">
+          <div className="p-3 rounded-2xl bg-amber-50/60 dark:bg-[#1B1E22]/60 border border-amber-200/60 dark:border-[#363B44] flex items-center justify-between">
             <div className="truncate pr-2">
-              <span className="text-[10px] text-amber-800 dark:text-[#EF6448] font-bold uppercase block tracking-wider">
+              <span className="text-[10px] text-amber-800 dark:text-[#FF927A] font-bold uppercase block tracking-wider">
                 Monthly Card Preview
               </span>
               <p className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">
@@ -411,7 +409,7 @@ export const AddRecurringModal: React.FC<Props> = ({
               </span>
             </div>
             <div className="text-right shrink-0">
-              <span className="text-sm font-black text-[#59171B] dark:text-[#EF6448] block">
+              <span className="text-sm font-black text-[#59171B] dark:text-[#FF927A] block">
                 {formatINR(computedMonthly)}
               </span>
               <span className="text-[9px] text-slate-400">per month</span>

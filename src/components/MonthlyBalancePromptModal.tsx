@@ -88,11 +88,11 @@ export const MonthlyBalancePromptModal: React.FC<Props> = ({
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 animate-fadeIn">
       <div
-        className="w-full max-w-md bg-white dark:bg-[#1C1F1E] border border-[#FED7B8] dark:border-[#363C3A] rounded-3xl shadow-2xl p-5 space-y-4 max-h-[92vh] overflow-y-auto"
+        className="w-full max-w-md bg-white dark:bg-[#1B1E22] border border-[#FED7B8] dark:border-[#363B44] rounded-3xl shadow-2xl p-5 space-y-4 max-h-[92vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-[#FED7B8] dark:border-[#363C3A] pb-3">
+        <div className="flex items-center justify-between border-b border-[#FED7B8] dark:border-[#363B44] pb-3">
           <div className="flex items-center space-x-2.5">
             <div className="w-9 h-9 rounded-2xl bg-[#EF6448] flex items-center justify-center text-white shadow-sm shrink-0">
               <Landmark className="w-4 h-4 stroke-[2.5]" />
@@ -120,7 +120,7 @@ export const MonthlyBalancePromptModal: React.FC<Props> = ({
 
         {/* Explanatory Banner for Auto-Prompts */}
         {mode !== 'manual_edit' && (
-          <div className="p-3 rounded-2xl bg-[#FFF8F3] dark:bg-[#272B2A] border border-[#FED7B8] dark:border-[#363C3A] text-xs space-y-1">
+          <div className="p-3 rounded-2xl bg-[#FFF8F3] dark:bg-[#22252A] border border-[#FED7B8] dark:border-[#363B44] text-xs space-y-1">
             <p className="text-slate-700 dark:text-slate-300 font-medium">
               {mode === 'start_of_month'
                 ? `Welcome to ${formatMonthYear(monthKey)}! Log your total starting liquid cash across all bank accounts to track this month's savings growth.`
@@ -158,7 +158,7 @@ export const MonthlyBalancePromptModal: React.FC<Props> = ({
                   setStartInput(e.target.value);
                   setError('');
                 }}
-                className="w-full bg-slate-50 dark:bg-[#1C1F1E] border border-[#FED7B8] dark:border-[#363C3A] rounded-xl pl-8 pr-3.5 py-2.5 text-xs text-slate-900 dark:text-white font-bold focus:outline-none focus:ring-1 focus:ring-[#EF6448]"
+                className="w-full bg-slate-50 dark:bg-[#1B1E22] border border-[#FED7B8] dark:border-[#363B44] rounded-xl pl-8 pr-3.5 py-2.5 text-xs text-slate-900 dark:text-white font-bold focus:outline-none focus:ring-1 focus:ring-[#EF6448]"
               />
             </div>
             <p className="text-[10px] text-slate-400 mt-1">
@@ -188,7 +188,7 @@ export const MonthlyBalancePromptModal: React.FC<Props> = ({
                   setEndInput(e.target.value);
                   setError('');
                 }}
-                className="w-full bg-slate-50 dark:bg-[#1C1F1E] border border-[#FED7B8] dark:border-[#363C3A] rounded-xl pl-8 pr-3.5 py-2.5 text-xs text-slate-900 dark:text-white font-bold focus:outline-none focus:ring-1 focus:ring-[#EF6448]"
+                className="w-full bg-slate-50 dark:bg-[#1B1E22] border border-[#FED7B8] dark:border-[#363B44] rounded-xl pl-8 pr-3.5 py-2.5 text-xs text-slate-900 dark:text-white font-bold focus:outline-none focus:ring-1 focus:ring-[#EF6448]"
               />
             </div>
             <p className="text-[10px] text-slate-400 mt-1">
@@ -198,7 +198,7 @@ export const MonthlyBalancePromptModal: React.FC<Props> = ({
 
           {/* Net Change Preview */}
           {parseFloat(startInput) > 0 && parseFloat(endInput) > 0 && (
-            <div className="p-3 rounded-2xl bg-slate-50 dark:bg-[#1C1F1E] border border-[#FED7B8]/60 dark:border-[#363C3A] flex items-center justify-between text-xs">
+            <div className="p-3 rounded-2xl bg-slate-50 dark:bg-[#1B1E22] border border-[#FED7B8]/60 dark:border-[#363B44] flex items-center justify-between text-xs">
               <span className="text-slate-500 font-medium">Net Monthly Cash Flow:</span>
               <span className={`font-black ${diff >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
                 {diff >= 0 ? `+${formatINR(diff)}` : `-${formatINR(Math.abs(diff))}`}
@@ -216,7 +216,7 @@ export const MonthlyBalancePromptModal: React.FC<Props> = ({
               placeholder="e.g. Salary credited, bonus, Diwali shopping"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="w-full bg-slate-50 dark:bg-[#1C1F1E] border border-[#FED7B8] dark:border-[#363C3A] rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-white focus:outline-none"
+              className="w-full bg-slate-50 dark:bg-[#1B1E22] border border-[#FED7B8] dark:border-[#363B44] rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-white focus:outline-none"
             />
           </div>
 
