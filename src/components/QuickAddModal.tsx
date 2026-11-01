@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Check, RotateCcw } from 'lucide-react';
 import { Transaction, TransactionType, CreditCard, PaymentMethodItem } from '../types';
-import { EXPENSE_CATEGORIES, INCOME_CATEGORIES, getPaymentModes } from '../utils/categories';
+import { EXPENSE_CATEGORIES, INCOME_CATEGORIES, getCategoryMeta, getCategoryOptions, getPaymentModes } from '../utils/categories';
 import { getTodayDateString, getCurrentTimestampString } from '../utils/dateUtils';
 import { CategoryIcon } from './CategoryIcon';
 
@@ -14,6 +14,8 @@ interface Props {
   initialData?: Transaction | null;
   creditCards?: CreditCard[];
   paymentMethods?: PaymentMethodItem[];
+  expenseCategories?: string[];
+  incomeCategories?: string[];
 }
 
 export const QuickAddModal: React.FC<Props> = ({
@@ -24,6 +26,8 @@ export const QuickAddModal: React.FC<Props> = ({
   initialData = null,
   creditCards = [],
   paymentMethods = [],
+  expenseCategories,
+  incomeCategories,
 }) => {
   const [type, setType] = useState<TransactionType>('Expense');
   const [category, setCategory] = useState<string>('Dining out / Food Delivery');
@@ -37,6 +41,13 @@ export const QuickAddModal: React.FC<Props> = ({
   const [error, setError] = useState<string>('');
 
   const paymentModes = useMemo(() => getPaymentModes(creditCards, paymentMethods), [creditCards, paymentMethods]);
+  const categories = useMemo(
+    () => getCategoryOptions(type, type === 'Expense' ? expenseCategories : incomeCategories),
+    [type, expenseCategories, incomeCategories]
+  );
+  const categoryOptions = initialData && !categories.some((item) => item.name === category)
+    ? [...categories, getCategoryMeta(category, type === 'Income')]
+    : categories;
 
   useEffect(() => {
     if (initialData) {
@@ -54,7 +65,7 @@ export const QuickAddModal: React.FC<Props> = ({
 
   const handleClear = () => {
     setType('Expense');
-    setCategory('Dining out / Food Delivery');
+    setCategory(getCategoryOptions('Expense', expenseCategories)[0]?.name || EXPENSE_CATEGORIES[0].name);
     setCustomCategory('');
     setDescription('');
     setAmount('');
@@ -65,15 +76,11 @@ export const QuickAddModal: React.FC<Props> = ({
     setError('');
   };
 
-  const categories = type === 'Expense' ? EXPENSE_CATEGORIES : INCOME_CATEGORIES;
-
   const handleTypeChange = (newType: TransactionType) => {
     setType(newType);
-    if (newType === 'Expense') {
-      setCategory('Dining out / Food Delivery');
-    } else {
-      setCategory('Salary');
-    }
+    const categoryNames = newType === 'Expense' ? expenseCategories : incomeCategories;
+    const options = getCategoryOptions(newType, categoryNames);
+    setCategory(options[0]?.name || (newType === 'Expense' ? EXPENSE_CATEGORIES[0].name : INCOME_CATEGORIES[0].name));
   };
 
   const handleQuickAmount = (val: number) => {
@@ -215,7 +222,7 @@ export const QuickAddModal: React.FC<Props> = ({
               <span className="text-[11px] text-slate-500 truncate max-w-[180px]">{category}</span>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-44 overflow-y-auto pr-1">
-              {categories.map((c) => {
+              {categoryOptions.map((c) => {
                 const isSelected = category === c.name;
                 return (
                   <button

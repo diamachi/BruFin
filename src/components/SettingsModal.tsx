@@ -17,11 +17,13 @@ import {
   Type,
   ZoomIn,
   ZoomOut,
+  Tag,
 } from 'lucide-react';
 import { RecurringPayment, PaymentMethodItem } from '../types';
 import { formatINR } from '../utils/dateUtils';
 import { exportDatabaseJSON, exportTransactionsCSV, APP_SCALE_PRESETS } from '../utils/storage';
-import { DEFAULT_BASE_PAYMENT_MODES } from '../utils/categories';
+import { DEFAULT_BASE_PAYMENT_MODES, EXPENSE_CATEGORIES, INCOME_CATEGORIES } from '../utils/categories';
+import type { TransactionCategoryType } from '../utils/categories';
 import { CategoryIcon } from './CategoryIcon';
 
 interface Props {
@@ -33,6 +35,9 @@ interface Props {
   onUpdateRecurring: (payments: RecurringPayment[]) => void;
   paymentMethods: PaymentMethodItem[];
   onUpdatePaymentMethods: (methods: PaymentMethodItem[]) => void;
+  expenseCategories: string[];
+  incomeCategories: string[];
+  onUpdateCategories: (type: TransactionCategoryType, categories: string[]) => Promise<boolean>;
   onImportJSON: (file: File) => void;
   onOpenArchiveImport: (file: File) => void;
   onResetData: () => void;
@@ -66,6 +71,9 @@ export const SettingsModal: React.FC<Props> = ({
   onUpdateRecurring,
   paymentMethods,
   onUpdatePaymentMethods,
+  expenseCategories,
+  incomeCategories,
+  onUpdateCategories,
   onImportJSON,
   onOpenArchiveImport,
   onResetData,
@@ -97,6 +105,36 @@ export const SettingsModal: React.FC<Props> = ({
   const [newMethodName, setNewMethodName] = useState('');
   const [newMethodIcon, setNewMethodIcon] = useState('Smartphone');
   const [newMethodType, setNewMethodType] = useState<'digital' | 'bank' | 'cash' | 'credit' | 'other'>('digital');
+
+  const [categoryType, setCategoryType] = useState<TransactionCategoryType>('Expense');
+  const [newCategoryName, setNewCategoryName] = useState('');
+  const [categoryError, setCategoryError] = useState('');
+  const categoryNames = categoryType === 'Expense' ? expenseCategories : incomeCategories;
+  const defaultCategoryNames = (categoryType === 'Expense' ? EXPENSE_CATEGORIES : INCOME_CATEGORIES)
+    .map((category) => category.name);
+
+  const submitNewCategory = async (event: React.FormEvent) => {
+    event.preventDefault();
+    const name = newCategoryName.trim();
+    if (!name) return;
+    if (categoryNames.some((category) => category.toLowerCase() === name.toLowerCase())) {
+      setCategoryError('This category already exists.');
+      return;
+    }
+    if (categoryNames.length >= 40) {
+      setCategoryError('You can have up to 40 categories in each group.');
+      return;
+    }
+    if (await onUpdateCategories(categoryType, [...categoryNames, name])) {
+      setNewCategoryName('');
+      setCategoryError('');
+    }
+  };
+
+  const removeCategory = (name: string) => {
+    if (categoryNames.length <= 1) return;
+    void onUpdateCategories(categoryType, categoryNames.filter((category) => category !== name));
+  };
 
   const handleSaveTarget = (e: React.FormEvent) => {
     e.preventDefault();
@@ -236,6 +274,78 @@ export const SettingsModal: React.FC<Props> = ({
                 <span>{targetSaved ? 'Saved' : 'Save'}</span>
               </button>
             </form>
+          </div>
+
+          {/* Manage transaction categories */}
+          <div className="p-4 rounded-2xl bg-white dark:bg-[#17191C] border border-[#E8E1DB] dark:border-[#363B44] space-y-3 shadow-xs">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <Tag className="w-4 h-4 text-[#EF6448]" />
+                <h3 className="text-xs font-bold text-slate-900 dark:text-[#F2F3F5] uppercase tracking-wider">Categories</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => void onUpdateCategories(categoryType, defaultCategoryNames)}
+                className="text-[10px] text-slate-500 dark:text-slate-400 hover:text-[#EF6448] flex items-center gap-1"
+              >
+                <RotateCcw className="w-3 h-3" /> Restore defaults
+              </button>
+            </div>
+
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">
+              Add or remove categories for new entries. Removing one keeps its label on existing transactions.
+            </p>
+
+            <div className="grid grid-cols-2 gap-1 rounded-xl bg-[#F7F6F3] dark:bg-[#1B1E22] p-1 border border-[#E8E1DB] dark:border-[#363B44]">
+              {(['Expense', 'Income'] as const).map((type) => (
+                <button
+                  key={type}
+                  type="button"
+                  onClick={() => { setCategoryType(type); setCategoryError(''); }}
+                  className={`rounded-lg py-1.5 text-xs font-semibold transition-colors ${categoryType === type ? 'bg-[#EF6448] text-white shadow-sm' : 'text-slate-600 dark:text-slate-300 hover:bg-white/70 dark:hover:bg-[#363B44]'}`}
+                >
+                  {type} categories
+                </button>
+              ))}
+            </div>
+
+            <form onSubmit={submitNewCategory} className="flex gap-2">
+              <input
+                type="text"
+                maxLength={36}
+                value={newCategoryName}
+                onChange={(event) => { setNewCategoryName(event.target.value); setCategoryError(''); }}
+                placeholder={categoryType === 'Expense' ? 'e.g. Pet care' : 'e.g. Freelance'}
+                aria-label={`New ${categoryType.toLowerCase()} category name`}
+                className="min-w-0 flex-1 bg-[#F7F6F3] dark:bg-[#1B1E22] border border-[#E8E1DB] dark:border-[#363B44] rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#EF6448]/30"
+              />
+              <button
+                type="submit"
+                className="px-3 rounded-xl bg-[#EF6448] hover:bg-[#E05338] text-white text-xs font-bold flex items-center gap-1 shadow-sm"
+              >
+                <Plus className="w-3.5 h-3.5" /> Add
+              </button>
+            </form>
+            {categoryError && <p role="alert" className="text-[11px] text-rose-600 dark:text-rose-400">{categoryError}</p>}
+
+            <div className="max-h-48 overflow-y-auto space-y-1.5 pr-0.5">
+              {categoryNames.map((name) => (
+                <div key={name} className="flex items-center justify-between gap-2 rounded-xl border border-[#E8E1DB] dark:border-[#363B44] bg-[#F7F6F3]/70 dark:bg-[#1B1E22] px-2.5 py-2">
+                  <span className="min-w-0 truncate text-xs font-medium text-slate-700 dark:text-slate-200">{name}</span>
+                  <button
+                    type="button"
+                    onClick={() => removeCategory(name)}
+                    disabled={categoryNames.length <= 1}
+                    title={categoryNames.length <= 1 ? 'Keep at least one category' : `Remove ${name}`}
+                    aria-label={`Remove ${name} category`}
+                    className="shrink-0 p-1 rounded-lg text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30 disabled:opacity-30 disabled:cursor-not-allowed"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ))}
+            </div>
+            <p className="text-[10px] text-slate-400 dark:text-slate-500">{categoryNames.length} of 40 categories</p>
           </div>
 
           {/* Display & Text Size Scaling */}
