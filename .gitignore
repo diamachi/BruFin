@@ -22,6 +22,7 @@ yarn-error.log*
 *.aab
 *.keystore
 *.jks
+android/signing/
 dist/
 
 # Environment & Credentials

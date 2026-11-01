@@ -1,5 +1,17 @@
 apply plugin: 'com.android.application'
 
+def releaseSigning = [
+    keystoreFile: System.getenv('BRUFIN_RELEASE_KEYSTORE_FILE'),
+    keystorePassword: System.getenv('BRUFIN_RELEASE_KEYSTORE_PASSWORD'),
+    keyAlias: System.getenv('BRUFIN_RELEASE_KEY_ALIAS'),
+    keyPassword: System.getenv('BRUFIN_RELEASE_KEY_PASSWORD'),
+]
+def hasReleaseSigning = releaseSigning.values().every { it != null && !it.trim().isEmpty() }
+
+if (!hasReleaseSigning && gradle.startParameter.taskNames.any { it.toLowerCase().contains('release') }) {
+    throw new GradleException('Release builds require the BruFin release keystore environment variables.')
+}
+
 android {
     namespace = "com.diamachi.brufin"
     compileSdk = rootProject.ext.compileSdkVersion
@@ -7,8 +19,8 @@ android {
         applicationId "com.diamachi.brufin"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 4
-        versionName "0.4.0"
+        versionCode 5
+        versionName "0.5.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
@@ -16,9 +28,20 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    signingConfigs {
+        release {
+            if (hasReleaseSigning) {
+                storeFile file(releaseSigning.keystoreFile)
+                storePassword releaseSigning.keystorePassword
+                keyAlias releaseSigning.keyAlias
+                keyPassword releaseSigning.keyPassword
+            }
+        }
+    }
     buildTypes {
         release {
             minifyEnabled false
+            signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
