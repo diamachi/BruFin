@@ -131,41 +131,47 @@ export const InvestmentsView: React.FC<Props> = ({
       <div className="flex bg-[#F7F6F3] dark:bg-[#1B1E22] p-1 rounded-2xl border border-[#E8E1DB] dark:border-[#363B44] shadow-sm gap-1">
         <button
           type="button"
+          role="tab"
+          aria-selected={activeSubTab === 'investments'}
           onClick={() => setActiveSubTab('investments')}
-          className={`flex-1 py-2 px-1.5 sm:px-3 rounded-xl text-[11px] sm:text-xs font-bold flex items-center justify-center gap-1 sm:gap-1.5 transition-all cursor-pointer min-w-0 ${
+          className={`flex-1 min-w-0 py-2 px-1.5 sm:px-3 rounded-xl text-[10px] sm:text-xs font-bold flex flex-col items-center justify-center gap-1 transition-colors cursor-pointer ${
             activeSubTab === 'investments'
               ? 'bg-[#EF6448] text-white shadow-sm'
               : 'text-slate-500 dark:text-[#A5ACB7] hover:text-slate-900 dark:hover:text-[#F2F3F5]'
           }`}
         >
-          <TrendingUp className="w-3.5 h-3.5 shrink-0" />
-          <span className="truncate">Investments</span>
+          <TrendingUp className="w-4 h-4 shrink-0" />
+          <span className="max-w-full truncate leading-tight">Investments</span>
         </button>
 
         <button
           type="button"
+          role="tab"
+          aria-selected={activeSubTab === 'loans'}
           onClick={() => setActiveSubTab('loans')}
-          className={`flex-1 py-2 px-1.5 sm:px-3 rounded-xl text-[11px] sm:text-xs font-bold flex items-center justify-center gap-1 sm:gap-1.5 transition-all cursor-pointer min-w-0 ${
+          className={`flex-1 min-w-0 py-2 px-1.5 sm:px-3 rounded-xl text-[10px] sm:text-xs font-bold flex flex-col items-center justify-center gap-1 transition-colors cursor-pointer ${
             activeSubTab === 'loans'
               ? 'bg-[#EF6448] text-white shadow-sm'
               : 'text-slate-500 dark:text-[#A5ACB7] hover:text-slate-900 dark:hover:text-[#F2F3F5]'
           }`}
         >
-          <Banknote className="w-3.5 h-3.5 shrink-0" />
-          <span className="truncate">Loans / EMI</span>
+          <Banknote className="w-4 h-4 shrink-0" />
+          <span className="max-w-full truncate leading-tight">Loans / EMI</span>
         </button>
 
         <button
           type="button"
+          role="tab"
+          aria-selected={activeSubTab === 'calculator'}
           onClick={() => setActiveSubTab('calculator')}
-          className={`flex-1 py-2 px-1.5 sm:px-3 rounded-xl text-[11px] sm:text-xs font-bold flex items-center justify-center gap-1 sm:gap-1.5 transition-all cursor-pointer min-w-0 ${
+          className={`flex-1 min-w-0 py-2 px-1.5 sm:px-3 rounded-xl text-[10px] sm:text-xs font-bold flex flex-col items-center justify-center gap-1 transition-colors cursor-pointer ${
             activeSubTab === 'calculator'
               ? 'bg-[#EF6448] text-white shadow-sm'
               : 'text-slate-500 dark:text-[#A5ACB7] hover:text-slate-900 dark:hover:text-[#F2F3F5]'
           }`}
         >
-          <Calculator className="w-3.5 h-3.5 shrink-0" />
-          <span className="truncate">Estimate returns</span>
+          <Calculator className="w-4 h-4 shrink-0" />
+          <span className="max-w-full truncate leading-tight">Estimate returns</span>
         </button>
       </div>
 

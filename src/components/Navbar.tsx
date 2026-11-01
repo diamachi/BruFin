@@ -1,6 +1,6 @@
-import React from 'react';
-import { Settings, Calendar, Sun, Moon, ChevronDown, HelpCircle } from 'lucide-react';
-import { formatMonthYear } from '../utils/dateUtils';
+import React, { useEffect, useRef, useState } from 'react';
+import { Settings, Calendar, Sun, Moon, ChevronDown, HelpCircle, Check } from 'lucide-react';
+import { formatMonthYear, formatMonthYearShort } from '../utils/dateUtils';
 
 interface Props {
   selectedMonth: string;
@@ -11,6 +11,7 @@ interface Props {
   theme: 'dark' | 'light';
   onToggleTheme: () => void;
   onTapCoffee?: () => void;
+  diagnosticsExpanded?: boolean;
   children?: React.ReactNode;
 }
 
@@ -55,10 +56,48 @@ export const Navbar: React.FC<Props> = ({
   theme,
   onToggleTheme,
   onTapCoffee,
+  diagnosticsExpanded = false,
   children,
 }) => {
+  const [isMonthMenuOpen, setIsMonthMenuOpen] = useState(false);
+  const monthMenuRef = useRef<HTMLDivElement>(null);
+  const monthTriggerRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!isMonthMenuOpen) return;
+
+    requestAnimationFrame(() => {
+      monthMenuRef.current
+        ?.querySelector<HTMLButtonElement>('[role="option"][aria-selected="true"]')
+        ?.focus({ preventScroll: true });
+    });
+
+    const handlePointerDown = (event: PointerEvent) => {
+      if (!monthMenuRef.current?.contains(event.target as Node)) setIsMonthMenuOpen(false);
+    };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsMonthMenuOpen(false);
+        monthTriggerRef.current?.focus();
+      }
+    };
+
+    document.addEventListener('pointerdown', handlePointerDown);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('pointerdown', handlePointerDown);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isMonthMenuOpen]);
+
+  const monthsByYear = availableMonths.reduce<Record<string, string[]>>((groups, month) => {
+    const year = month.slice(0, 4);
+    (groups[year] ??= []).push(month);
+    return groups;
+  }, {});
+
   return (
-    <header className="sticky top-0 z-30 bg-[#F7F6F3] dark:bg-[#17191C] border-b border-[#E8E1DB] dark:border-[#363B44] transition-colors duration-200 shadow-[0_1px_15px_-4px_rgba(89,23,27,0.08)] dark:shadow-[0_4px_20px_-4px_rgba(0,0,0,0.5)] w-full overflow-hidden">
+    <header className="sticky top-0 z-30 w-full bg-[#F7F6F3] dark:bg-[#17191C] border-b border-[#E8E1DB] dark:border-[#363B44] transition-colors duration-200 shadow-[0_1px_15px_-4px_rgba(89,23,27,0.08)] dark:shadow-[0_4px_20px_-4px_rgba(0,0,0,0.5)]">
       <div
         className="px-3 sm:px-4"
         style={{
@@ -66,15 +105,17 @@ export const Navbar: React.FC<Props> = ({
           paddingBottom: '0.625rem',
         }}
       >
-        <div className="max-w-4xl mx-auto flex items-center justify-between gap-1 sm:gap-2">
+        <div className="max-w-4xl mx-auto grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-1 sm:gap-2">
         {/* Brand & Coffee Logo (tap coffee to toggle RAM/Storage diagnostics monitor) */}
-        <div className="flex items-center space-x-1.5 sm:space-x-2.5 min-w-0 shrink">
+        <div className="relative flex items-center space-x-1.5 sm:space-x-2.5 min-w-0 shrink">
           <button
             type="button"
             onClick={onTapCoffee}
-            title="Tap coffee to toggle Diagnostics Monitor (RAM & Storage)"
-            aria-label="Toggle Diagnostics Monitor"
-            className="cursor-pointer active:scale-90 transition-transform focus:outline-none rounded-2xl"
+            title={diagnosticsExpanded ? 'Collapse diagnostics monitor' : 'Expand diagnostics monitor'}
+            aria-label={diagnosticsExpanded ? 'Collapse diagnostics monitor' : 'Expand diagnostics monitor'}
+            aria-expanded={diagnosticsExpanded}
+            aria-controls="diagnostics-dropdown"
+            className="relative cursor-pointer active:scale-90 transition-transform focus:outline-none rounded-2xl"
           >
             <BruFinLogo className="w-8 h-8 sm:w-9 sm:h-9 shrink-0" />
           </button>
@@ -93,30 +134,127 @@ export const Navbar: React.FC<Props> = ({
               Brewing calm finances
             </p>
           </div>
+
+          {children && (
+            <div
+              id="diagnostics-dropdown"
+              aria-hidden={!diagnosticsExpanded}
+              inert={!diagnosticsExpanded}
+              className={`absolute left-0 top-full z-50 w-max max-w-[calc(100vw-1.5rem)] overflow-hidden pt-2 transition-[max-height,opacity,transform] duration-300 ease-out motion-reduce:transition-none ${
+                diagnosticsExpanded
+                  ? 'max-h-40 translate-y-0 opacity-100'
+                  : 'pointer-events-none max-h-0 -translate-y-1 opacity-0'
+              }`}
+            >
+              <div className="rounded-2xl border border-[#E8E1DB]/90 bg-[#F7F6F3]/95 p-2.5 shadow-xl shadow-slate-900/10 backdrop-blur-xl dark:border-[#363B44]/90 dark:bg-[#202328]/95 dark:shadow-black/40">
+                {children}
+              </div>
+            </div>
+          )}
         </div>
 
-        {children}
-
-        {/* Right Controls: Month Filter, Page Guide, Light/Dark Toggle & Settings */}
-        <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
-          {/* Month Selector Pill */}
-          <div className="relative flex items-center shrink-0">
-            <Calendar className="w-3.5 h-3.5 text-[#EF6448] absolute left-2 pointer-events-none" />
-            <select
-              value={selectedMonth}
-              onChange={(e) => onSelectMonth(e.target.value)}
-              className="appearance-none bg-white/95 dark:bg-[#22252A] hover:bg-white dark:hover:bg-[#2B3037] text-slate-800 dark:text-[#F2F3F5] text-[11px] sm:text-xs font-semibold pl-6 pr-5 py-1.5 rounded-xl border border-[#E8E1DB] dark:border-[#363B44] focus:outline-none cursor-pointer transition-colors shadow-sm w-auto min-w-[100px]"
+        {/* Centered global month filter */}
+        <div className="relative flex items-center justify-self-center" ref={monthMenuRef}>
+            <button
+              ref={monthTriggerRef}
+              type="button"
+              onClick={() => setIsMonthMenuOpen((open) => !open)}
+              aria-label={`Filter by month, currently ${formatMonthYear(selectedMonth)}`}
+              aria-haspopup="listbox"
+              aria-expanded={isMonthMenuOpen}
+              aria-controls="month-selector-listbox"
+              className="flex h-[34px] w-[120px] items-center gap-1.5 rounded-xl border border-[#E8E1DB] bg-white/95 px-2 text-left text-[11px] font-semibold text-slate-800 shadow-sm transition-colors hover:border-[#D8C8BC] hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#EF6448]/50 dark:border-[#363B44] dark:bg-[#22252A] dark:text-[#F2F3F5] dark:hover:border-[#4A505A] dark:hover:bg-[#2B3037] sm:h-[36px] sm:w-[152px] sm:gap-2 sm:px-2.5 sm:text-xs"
             >
-              <option value="All">All Time</option>
-              {availableMonths.map((m) => (
-                <option key={m} value={m}>
-                  {formatMonthYear(m)}
-                </option>
-              ))}
-            </select>
-            <ChevronDown className="w-3 h-3 text-[#EF6448] absolute right-1.5 pointer-events-none" />
-          </div>
+              <Calendar className="h-3.5 w-3.5 shrink-0 text-[#EF6448]" />
+              <span className="min-w-0 flex-1 truncate">{formatMonthYearShort(selectedMonth)}</span>
+              <ChevronDown className={`h-3 w-3 shrink-0 text-[#EF6448] transition-transform duration-200 ${isMonthMenuOpen ? 'rotate-180' : ''}`} />
+            </button>
 
+            <div
+              id="month-selector-listbox"
+              role="listbox"
+              aria-label="Choose a month"
+              aria-hidden={!isMonthMenuOpen}
+              inert={!isMonthMenuOpen}
+              onKeyDown={(event) => {
+                if (!['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) return;
+                const options = Array.from(
+                  monthMenuRef.current?.querySelectorAll<HTMLButtonElement>('[role="option"]') ?? []
+                );
+                if (!options.length) return;
+                event.preventDefault();
+                const currentIndex = options.indexOf(document.activeElement as HTMLButtonElement);
+                const nextIndex = event.key === 'Home'
+                  ? 0
+                  : event.key === 'End'
+                    ? options.length - 1
+                    : (currentIndex + (event.key === 'ArrowDown' ? 1 : -1) + options.length) % options.length;
+                options[nextIndex].focus();
+              }}
+              className={`absolute right-0 top-full z-50 w-56 max-w-[calc(100vw-1.5rem)] overflow-hidden pt-2 transition-[max-height,opacity,transform] duration-200 ease-out motion-reduce:transition-none ${
+                isMonthMenuOpen
+                  ? 'max-h-[min(70vh,24rem)] translate-y-0 opacity-100'
+                  : 'pointer-events-none max-h-0 -translate-y-1 opacity-0'
+              }`}
+            >
+              <div className="overflow-hidden rounded-2xl border border-[#E8E1DB] bg-[#F7F6F3]/95 p-1.5 shadow-xl shadow-slate-900/10 backdrop-blur-xl dark:border-[#363B44] dark:bg-[#202328]/95 dark:shadow-black/40">
+                <div className="px-2.5 pb-1.5 pt-2 text-[9px] font-bold tracking-[0.14em] text-slate-400 dark:text-slate-500">
+                  FILTER BY MONTH
+                </div>
+                <div className="max-h-[min(60vh,20rem)] overflow-y-auto overscroll-contain scrollbar-none">
+                  <button
+                    type="button"
+                    role="option"
+                    aria-selected={selectedMonth === 'All'}
+                    onClick={() => {
+                      onSelectMonth('All');
+                      setIsMonthMenuOpen(false);
+                    }}
+                    className={`flex w-full items-center justify-between rounded-xl px-2.5 py-2 text-left text-xs transition-colors ${
+                      selectedMonth === 'All'
+                        ? 'bg-[#FCE8DE] font-bold text-[#B84E3B] dark:bg-[#B84E3B]/20 dark:text-[#FF927A]'
+                        : 'font-medium text-slate-700 hover:bg-white/80 dark:text-slate-200 dark:hover:bg-[#2B3037]'
+                    }`}
+                  >
+                    <span>All Time</span>
+                    {selectedMonth === 'All' && <Check className="h-3.5 w-3.5" />}
+                  </button>
+
+                  {Object.entries(monthsByYear).map(([year, months]) => (
+                    <div key={year} role="group" aria-label={year}>
+                      <div className="px-2.5 pb-1 pt-3 text-[9px] font-bold tracking-wider text-slate-400 dark:text-slate-500">
+                        {year}
+                      </div>
+                      {months.map((month) => (
+                        <button
+                          key={month}
+                          type="button"
+                          role="option"
+                          aria-selected={selectedMonth === month}
+                          onClick={() => {
+                            onSelectMonth(month);
+                            setIsMonthMenuOpen(false);
+                          }}
+                          className={`flex w-full items-center justify-between rounded-xl px-2.5 py-2 text-left text-xs transition-colors ${
+                            selectedMonth === month
+                              ? 'bg-[#FCE8DE] font-bold text-[#B84E3B] dark:bg-[#B84E3B]/20 dark:text-[#FF927A]'
+                              : 'font-medium text-slate-700 hover:bg-white/80 dark:text-slate-200 dark:hover:bg-[#2B3037]'
+                          }`}
+                        >
+                          <span>{formatMonthYear(month).replace(/\s+\d{4}$/, '')}</span>
+                          {selectedMonth === month && <Check className="h-3.5 w-3.5" />}
+                        </button>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+        </div>
+
+        {/* Right Controls: Page Guide, Light/Dark Toggle & Settings */}
+        <div className="flex items-center justify-self-end gap-1 sm:gap-1.5 shrink-0">
           {/* Page Help / Guide Button */}
           {onOpenHelp && (
             <button
