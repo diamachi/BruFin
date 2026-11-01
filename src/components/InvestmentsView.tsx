@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import {
   TrendingUp,
@@ -26,7 +26,6 @@ interface Props {
   loans?: LoanItem[];
   onUpdateLoans?: (loans: LoanItem[]) => void;
   initialSubTab?: InvestSubTab;
-  onOpenHelp?: () => void;
 }
 
 export const InvestmentsView: React.FC<Props> = ({
@@ -35,7 +34,6 @@ export const InvestmentsView: React.FC<Props> = ({
   loans = [],
   onUpdateLoans = () => {},
   initialSubTab = 'investments',
-  onOpenHelp,
 }) => {
   const [activeSubTab, setActiveSubTab] = useState<InvestSubTab>(initialSubTab);
 
@@ -384,8 +382,6 @@ export const InvestmentsView: React.FC<Props> = ({
           <LoansView
             loans={loans}
             onUpdateLoans={onUpdateLoans}
-            onNavigateToInvestments={() => setActiveSubTab('investments')}
-            onOpenHelp={onOpenHelp}
           />
         </div>
       )}

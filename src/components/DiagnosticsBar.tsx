@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { HardDrive, Cpu, AlertTriangle, ChevronRight, X } from 'lucide-react';
+import { HardDrive, Cpu, AlertTriangle, X } from 'lucide-react';
 import {
   getStorageDiagnostics,
   getMemoryDiagnostics,
@@ -19,15 +19,14 @@ export const DiagnosticsBar: React.FC<Props> = ({ onOpenDetails, onDismiss }) =>
   const [memory, setMemory] = useState<MemoryDiagnostics | null>(null);
   const [archivable, setArchivable] = useState<ArchivableInfo | null>(null);
 
-  const updateMetrics = () => {
-    void getStorageDiagnostics().then(setStorage).catch((error) => console.error('Could not estimate local database storage', error));
-    setMemory(getMemoryDiagnostics());
-    setArchivable(getArchivableData(12));
-  };
-
   useEffect(() => {
+    const updateMetrics = () => {
+      void getStorageDiagnostics().then(setStorage).catch((error) => console.error('Could not estimate local database storage', error));
+      setMemory(getMemoryDiagnostics());
+      setArchivable(getArchivableData(12));
+    };
+
     updateMetrics();
-    // Poll every 3 seconds to observe live RAM and storage dynamics
     const interval = setInterval(updateMetrics, 3000);
     return () => clearInterval(interval);
   }, []);
@@ -40,63 +39,54 @@ export const DiagnosticsBar: React.FC<Props> = ({ onOpenDetails, onDismiss }) =>
       : memory.status === 'moderate'
       ? 'bg-amber-500'
       : 'bg-emerald-500';
+  const capsuleStyle = 'inline-flex items-center gap-1 rounded-full border border-[#E8E1DB] bg-white/90 px-1.5 py-1 text-[9px] font-semibold leading-none text-slate-600 shadow-sm dark:border-[#363B44] dark:bg-[#22252A] dark:text-slate-200 sm:gap-1.5 sm:px-2 sm:text-[10px]';
 
   return (
-    <div className="w-full bg-[#59171B] dark:bg-[#181A1A] text-white border-t border-[#E8E1DB]/30 dark:border-[#363B44] px-3 sm:px-4 py-1.5 transition-colors shadow-sm text-[11px] font-mono">
-      <div className="max-w-4xl mx-auto flex items-center justify-between gap-2">
-        {/* Clickable Status Chips */}
+    <div className="flex shrink-0 items-center gap-1" aria-label="Local diagnostics">
+      <button
+        type="button"
+        onClick={onOpenDetails}
+        className={capsuleStyle}
+        title={`Local database storage: ${storage.totalFormatted} (${storage.percentOfQuota.toFixed(1)}% of available quota). Open diagnostics.`}
+        aria-label={`Local storage ${storage.totalFormatted}; open diagnostics`}
+      >
+        <HardDrive className="h-3 w-3 text-[#B87B2E] dark:text-[#FF927A] sm:h-3.5 sm:w-3.5" />
+        <span>{storage.totalFormatted}</span>
+      </button>
+
+      <button
+        type="button"
+        onClick={onOpenDetails}
+        className={capsuleStyle}
+        title={`Estimated memory use: ${memory.usedMB}. Open diagnostics.`}
+        aria-label={`RAM ${memory.usedMB}; open diagnostics`}
+      >
+        <span className={`h-1.5 w-1.5 rounded-full ${ramStatusColor}`} />
+        <Cpu className="h-3 w-3 text-[#B87B2E] dark:text-[#FF927A] sm:h-3.5 sm:w-3.5" />
+        <span>{memory.usedMB}</span>
+      </button>
+
+      {archivable && archivable.count > 0 && (
         <button
+          type="button"
           onClick={onOpenDetails}
-          className="flex-1 flex items-center gap-2.5 truncate hover:opacity-85 text-left transition-opacity"
-          title="Click to view full System Diagnostics, RAM Monitor & 1-Year Archival"
+          className="hidden items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-1.5 py-1 text-[9px] font-semibold leading-none text-amber-800 sm:inline-flex dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-200"
+          title="Older records are ready to review in diagnostics"
         >
-          {/* Storage Badge */}
-          <div className="flex items-center space-x-1 shrink-0">
-            <HardDrive className="w-3.5 h-3.5 text-[#FED7B8] dark:text-[#FF927A]" />
-            <span className="text-[#FED7B8] dark:text-[#F2F3F5] font-semibold">
-              {storage.totalFormatted}
-            </span>
-            <span className="text-white/60 dark:text-[#A5ACB7] text-[10px]">
-              ({storage.percentOfQuota.toFixed(1)}%)
-            </span>
-          </div>
-
-          <span className="text-white/30 dark:text-white/20">•</span>
-
-          {/* RAM Badge */}
-          <div className="flex items-center space-x-1.5 shrink-0">
-            <Cpu className="w-3.5 h-3.5 text-[#FED7B8] dark:text-[#FF927A]" />
-            <span className="relative flex h-2 w-2">
-              <span
-                className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${ramStatusColor}`}
-              />
-              <span className={`relative inline-flex rounded-full h-2 w-2 ${ramStatusColor}`} />
-            </span>
-            <span className="text-[#FED7B8] dark:text-[#F2F3F5] font-semibold">
-              RAM: {memory.usedMB}
-            </span>
-          </div>
-
-          {/* Archivable Alert if older than 1 year */}
-          {archivable && archivable.count > 0 && (
-            <div className="hidden sm:flex items-center space-x-1 px-1.5 py-0.5 rounded-md bg-amber-400/20 text-amber-200 text-[10px] shrink-0 font-sans">
-              <AlertTriangle className="w-3 h-3 text-amber-400" />
-              <span>{archivable.count} &gt; 1yr</span>
-            </div>
-          )}
-
-          <ChevronRight className="w-3 h-3 text-white/50 dark:text-[#A5ACB7] ml-auto shrink-0" />
+          <AlertTriangle className="h-3 w-3" />
+          {archivable.count} older
         </button>
+      )}
 
-        {/* Dismiss / Hide Button */}
-        <button
-          onClick={onDismiss}
-          className="p-1 rounded-lg text-white/60 hover:text-white hover:bg-white/10 dark:hover:bg-[#363C3A] transition-colors shrink-0"
-          title="Hide Diagnostics Bar (re-enable in Settings anytime)"
-        >
-          <X className="w-3.5 h-3.5" />
-        </button>
-      </div>
+      <button
+        type="button"
+        onClick={onDismiss}
+        className="rounded-md p-1 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700 dark:text-slate-500 dark:hover:bg-[#30353D] dark:hover:text-white"
+        title="Hide diagnostics monitor"
+        aria-label="Hide diagnostics monitor"
+      >
+        <X className="h-3 w-3" />
+      </button>
     </div>
   );
 };

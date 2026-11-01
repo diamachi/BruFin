@@ -1,17 +1,10 @@
 import React, { useMemo } from 'react';
 import {
-  TrendingDown,
-  TrendingUp,
-  Sparkles,
   Calendar,
   AlertCircle,
   CheckCircle2,
-  Clock,
   ArrowRight,
   Wallet,
-  Check,
-  Plus,
-  Zap,
   ArrowUpRight,
   ArrowDownLeft,
   ChevronRight,
@@ -19,17 +12,14 @@ import {
   Landmark,
   Edit2,
 } from 'lucide-react';
-import { Transaction, RecurringPayment, CreditCard, MonthlyAccountBalance } from '../types';
-import { formatINR, getGreetingMessage, formatDateLabel, formatMonthYear, getCurrentMonthKey } from '../utils/dateUtils';
-import { getCategoryMeta } from '../utils/categories';
-import { getRecurringPaymentStatuses, getUnifiedMonthlyBalance } from '../utils/storage';
-import { CategoryIcon } from './CategoryIcon';
+import { Transaction, CreditCard, MonthlyAccountBalance } from '../types';
+import { formatINR, getGreetingMessage, formatMonthYear, getCurrentMonthKey } from '../utils/dateUtils';
+import { getUnifiedMonthlyBalance } from '../utils/storage';
 import { ExpenseDistributionCard } from './ExpenseDistributionCard';
 
 interface Props {
   transactions: Transaction[];
   monthlyTarget: number;
-  recurringPayments?: RecurringPayment[];
   creditCards: CreditCard[];
   monthlyBalances?: MonthlyAccountBalance[];
   selectedMonth: string; // YYYY-MM or 'All'
@@ -38,17 +28,12 @@ interface Props {
   onNavigateToCards: () => void;
   onNavigateToLoans?: () => void;
   onNavigateToBalances?: () => void;
-  onOpenQuickAdd: () => void;
   onOpenUpdateBalance?: (monthKey: string) => void;
-  onOpenAddRecurring?: () => void;
-  onPostRecurring?: (rec: RecurringPayment) => void;
-  onPostAllDueRecurring?: () => void;
 }
 
 export const DashboardView: React.FC<Props> = ({
   transactions,
   monthlyTarget,
-  recurringPayments = [],
   creditCards,
   monthlyBalances = [],
   selectedMonth,
@@ -57,11 +42,7 @@ export const DashboardView: React.FC<Props> = ({
   onNavigateToCards,
   onNavigateToLoans,
   onNavigateToBalances,
-  onOpenQuickAdd,
   onOpenUpdateBalance,
-  onOpenAddRecurring,
-  onPostRecurring,
-  onPostAllDueRecurring,
 }) => {
   const greeting = getGreetingMessage();
 
@@ -85,16 +66,9 @@ export const DashboardView: React.FC<Props> = ({
     return { totalExpense: expense, totalIncome: income, ccSpending: cardSpend };
   }, [transactions, activeMonthKey]);
 
-  const netSavings = totalIncome - totalExpense;
   const remainingBudget = monthlyTarget - totalExpense;
   const isBudgetOvershot = remainingBudget < 0;
   const targetSpentPercent = Math.min(100, Math.round((totalExpense / (monthlyTarget || 1)) * 100));
-
-  // Credit card spending for the month
-  // Recurring payments status for current active month
-  const recurringStatuses = useMemo(() => getRecurringPaymentStatuses(recurringPayments, transactions, activeMonthKey), [recurringPayments, transactions, activeMonthKey]);
-  const dueRecurringCount = recurringStatuses.filter((s) => s.isActive && !s.isPaid).length;
-  const recurringTotal = recurringStatuses.filter((s) => s.isActive).reduce((sum, s) => sum + s.recurring.amount, 0);
 
   // Unified Bank & Cash Balance for active month (single total balance)
   const unifiedBal = useMemo(() => {

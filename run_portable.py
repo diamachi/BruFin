@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Finman Portable Server
+BruFin Portable Server
 Zero-dependency offline runner for Finman.
 Serves the pre-compiled portable build from 'dist/' using Python's built-in HTTP server.
 Requires no Node.js or npm installed.
@@ -30,18 +30,18 @@ class PortableRequestHandler(SimpleHTTPRequestHandler):
 
 def main():
     os.chdir(DIST_DIR)
-    server_address = ('0.0.0.0', PORT)
+    server_address = ('127.0.0.1', PORT)
     
     try:
         httpd = HTTPServer(server_address, PortableRequestHandler)
     except OSError:
         # Fallback to port 8080 or random free port if 5173 is in use
-        server_address = ('0.0.0.0', 8080)
+        server_address = ('127.0.0.1', 8080)
         httpd = HTTPServer(server_address, PortableRequestHandler)
 
     url = f"http://localhost:{server_address[1]}"
     print("=" * 60)
-    print("🚀 FINMAN - Standalone Portable Personal Finance App")
+    print("🚀 BRUFIN - Standalone Portable Personal Finance App")
     print(f"📡 Local Address:   {url}")
     print(f"📂 Serving from:    {DIST_DIR}")
     print("🔒 Privacy:         100% Offline & Local (Zero External Calls)")
@@ -57,7 +57,7 @@ def main():
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:
-        print("\nFinman portable server stopped.")
+        print("\nBruFin portable server stopped.")
         sys.exit(0)
 
 if __name__ == '__main__':

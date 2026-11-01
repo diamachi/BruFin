@@ -15,7 +15,7 @@ interface Props {
 }
 
 /**
- * Bru Fin Brand Logo - Warm Wine & Peach / Espresso Mocha
+ * BruFin brand mark.
  */
 export const BruFinLogo: React.FC<{ className?: string }> = ({ className = 'w-9 h-9' }) => (
   <div
@@ -66,7 +66,7 @@ export const Navbar: React.FC<Props> = ({
           paddingBottom: '0.625rem',
         }}
       >
-        <div className="max-w-4xl mx-auto flex items-center justify-between gap-1.5 sm:gap-2">
+        <div className="max-w-4xl mx-auto flex items-center justify-between gap-1 sm:gap-2">
         {/* Brand & Coffee Logo (tap coffee to toggle RAM/Storage diagnostics monitor) */}
         <div className="flex items-center space-x-1.5 sm:space-x-2.5 min-w-0 shrink">
           <button
@@ -82,8 +82,7 @@ export const Navbar: React.FC<Props> = ({
           <div className="min-w-0">
             <div className="flex items-center space-x-1.5">
               <h1 className="font-black text-slate-900 dark:text-[#F2F3F5] text-base sm:text-lg leading-none tracking-tight flex items-center shrink-0">
-                <span>Bru</span>
-                <span className="text-[#EF6448] ml-0.5">Fin</span>
+                BruFin
               </h1>
               <span className="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-semibold bg-[#FED7B8] dark:bg-[#B84E3B]/15 text-[#EF6448] border border-[#E8E1DB] dark:border-[#EF6448]/30">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#EF6448] mr-1 animate-pulse" />
@@ -95,6 +94,8 @@ export const Navbar: React.FC<Props> = ({
             </p>
           </div>
         </div>
+
+        {children}
 
         {/* Right Controls: Month Filter, Page Guide, Light/Dark Toggle & Settings */}
         <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
@@ -151,7 +152,6 @@ export const Navbar: React.FC<Props> = ({
         </div>
       </div>
       </div>
-      {children}
     </header>
   );
 };

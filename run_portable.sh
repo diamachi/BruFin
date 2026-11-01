@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Finman Portable Launcher
+# BruFin Portable Launcher
 # Runs the app using Python's built-in web server with zero external dependencies.
 
 cd "$(dirname "$0")"

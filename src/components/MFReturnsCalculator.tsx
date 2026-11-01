@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Calculator, Sparkles, TrendingUp, ArrowRight } from 'lucide-react';
+import { Calculator, ArrowRight } from 'lucide-react';
 import { formatINR } from '../utils/dateUtils';
 
 interface Props {

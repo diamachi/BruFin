@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Check, Calculator, CalendarClock, Sparkles, Repeat } from 'lucide-react';
+import { X, Check, Calculator, CalendarClock, Repeat } from 'lucide-react';
 import { RecurringPayment, CreditCard, PaymentMethodItem } from '../types';
 import { EXPENSE_CATEGORIES, getPaymentModes } from '../utils/categories';
 import { formatINR, getCurrentMonthKey } from '../utils/dateUtils';

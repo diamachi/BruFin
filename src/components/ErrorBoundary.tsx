@@ -1,4 +1,4 @@
-import React, { Component, ErrorInfo, ReactNode } from 'react';
+import { Component, ErrorInfo, ReactNode } from 'react';
 import { AlertTriangle, RotateCcw, Trash2 } from 'lucide-react';
 import { clearAllData } from '../utils/storage';
 
