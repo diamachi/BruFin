@@ -1,4 +1,4 @@
-package com.peeyush.finman;
+package com.diamachi.brufin;
 
 import android.os.Bundle;
 import android.webkit.WebView;

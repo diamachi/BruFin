@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 BruFin Portable Server
-Zero-dependency offline runner for Finman.
+Zero-dependency offline runner for BruFin.
 Serves the pre-compiled portable build from 'dist/' using Python's built-in HTTP server.
 Requires no Node.js or npm installed.
 """

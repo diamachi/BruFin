@@ -100,7 +100,7 @@ adb install -r android/app/build/outputs/apk/debug/app-debug.apk
 
 The `build_apk.sh` helper performs these steps too, but expects a local JDK at `./jdk/Contents/Home`. The `jdk/` directory is ignored by Git; use the manual steps above if your JDK is installed elsewhere. This project is configured for a debug APK; release signing is not configured here.
 
-GitHub Actions builds and verifies the debug APK for pushes and pull requests to `main`, and can also be started manually from the Actions tab. The workflow runs type checking and the database/archive import tests, builds the web assets, syncs Capacitor, compiles the APK, and uploads `brufin-debug-apk` as a 14-day artifact. Pushing a version tag such as `v0.1` runs the same build and then publishes the APK as a GitHub Release asset with generated release notes. Release signing is not configured, so this is a debug APK rather than a signed production build.
+GitHub Actions builds and verifies the debug APK for pushes and pull requests to `main`, and can also be started manually from the Actions tab. The workflow runs type checking and the database/archive import tests, builds the web assets, syncs Capacitor, compiles the APK, and uploads `brufin-debug-apk` as a 14-day artifact. Pushing a version tag such as `v0.2` runs the same build and then publishes the APK as a GitHub Release asset with generated release notes. Release signing is not configured, so this is a debug APK rather than a signed production build.
 
 ## Useful commands
 
