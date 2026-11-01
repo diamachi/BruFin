@@ -26,7 +26,7 @@ The dashboard below uses synthetic demo records.
 
 ## Privacy and data storage
 
-BruFin has no application backend. Financial records are stored locally in IndexedDB for the current browser origin or Android app WebView. On first launch after this update, BruFin migrates existing records from its previous `localStorage` keys into IndexedDB, then removes those old copies after the migration commits. New and edited transactions are written by record ID, so each save does not rewrite the full transaction history. Browser storage is tied to the browser profile and origin: for example, `localhost` and a LAN IP address have separate data stores. Clearing browser or app data can remove records, so export a JSON backup regularly and keep that file somewhere safe. Backups are unencrypted and contain financial records; protect them accordingly.
+BruFin has no application backend. Financial records are stored locally in IndexedDB for the current browser origin or Android app WebView. `localStorage` is used for small app preferences such as theme, display scale, diagnostics, onboarding, and prompt settings; it is not the financial database. New and edited transactions are written by record ID, so each save does not rewrite the full transaction history. Browser storage is tied to the browser profile and origin: for example, `localhost` and a LAN IP address have separate data stores. Clearing browser or app data can remove records, so export a JSON backup regularly and keep that file somewhere safe. Backups are unencrypted and contain financial records; protect them accordingly.
 
 The app does not connect to banks, fetch account balances, or sync records between devices. Browser storage can still be cleared by the user or operating system; keep a separate backup. Investment and loan calculations are estimates based on values entered by the user, not live market or lender data.
 
@@ -100,7 +100,7 @@ adb install -r android/app/build/outputs/apk/debug/app-debug.apk
 
 The `build_apk.sh` helper performs these steps too, but expects a local JDK at `./jdk/Contents/Home`. The `jdk/` directory is ignored by Git; use the manual steps above if your JDK is installed elsewhere. This project is configured for a debug APK; release signing is not configured here.
 
-GitHub Actions builds and verifies the debug APK for pushes and pull requests to `main`, and can also be started manually from the Actions tab. The workflow runs type checking and the database/archive import tests, builds the web assets, syncs Capacitor, compiles the APK, and uploads `brufin-debug-apk` as a 14-day artifact. Pushing a version tag such as `v0.2` runs the same build and then publishes the APK as a GitHub Release asset with generated release notes. Release signing is not configured, so this is a debug APK rather than a signed production build.
+GitHub Actions builds and verifies the debug APK for pushes and pull requests to `main`, and can also be started manually from the Actions tab. The workflow runs type checking and the database/archive import tests, builds the web assets, syncs Capacitor, compiles the APK, and uploads `brufin-debug-apk` as a 14-day artifact. Pushing a version tag such as `v0.3` runs the same build and then publishes the APK as a GitHub Release asset with generated release notes. Release signing is not configured, so this is a debug APK rather than a signed production build.
 
 ## Useful commands
 
