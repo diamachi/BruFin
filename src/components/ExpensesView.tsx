@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import { Transaction, CreditCard, PaymentMethodItem, RecurringPayment } from '../types';
 import { formatINR, formatDateLabel, formatMonthYear, getTodayDateString, getCurrentMonthKey } from '../utils/dateUtils';
-import { getCategoryMeta, EXPENSE_CATEGORIES, getPaymentModes } from '../utils/categories';
+import { getCategoryMeta, getCategoryOptions, getPaymentModes } from '../utils/categories';
 import { getRecurringPaymentStatuses } from '../utils/storage';
 import { CategoryIcon } from './CategoryIcon';
 
@@ -30,6 +30,7 @@ interface Props {
   onPostAllDueRecurring: () => void;
   creditCards?: CreditCard[];
   paymentMethods?: PaymentMethodItem[];
+  expenseCategories?: string[];
 }
 
 export const ExpensesView: React.FC<Props> = ({
@@ -43,6 +44,7 @@ export const ExpensesView: React.FC<Props> = ({
   onPostAllDueRecurring,
   creditCards = [],
   paymentMethods = [],
+  expenseCategories,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('All');
@@ -55,6 +57,7 @@ export const ExpensesView: React.FC<Props> = ({
     : selectedMonth;
 
   const paymentModes = useMemo(() => getPaymentModes(creditCards, paymentMethods), [creditCards, paymentMethods]);
+  const categoryOptions = useMemo(() => getCategoryOptions('Expense', expenseCategories), [expenseCategories]);
 
   // Recurring bills status for this month
   const recurringStatuses = useMemo(() => {
@@ -424,7 +427,7 @@ export const ExpensesView: React.FC<Props> = ({
                   className="w-full bg-slate-50 dark:bg-[#1B1E22] border border-[#E8E1DB] dark:border-[#363B44] rounded-xl px-2.5 py-1.5 text-xs text-slate-800 dark:text-white focus:outline-none"
                 >
                   <option value="All">All Categories</option>
-                  {EXPENSE_CATEGORIES.map((c) => (
+                  {categoryOptions.map((c) => (
                     <option key={c.name} value={c.name}>{c.name}</option>
                   ))}
                 </select>

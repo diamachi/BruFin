@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import { Transaction, CreditCard, PaymentMethodItem } from '../types';
 import { formatINR, formatDateLabel } from '../utils/dateUtils';
-import { getCategoryMeta, INCOME_CATEGORIES, getPaymentModes } from '../utils/categories';
+import { getCategoryMeta, getCategoryOptions, getPaymentModes } from '../utils/categories';
 import { CategoryIcon } from './CategoryIcon';
 
 interface Props {
@@ -23,6 +23,7 @@ interface Props {
   onBackToMonitor: () => void;
   creditCards?: CreditCard[];
   paymentMethods?: PaymentMethodItem[];
+  incomeCategories?: string[];
 }
 
 export const IncomeView: React.FC<Props> = ({
@@ -34,6 +35,7 @@ export const IncomeView: React.FC<Props> = ({
   onBackToMonitor,
   creditCards = [],
   paymentMethods = [],
+  incomeCategories,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('All');
@@ -41,6 +43,7 @@ export const IncomeView: React.FC<Props> = ({
   const [showFilters, setShowFilters] = useState(false);
 
   const paymentModes = useMemo(() => getPaymentModes(creditCards, paymentMethods), [creditCards, paymentMethods]);
+  const categoryOptions = useMemo(() => getCategoryOptions('Income', incomeCategories), [incomeCategories]);
 
   // Income-only transactions
   const incomeTransactions = useMemo(() => {
@@ -189,7 +192,7 @@ export const IncomeView: React.FC<Props> = ({
                   className="w-full bg-slate-50 dark:bg-slate-950 border border-[#E8E1DB] dark:border-[#363B44] rounded-xl px-2.5 py-2 text-xs text-slate-800 dark:text-white focus:outline-none"
                 >
                   <option value="All">All Categories</option>
-                  {INCOME_CATEGORIES.map((c) => (
+                  {categoryOptions.map((c) => (
                     <option key={c.name} value={c.name}>{c.name}</option>
                   ))}
                 </select>

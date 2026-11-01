@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Check, Calculator, CalendarClock, Repeat } from 'lucide-react';
 import { RecurringPayment, CreditCard, PaymentMethodItem } from '../types';
-import { EXPENSE_CATEGORIES, getPaymentModes } from '../utils/categories';
+import { EXPENSE_CATEGORIES, getCategoryMeta, getCategoryOptions, getPaymentModes } from '../utils/categories';
 import { formatINR, getCurrentMonthKey } from '../utils/dateUtils';
 
 interface Props {
@@ -12,6 +12,7 @@ interface Props {
   initialData?: RecurringPayment | null;
   creditCards?: CreditCard[];
   paymentMethods?: PaymentMethodItem[];
+  expenseCategories?: string[];
 }
 
 export const AddRecurringModal: React.FC<Props> = ({
@@ -21,14 +22,16 @@ export const AddRecurringModal: React.FC<Props> = ({
   initialData,
   creditCards = [],
   paymentMethods = [],
+  expenseCategories,
 }) => {
   // Mode: 'monthly' (Fixed amount every month) or 'total_split' (Total amount / N months)
   const [billingMode, setBillingMode] = useState<'monthly' | 'total_split'>(
     initialData?.billingType || (initialData?.totalAmount ? 'total_split' : 'monthly')
   );
 
+  const defaultCategory = expenseCategories?.[0] || EXPENSE_CATEGORIES[0].name;
   const [name, setName] = useState(initialData?.name || '');
-  const [category, setCategory] = useState(initialData?.category || 'Subscriptions');
+  const [category, setCategory] = useState(initialData?.category || defaultCategory);
   const [monthlyAmount, setMonthlyAmount] = useState(initialData?.amount ? initialData.amount.toString() : '');
   const [totalAmount, setTotalAmount] = useState(initialData?.totalAmount ? initialData.totalAmount.toString() : '');
   const [durationMonths, setDurationMonths] = useState(initialData?.durationMonths ? initialData.durationMonths.toString() : '6');
@@ -41,7 +44,7 @@ export const AddRecurringModal: React.FC<Props> = ({
   useEffect(() => {
     if (initialData) {
       setName(initialData.name || '');
-      setCategory(initialData.category || 'Subscriptions');
+      setCategory(initialData.category || defaultCategory);
       setMonthlyAmount(initialData.amount ? initialData.amount.toString() : '');
       setTotalAmount(initialData.totalAmount ? initialData.totalAmount.toString() : '');
       setDurationMonths(initialData.durationMonths ? initialData.durationMonths.toString() : '6');
@@ -51,7 +54,7 @@ export const AddRecurringModal: React.FC<Props> = ({
       setBillingMode(initialData.billingType || (initialData.totalAmount ? 'total_split' : 'monthly'));
     } else {
       setName('');
-      setCategory('Subscriptions');
+      setCategory(defaultCategory);
       setMonthlyAmount('');
       setTotalAmount('');
       setDurationMonths('6');
@@ -61,9 +64,15 @@ export const AddRecurringModal: React.FC<Props> = ({
       setBillingMode('monthly');
       setError('');
     }
-  }, [initialData, isOpen]);
+  }, [initialData, isOpen, defaultCategory]);
 
   const paymentModes = useMemo(() => getPaymentModes(creditCards, paymentMethods), [creditCards, paymentMethods]);
+  const categoryOptions = useMemo(() => {
+    const options = getCategoryOptions('Expense', expenseCategories);
+    return initialData && !options.some((item) => item.name === category)
+      ? [...options, getCategoryMeta(category)]
+      : options;
+  }, [expenseCategories, initialData, category]);
 
   // Computed monthly amount based on mode
   const computedMonthly = useMemo(() => {
@@ -389,7 +398,7 @@ export const AddRecurringModal: React.FC<Props> = ({
               onChange={(e) => setCategory(e.target.value)}
               className="w-full bg-slate-50 dark:bg-[#1B1E22] border border-[#E8E1DB] dark:border-[#363B44] rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-white font-medium focus:outline-none"
             >
-              {EXPENSE_CATEGORIES.map((c) => (
+              {categoryOptions.map((c) => (
                 <option key={c.name} value={c.name}>{c.name}</option>
               ))}
             </select>

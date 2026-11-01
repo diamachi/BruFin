@@ -9,7 +9,7 @@ import {
   PaymentMethodItem,
 } from '../types';
 import { generateSampleData, DEFAULT_MONTHLY_TARGET } from '../data/dummyData';
-import { DEFAULT_BASE_PAYMENT_MODES } from './categories';
+import { DEFAULT_BASE_PAYMENT_MODES, EXPENSE_CATEGORIES, INCOME_CATEGORIES } from './categories';
 import { getTodayDateString, getCurrentTimestampString } from './dateUtils';
 import {
   getLocalDatabaseData,
@@ -231,6 +231,22 @@ export function savePaymentMethods(methods: PaymentMethodItem[]): Promise<void> 
   return saveLocalDatabaseSections({ paymentMethods: methods || DEFAULT_BASE_PAYMENT_MODES });
 }
 
+export function loadExpenseCategories(): string[] {
+  return getLocalDatabaseData().expenseCategories;
+}
+
+export function saveExpenseCategories(categories: string[]): Promise<void> {
+  return saveLocalDatabaseSections({ expenseCategories: categories });
+}
+
+export function loadIncomeCategories(): string[] {
+  return getLocalDatabaseData().incomeCategories;
+}
+
+export function saveIncomeCategories(categories: string[]): Promise<void> {
+  return saveLocalDatabaseSections({ incomeCategories: categories });
+}
+
 export function loadBankAccounts(): BankAccount[] {
   return getLocalDatabaseData().bankAccounts;
 }
@@ -302,6 +318,8 @@ export async function loadDemoDataset() {
     bankAccounts: sample.bankAccounts,
     monthlyBalances: sample.monthlyBalances,
     paymentMethods: DEFAULT_BASE_PAYMENT_MODES,
+    expenseCategories: EXPENSE_CATEGORIES.map((category) => category.name),
+    incomeCategories: INCOME_CATEGORIES.map((category) => category.name),
   });
   setDemoModeActive(true);
   setUserOnboarded(true);
@@ -322,6 +340,8 @@ export async function clearAllData(): Promise<void> {
     monthlyBalances: [],
     paymentMethods: DEFAULT_BASE_PAYMENT_MODES,
     monthlyTarget: DEFAULT_MONTHLY_TARGET,
+    expenseCategories: EXPENSE_CATEGORIES.map((category) => category.name),
+    incomeCategories: INCOME_CATEGORIES.map((category) => category.name),
   });
   setDemoModeActive(false);
   setUserOnboarded(true);
@@ -414,6 +434,8 @@ export function exportDatabaseJSON(): void {
     bankAccounts: loadBankAccounts(),
     monthlyBalances: loadMonthlyBalances(),
     paymentMethods: loadPaymentMethods(),
+    expenseCategories: loadExpenseCategories(),
+    incomeCategories: loadIncomeCategories(),
   };
 
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -517,6 +539,8 @@ export async function getStorageDiagnostics(): Promise<StorageDiagnostics> {
     { name: 'Investments', key: 'investments', value: data.investments },
     { name: 'Loans & Liabilities', key: 'loans', value: data.loans },
     { name: 'Payment Methods', key: 'paymentMethods', value: data.paymentMethods },
+    { name: 'Expense Categories', key: 'expenseCategories', value: data.expenseCategories },
+    { name: 'Income Categories', key: 'incomeCategories', value: data.incomeCategories },
   ];
   const breakdown = sectionMeta.map(({ name, key, value }) => {
     const bytes = new Blob([JSON.stringify(value)]).size;

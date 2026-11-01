@@ -9,7 +9,7 @@ import {
   PaymentMethodItem,
 } from '../types';
 import { DEFAULT_MONTHLY_TARGET } from '../data/dummyData';
-import { DEFAULT_BASE_PAYMENT_MODES } from './categories';
+import { DEFAULT_BASE_PAYMENT_MODES, EXPENSE_CATEGORIES, INCOME_CATEGORIES } from './categories';
 
 const DATABASE_NAME = 'brufin-local';
 const DATABASE_VERSION = 2;
@@ -26,6 +26,8 @@ const LEGACY_KEYS = {
   bankAccounts: 'brufin_accounts_v2',
   monthlyBalances: 'brufin_balances_v2',
   paymentMethods: 'brufin_payment_methods_v2',
+  expenseCategories: 'brufin_expense_categories_v2',
+  incomeCategories: 'brufin_income_categories_v2',
 } as const;
 
 export interface LocalDatabaseData {
@@ -38,6 +40,8 @@ export interface LocalDatabaseData {
   bankAccounts: BankAccount[];
   monthlyBalances: MonthlyAccountBalance[];
   paymentMethods: PaymentMethodItem[];
+  expenseCategories: string[];
+  incomeCategories: string[];
 }
 
 export type LocalDatabaseUpdates = Partial<LocalDatabaseData>;
@@ -54,6 +58,8 @@ const EMPTY_DATA: LocalDatabaseData = {
   bankAccounts: [],
   monthlyBalances: [],
   paymentMethods: DEFAULT_BASE_PAYMENT_MODES,
+  expenseCategories: EXPENSE_CATEGORIES.map((category) => category.name),
+  incomeCategories: INCOME_CATEGORIES.map((category) => category.name),
 };
 
 let databasePromise: Promise<IDBDatabase> | null = null;
@@ -139,6 +145,12 @@ function normalizeSection<K extends SectionName>(name: K, value: unknown): Local
   if (name === 'paymentMethods') {
     return (Array.isArray(value) && value.length > 0 ? value : EMPTY_DATA.paymentMethods) as LocalDatabaseData[K];
   }
+  if (name === 'expenseCategories' || name === 'incomeCategories') {
+    const uniqueNames = Array.isArray(value)
+      ? [...new Set(value.filter((item): item is string => typeof item === 'string').map((item) => item.trim()).filter(Boolean))]
+      : [];
+    return (uniqueNames.length > 0 ? uniqueNames : EMPTY_DATA[name]) as LocalDatabaseData[K];
+  }
   return (Array.isArray(value) ? value : EMPTY_DATA[name]) as LocalDatabaseData[K];
 }
 
@@ -214,6 +226,8 @@ export async function initializeLocalDatabase(): Promise<void> {
       bankAccounts: readLegacyValue(LEGACY_KEYS.bankAccounts, []),
       monthlyBalances: readLegacyValue(LEGACY_KEYS.monthlyBalances, []),
       paymentMethods: readLegacyValue(LEGACY_KEYS.paymentMethods, DEFAULT_BASE_PAYMENT_MODES),
+      expenseCategories: readLegacyValue(LEGACY_KEYS.expenseCategories, EMPTY_DATA.expenseCategories),
+      incomeCategories: readLegacyValue(LEGACY_KEYS.incomeCategories, EMPTY_DATA.incomeCategories),
     };
     loaded = Object.fromEntries(
       Object.entries(loaded).map(([name, value]) => [name, normalizeSection(name as SectionName, value)])

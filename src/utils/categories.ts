@@ -25,6 +25,25 @@ export const INCOME_CATEGORIES = [
   { name: 'Other', icon: 'MoreHorizontal', color: '#78716C', bg: 'bg-stone-100 dark:bg-[#1C1F1E] text-stone-700 dark:text-stone-300' },
 ];
 
+export type TransactionCategoryType = 'Expense' | 'Income';
+
+const CUSTOM_CATEGORY_STYLES = [
+  { icon: 'Tag', color: '#6585A3', bg: 'bg-sky-50 dark:bg-sky-950/30 text-sky-700 dark:text-sky-300' },
+  { icon: 'Sparkles', color: '#9A6C91', bg: 'bg-fuchsia-50 dark:bg-fuchsia-950/30 text-fuchsia-700 dark:text-fuchsia-300' },
+  { icon: 'BadgePercent', color: '#638B73', bg: 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300' },
+  { icon: 'Tag', color: '#AF8054', bg: 'bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-300' },
+];
+
+export function getCategoryOptions(type: TransactionCategoryType, names?: string[]) {
+  const defaults = type === 'Expense' ? EXPENSE_CATEGORIES : INCOME_CATEGORIES;
+  const selectedNames = names ?? defaults.map((category) => category.name);
+  const knownCategories = [...EXPENSE_CATEGORIES, ...INCOME_CATEGORIES];
+  return selectedNames.map((name) => {
+    const known = knownCategories.find((category) => category.name.toLowerCase() === name.toLowerCase());
+    return known || getCategoryMeta(name, type === 'Income');
+  });
+}
+
 export const DEFAULT_BASE_PAYMENT_MODES: PaymentMethodItem[] = [
   { id: 'pm_upi', name: 'UPI', type: 'digital', icon: 'Smartphone' },
   { id: 'pm_debit', name: 'Debit Card', type: 'bank', icon: 'CreditCard' },
@@ -63,5 +82,8 @@ export function getCategoryMeta(categoryName: string, isIncome: boolean = false)
     || (isIncome ? EXPENSE_CATEGORIES.find(c => c.name.toLowerCase() === categoryName.toLowerCase()) : INCOME_CATEGORIES.find(c => c.name.toLowerCase() === categoryName.toLowerCase()));
 
   if (match) return match;
-  return { name: categoryName, icon: isIncome ? 'TrendingUp' : 'Tag', color: '#637081', bg: 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300' };
+  let hash = 0;
+  for (const character of categoryName.toLowerCase()) hash = (hash * 31 + character.charCodeAt(0)) | 0;
+  const style = CUSTOM_CATEGORY_STYLES[Math.abs(hash) % CUSTOM_CATEGORY_STYLES.length];
+  return { name: categoryName, ...style };
 }

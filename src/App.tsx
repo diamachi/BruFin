@@ -17,6 +17,10 @@ import {
   saveMonthlyBalances,
   loadPaymentMethods,
   savePaymentMethods,
+  loadExpenseCategories,
+  saveExpenseCategories,
+  loadIncomeCategories,
+  saveIncomeCategories,
   saveDatabaseSections,
   postRecurringPaymentToExpenses,
   getRecurringPaymentStatuses,
@@ -43,6 +47,7 @@ import { MonthlyBalancePromptModal, BalancePromptMode } from './components/Month
 import { Smartphone, Monitor } from 'lucide-react';
 import { getCurrentMonthKey } from './utils/dateUtils';
 import { parseHistoricalDataFile } from './utils/archiveImport';
+import type { TransactionCategoryType } from './utils/categories';
 
 const ArchiveViewerModal = React.lazy(() => import('./components/ArchiveViewerModal').then((module) => ({ default: module.ArchiveViewerModal })));
 const DiagnosticsModal = React.lazy(() => import('./components/DiagnosticsModal').then((module) => ({ default: module.DiagnosticsModal })));
@@ -108,6 +113,8 @@ export const App: React.FC = () => {
   const [loans, setLoans] = useState<LoanItem[]>(() => loadLoans());
   const [monthlyBalances, setMonthlyBalances] = useState<MonthlyAccountBalance[]>(() => loadMonthlyBalances());
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethodItem[]>(() => loadPaymentMethods());
+  const [expenseCategories, setExpenseCategories] = useState<string[]>(() => loadExpenseCategories());
+  const [incomeCategories, setIncomeCategories] = useState<string[]>(() => loadIncomeCategories());
 
   const [activeTab, setActiveTab] = useState<ViewTab>('dashboard');
   const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
@@ -340,6 +347,15 @@ export const App: React.FC = () => {
     showToast('Payment methods updated');
   };
 
+  const handleUpdateCategories = async (type: TransactionCategoryType, categories: string[]): Promise<boolean> => {
+    const write = type === 'Expense' ? saveExpenseCategories(categories) : saveIncomeCategories(categories);
+    if (!(await persistWrite(write))) return false;
+    if (type === 'Expense') setExpenseCategories(categories);
+    else setIncomeCategories(categories);
+    showToast(`${type} categories updated`);
+    return true;
+  };
+
   const handleUpdateLoans = async (items: LoanItem[]) => {
     if (!(await persistWrite(saveLoans(items)))) return;
     setLoans(items);
@@ -378,9 +394,15 @@ export const App: React.FC = () => {
       if (!data || typeof data !== 'object' || Array.isArray(data)) throw new Error('Backup must be an object');
       const backup = data as Record<string, unknown>;
       if (backup.version !== 2) throw new Error('Unsupported backup version');
-      const arrayFields = ['transactions', 'creditCards', 'recurringPayments', 'investments', 'loans', 'bankAccounts', 'monthlyBalances', 'paymentMethods'];
+      const arrayFields = ['transactions', 'creditCards', 'recurringPayments', 'investments', 'loans', 'bankAccounts', 'monthlyBalances', 'paymentMethods', 'expenseCategories', 'incomeCategories'];
       for (const field of arrayFields) {
         if (backup[field] !== undefined && !Array.isArray(backup[field])) throw new Error(`Invalid ${field}`);
+      }
+      for (const field of ['expenseCategories', 'incomeCategories']) {
+        const categories = backup[field];
+        if (categories !== undefined && (!Array.isArray(categories) || categories.length === 0 || categories.some((item) => typeof item !== 'string' || !item.trim()))) {
+          throw new Error(`Invalid ${field}`);
+        }
       }
       if (backup.monthlyTarget !== undefined && (typeof backup.monthlyTarget !== 'number' || !Number.isFinite(backup.monthlyTarget) || backup.monthlyTarget <= 0)) {
         throw new Error('Invalid monthly target');
@@ -401,6 +423,8 @@ export const App: React.FC = () => {
       if (backup.loans !== undefined) setLoans(backup.loans as LoanItem[]);
       if (backup.monthlyBalances !== undefined) setMonthlyBalances(backup.monthlyBalances as MonthlyAccountBalance[]);
       if (backup.paymentMethods !== undefined) setPaymentMethods(backup.paymentMethods as PaymentMethodItem[]);
+      if (backup.expenseCategories !== undefined) setExpenseCategories(backup.expenseCategories as string[]);
+      if (backup.incomeCategories !== undefined) setIncomeCategories(backup.incomeCategories as string[]);
       showToast('Database backup imported successfully!');
       setIsSettingsOpen(false);
     } catch (e) {
@@ -447,6 +471,8 @@ export const App: React.FC = () => {
     setInvestments(data.investments);
     setLoans(data.loans);
     setMonthlyBalances(data.monthlyBalances);
+    setExpenseCategories(loadExpenseCategories());
+    setIncomeCategories(loadIncomeCategories());
     setIsDemoMode(true);
     setHasOnboarded(true);
     showToast('Loaded demo data! Tap "Clear Demo" whenever you are ready to start fresh.');
@@ -466,6 +492,8 @@ export const App: React.FC = () => {
     setMonthlyBalances([]);
     setMonthlyTarget(loadMonthlyTarget());
     setPaymentMethods(loadPaymentMethods());
+    setExpenseCategories(loadExpenseCategories());
+    setIncomeCategories(loadIncomeCategories());
     setSelectedMonth(getCurrentMonthKey());
     setIsDemoMode(false);
     setHasOnboarded(true);
@@ -487,6 +515,8 @@ export const App: React.FC = () => {
       setMonthlyBalances([]);
       setMonthlyTarget(loadMonthlyTarget());
       setPaymentMethods(loadPaymentMethods());
+      setExpenseCategories(loadExpenseCategories());
+      setIncomeCategories(loadIncomeCategories());
       setSelectedMonth(getCurrentMonthKey());
       setIsDemoMode(false);
       showToast('Demo data cleared! Your private database is ready.');
@@ -507,6 +537,8 @@ export const App: React.FC = () => {
     setInvestments(data.investments);
     setLoans(data.loans);
     setMonthlyBalances(data.monthlyBalances);
+    setExpenseCategories(loadExpenseCategories());
+    setIncomeCategories(loadIncomeCategories());
     setIsDemoMode(true);
     showToast('Sample demo data loaded successfully!');
   };
@@ -526,6 +558,8 @@ export const App: React.FC = () => {
     setLoans([]);
     setMonthlyTarget(loadMonthlyTarget());
     setPaymentMethods(loadPaymentMethods());
+    setExpenseCategories(loadExpenseCategories());
+    setIncomeCategories(loadIncomeCategories());
     setSelectedMonth(getCurrentMonthKey());
     setIsDemoMode(false);
     showToast('All data has been permanently cleared from this device');
@@ -656,6 +690,7 @@ export const App: React.FC = () => {
               onPostAllDueRecurring={handlePostAllDueRecurring}
               creditCards={creditCards}
               paymentMethods={paymentMethods}
+              expenseCategories={expenseCategories}
             />
           )}
 
@@ -683,6 +718,7 @@ export const App: React.FC = () => {
               onBackToMonitor={() => setActiveTab('dashboard')}
               creditCards={creditCards}
               paymentMethods={paymentMethods}
+              incomeCategories={incomeCategories}
             />
           )}
 
@@ -743,6 +779,8 @@ export const App: React.FC = () => {
         initialData={editingTransaction}
         creditCards={creditCards}
         paymentMethods={paymentMethods}
+        expenseCategories={expenseCategories}
+        incomeCategories={incomeCategories}
       />
 
       <AddRecurringModal
@@ -751,6 +789,7 @@ export const App: React.FC = () => {
         onSave={handleSaveNewRecurring}
         creditCards={creditCards}
         paymentMethods={paymentMethods}
+        expenseCategories={expenseCategories}
       />
 
       {isSettingsOpen && <React.Suspense fallback={null}><SettingsModal
@@ -762,6 +801,9 @@ export const App: React.FC = () => {
         onUpdateRecurring={handleUpdateRecurring}
         paymentMethods={paymentMethods}
         onUpdatePaymentMethods={handleUpdatePaymentMethods}
+        expenseCategories={expenseCategories}
+        incomeCategories={incomeCategories}
+        onUpdateCategories={handleUpdateCategories}
         onImportJSON={handleImportJSON}
         onOpenArchiveImport={handleOpenArchiveImport}
         onResetData={handleDeleteAllPersonalData}
