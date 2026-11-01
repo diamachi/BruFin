@@ -49,11 +49,47 @@ jobs:
         run: ./gradlew --no-daemon assembleDebug
         working-directory: android
 
+      - name: Prepare stable release signing key
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+        env:
+          BRUFIN_RELEASE_KEYSTORE_BASE64: ${{ secrets.BRUFIN_SIGNING_KEYSTORE_BASE64 }}
+        run: |
+          if [ -z "$BRUFIN_RELEASE_KEYSTORE_BASE64" ]; then
+            echo "Missing BRUFIN_SIGNING_KEYSTORE_BASE64 repository secret" >&2
+            exit 1
+          fi
+          printf '%s' "$BRUFIN_RELEASE_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/brufin-release.p12"
+          chmod 600 "$RUNNER_TEMP/brufin-release.p12"
+          echo "BRUFIN_RELEASE_KEYSTORE_FILE=$RUNNER_TEMP/brufin-release.p12" >> "$GITHUB_ENV"
+
+      - name: Build signed release APK
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+        env:
+          BRUFIN_RELEASE_KEYSTORE_PASSWORD: ${{ secrets.BRUFIN_SIGNING_STORE_PASSWORD }}
+          BRUFIN_RELEASE_KEY_ALIAS: ${{ secrets.BRUFIN_SIGNING_KEY_ALIAS }}
+          BRUFIN_RELEASE_KEY_PASSWORD: ${{ secrets.BRUFIN_SIGNING_KEY_PASSWORD }}
+        run: |
+          if [ -z "$BRUFIN_RELEASE_KEYSTORE_PASSWORD" ] || [ -z "$BRUFIN_RELEASE_KEY_ALIAS" ] || [ -z "$BRUFIN_RELEASE_KEY_PASSWORD" ]; then
+            echo "Missing BruFin release signing repository secrets" >&2
+            exit 1
+          fi
+          ./gradlew --no-daemon assembleRelease
+        working-directory: android
+
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: brufin-debug-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload signed release APK
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+        uses: actions/upload-artifact@v4
+        with:
+          name: brufin-release-apk
+          path: android/app/build/outputs/apk/release/app-release.apk
           if-no-files-found: error
           retention-days: 14
 
@@ -70,7 +106,7 @@ jobs:
       - name: Download built APK
         uses: actions/download-artifact@v4
         with:
-          name: brufin-debug-apk
+          name: brufin-release-apk
           path: release-assets
 
       - name: Publish versioned GitHub Release
@@ -82,6 +118,6 @@ jobs:
             echo "Missing release notes: $notes_file" >&2
             exit 1
           fi
-          gh release create "$GITHUB_REF_NAME" release-assets/app-debug.apk \
+          gh release create "$GITHUB_REF_NAME" release-assets/app-release.apk \
             --title "BruFin $GITHUB_REF_NAME" \
             --notes-file "$notes_file"
