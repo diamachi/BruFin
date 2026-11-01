@@ -1,0 +1,18 @@
+{
+  "name": "Bru Fin - Brewing Calm Finances",
+  "short_name": "Bru Fin",
+  "description": "Brewing calm finances - Standalone Aesthetic Personal Finance Tracker",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#141210",
+  "theme_color": "#141210",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
