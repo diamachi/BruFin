@@ -101,6 +101,7 @@ export const DashboardView: React.FC<Props> = ({
         </div>
       </div>
 
+      <div className="grid items-start gap-4 lg:grid-cols-2">
       {/* 2. Budget Health Card with Direct Link to Expenses Page */}
       <div className={`p-5 rounded-3xl border transition-all shadow-sm dark:shadow-xl ${
         isBudgetOvershot
@@ -226,6 +227,8 @@ export const DashboardView: React.FC<Props> = ({
         </div>
       </div>
 
+      </div>
+
       {/* 4. Unified Expense Distribution (Monthly, Day-wise, Specific Date) */}
       <ExpenseDistributionCard
         transactions={transactions}
@@ -233,6 +236,7 @@ export const DashboardView: React.FC<Props> = ({
         onNavigateToExpenses={onNavigateToTransactions}
       />
 
+      <div className="grid items-start gap-4 lg:grid-cols-2">
       {/* 6. Unified Bank & Cash Balances Card */}
       <div className="p-5 rounded-3xl bg-white dark:bg-[#22252A] border border-[#E8E1DB] dark:border-[#363B44] shadow-sm space-y-3.5">
         <div className="flex items-center justify-between">
@@ -372,6 +376,7 @@ export const DashboardView: React.FC<Props> = ({
             </div>
           </div>
         )}
+      </div>
       </div>
     </div>
   );

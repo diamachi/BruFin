@@ -12,7 +12,7 @@ export const BottomNav: React.FC<Props> = ({ activeTab, onTabChange, onOpenQuick
   const isExpensesActive = activeTab === 'expenses' || activeTab === 'transactions';
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-30 pointer-events-auto">
+    <div className="fixed bottom-0 left-0 right-0 z-30 pointer-events-auto lg:hidden">
       <div
         className="max-w-md mx-auto px-4 pt-1"
         style={{

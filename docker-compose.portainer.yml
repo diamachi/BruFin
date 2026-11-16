@@ -1,0 +1,20 @@
+services:
+  brufin:
+    image: ghcr.io/diamachi/brufin:latest
+    container_name: brufin
+    restart: unless-stopped
+    environment:
+      BRUFIN_ALLOWED_ORIGINS: ${BRUFIN_ALLOWED_ORIGINS:-http://localhost,https://localhost,capacitor://localhost,http://127.0.0.1}
+    ports:
+      - "${BRUFIN_BIND_ADDRESS:-0.0.0.0}:8080:8080"
+    volumes:
+      - brufin-data:/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/api/health', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  brufin-data:

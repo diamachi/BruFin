@@ -25,6 +25,8 @@ import { exportDatabaseJSON, exportTransactionsCSV, APP_SCALE_PRESETS } from '..
 import { DEFAULT_BASE_PAYMENT_MODES, EXPENSE_CATEGORIES, INCOME_CATEGORIES } from '../utils/categories';
 import type { TransactionCategoryType } from '../utils/categories';
 import { CategoryIcon } from './CategoryIcon';
+import { ServerSyncPanel } from './ServerSyncPanel';
+import type { ServerSyncStatus } from '../utils/serverSync';
 
 interface Props {
   isOpen: boolean;
@@ -51,6 +53,9 @@ interface Props {
   onOpenDiagnostics?: () => void;
   appScale?: number;
   onUpdateAppScale?: (scale: number) => void;
+  serverSyncStatus: ServerSyncStatus;
+  onConnectServer: (serverUrl: string, token: string, strategy: 'server' | 'device') => Promise<void>;
+  onDisconnectServer: () => Promise<void>;
 }
 
 const METHOD_ICON_OPTIONS = [
@@ -87,6 +92,9 @@ export const SettingsModal: React.FC<Props> = ({
   onOpenDiagnostics,
   appScale = 1.0,
   onUpdateAppScale,
+  serverSyncStatus,
+  onConnectServer,
+  onDisconnectServer,
 }) => {
   const [targetInput, setTargetInput] = useState(monthlyTarget.toString());
   useEffect(() => {
@@ -246,6 +254,12 @@ export const SettingsModal: React.FC<Props> = ({
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-5 space-y-6">
+          <ServerSyncPanel
+            status={serverSyncStatus}
+            onConnect={onConnectServer}
+            onDisconnect={onDisconnectServer}
+          />
+
           {/* 1. Monthly Expense Target */}
           <div className="p-4 rounded-2xl bg-white dark:bg-[#17191C] border border-[#E8E1DB] dark:border-[#363B44] space-y-3 shadow-xs">
             <h3 className="text-xs font-bold text-slate-900 dark:text-[#F2F3F5] uppercase tracking-wider">
@@ -808,12 +822,16 @@ export const SettingsModal: React.FC<Props> = ({
               <span>Delete All Personal Data</span>
             </h3>
             <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed">
-              Permanently wipes all transactions, account balances, loans, and investments stored on this device.
-              Ensures zero personal information remains.
+              {serverSyncStatus.configured
+                ? 'Permanently wipes transactions and finance records from this device and the connected BruFin server.'
+                : 'Permanently wipes all transactions, balances, loans, and investments stored on this device.'}
             </p>
             <button
               onClick={() => {
-                if (confirm('Permanently delete all your personal financial data from this device? This will erase all transactions and records completely.')) {
+                const prompt = serverSyncStatus.configured
+                  ? 'Permanently delete all financial data from this device and the connected server? Other connected devices will also lose this data after their next sync.'
+                  : 'Permanently delete all your personal financial data from this device? This will erase all transactions and records completely.';
+                if (confirm(prompt)) {
                   onResetData();
                   onClose();
                 }

@@ -7,7 +7,7 @@
   </p>
 </div>
 
-BruFin helps you track day-to-day spending and keep an eye on your wider financial picture. It runs without an account, bank connection, or app backend: your records stay in local browser or Android WebView storage.
+BruFin helps you track day-to-day spending and keep an eye on your wider financial picture. It works as a private local app, or can connect to a self-hosted homelab server so your browser and Android app share one data store and sync changes made offline.
 
 <p align="center">
   <a href="#screenshots">Screenshots</a> ·
@@ -40,6 +40,7 @@ Screenshots use BruFin's built-in sample data. The same dashboard is shown in bo
 | **Investments & loans** | Keep a manual investment list, estimate returns, record loans, and explore the effect of extra repayments. |
 | **Categories** | Add, remove, and restore default income and expense categories in Settings. Existing transactions keep their saved category label. |
 | **Data tools** | Export JSON backups or transaction CSVs; import backups; preview older BruFin exports and restore only new transactions. |
+| **Self-hosting** | Run the web dashboard and private SQLite API with Docker Compose; sync browser and Android clients, including offline edits. |
 | **Personalization** | Switch themes, adjust display scale, and optionally show compact storage and memory diagnostics. |
 | **Demo mode** | Explore with sample records, then clear them and begin with an empty local database. |
 
@@ -47,13 +48,32 @@ Investment and loan figures are estimates based on values you enter. BruFin does
 
 ## Privacy & data storage
 
-BruFin has no application backend and does not sync data between devices. Financial records are stored in an IndexedDB database named `brufin-local` (schema version 2). App preferences such as theme and display scale use `localStorage`.
+By default, BruFin works locally without an account or server. Financial records are stored in IndexedDB (`brufin-local`, schema version 3); theme, display scale, and server connection preferences use `localStorage`. If you configure a self-hosted server, that server becomes the shared source of truth while IndexedDB remains each device's offline working copy.
 
 - **Web:** IndexedDB is managed by the browser and scoped to the exact origin and browser profile. For example, `localhost`, a LAN IP address, and a deployed domain each have separate data. The browser controls the physical files; BruFin does not create a separate database file you can move directly.
 - **Android:** IndexedDB is held in the app's private WebView data area for application ID `com.diamachi.brufin`. Android isolates that storage from other apps; it is not exposed as a normal document or standalone SQLite file.
+- **Self-hosted mode:** The server keeps a SQLite database at `./data/brufin.sqlite3` in the Compose project directory. Clients communicate with the API; they do not connect directly to SQLite. The API token grants access to all stored BruFin data.
 - **Backups:** Export a JSON backup regularly if you want a portable copy. Backups are unencrypted and contain financial records, so store them somewhere private. Clearing browser data or clearing/uninstalling the Android app can remove local records.
 
 Browser storage is tied to the browser's origin and profile. IndexedDB is managed by each browser, and its on-disk location varies by browser and operating system; it is usually easiest to inspect it through that browser's developer tools. Android keeps WebView data in app-specific storage managed by the OS.
+
+## Self-host BruFin
+
+The Docker Compose deployment serves the BruFin dashboard and API on port `8080`, with SQLite data persisted in `./data/`.
+
+```bash
+cp .env.example .env
+docker compose up -d --build
+docker compose exec brufin cat /data/api-token
+```
+
+BruFin creates a random API token automatically on first start and stores it in the persistent data volume. Copy the token shown by the command into each client's **Settings → Self-hosted server** connection.
+
+Open `http://<homelab-host>:8080`, then go to **Settings → Self-hosted server** and enter the same URL and token. Choose which data to use on first connection. Install the Android build, open the same Settings panel, and connect it to the same server. Edits remain in the local cache while offline and are retried when connectivity returns. Concurrent edits to the same record are presented for review.
+
+Keep the server on a private LAN/VPN or behind HTTPS. Do not publish the API directly over plain HTTP. See [SELF_HOSTING.md](SELF_HOSTING.md) for setup, backups, network access, and troubleshooting. The current self-hosted mode uses one shared access token for a single user.
+
+For Portainer, follow the step-by-step [hosting guide](HOSTING.md) and use [`docker-compose.portainer.yml`](docker-compose.portainer.yml) as a Stack. GitHub Actions publishes `ghcr.io/diamachi/brufin:latest` from `main` and versioned images such as `ghcr.io/diamachi/brufin:v0.6` from version tags. The GHCR package must be marked public for anonymous pulls. The published stack uses a named Docker volume so the database and token survive container replacement.
 
 ## Run on the web
 
@@ -172,4 +192,5 @@ screenshots/       Light and dark dashboard screenshots
 - Vite 8
 - Tailwind CSS 4
 - Capacitor 8 for Android
+- Python 3 standard-library API and SQLite for self-hosted mode
 - Lucide icons

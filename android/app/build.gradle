@@ -39,6 +39,11 @@ android {
         }
     }
     buildTypes {
+        debug {
+            // Let test builds coexist with the release app and keep its local finance data untouched.
+            applicationIdSuffix ".debug"
+            versionNameSuffix "-debug"
+        }
         release {
             minifyEnabled false
             signingConfig signingConfigs.release

@@ -12,9 +12,10 @@ import { DEFAULT_MONTHLY_TARGET } from '../data/dummyData';
 import { DEFAULT_BASE_PAYMENT_MODES, EXPENSE_CATEGORIES, INCOME_CATEGORIES } from './categories';
 
 const DATABASE_NAME = 'brufin-local';
-const DATABASE_VERSION = 2;
+const DATABASE_VERSION = 3;
 const SECTION_STORE = 'sections';
 const TRANSACTIONS_STORE = 'transactions';
+const SYNC_STORE = 'sync_metadata';
 
 const LEGACY_KEYS = {
   transactions: 'brufin_transactions_v2',
@@ -79,6 +80,9 @@ function openDatabase(): Promise<IDBDatabase> {
       }
       if (!database.objectStoreNames.contains(TRANSACTIONS_STORE)) {
         database.createObjectStore(TRANSACTIONS_STORE, { keyPath: 'id' });
+      }
+      if (!database.objectStoreNames.contains(SYNC_STORE)) {
+        database.createObjectStore(SYNC_STORE, { keyPath: 'key' });
       }
       if (oldVersion === 1) {
         const upgradeTransaction = request.transaction;
@@ -260,6 +264,7 @@ export function saveLocalDatabaseSections(updates: LocalDatabaseUpdates): Promis
     const database = await openDatabase();
     await writeSectionsDirect(database, normalized, cachedData.transactions);
     cachedData = { ...cachedData, ...normalized };
+    if (typeof window !== 'undefined') window.dispatchEvent(new Event('brufin:data-changed'));
   });
   writeQueue = operation.catch(() => undefined);
   return operation;
@@ -267,4 +272,21 @@ export function saveLocalDatabaseSections(updates: LocalDatabaseUpdates): Promis
 
 export function replaceLocalDatabaseData(data: LocalDatabaseData): Promise<void> {
   return saveLocalDatabaseSections(data);
+}
+
+export async function loadSyncMetadata<T>(key: string): Promise<T | null> {
+  const database = await openDatabase();
+  const transaction = database.transaction(SYNC_STORE, 'readonly');
+  const request = transaction.objectStore(SYNC_STORE).get(key) as IDBRequest<{ key: string; value: T } | undefined>;
+  return new Promise((resolve, reject) => {
+    request.onsuccess = () => resolve(request.result?.value ?? null);
+    request.onerror = () => reject(request.error || new Error('Could not read sync metadata.'));
+  });
+}
+
+export async function saveSyncMetadata<T>(key: string, value: T): Promise<void> {
+  const database = await openDatabase();
+  const transaction = database.transaction(SYNC_STORE, 'readwrite');
+  transaction.objectStore(SYNC_STORE).put({ key, value });
+  await waitForTransaction(transaction);
 }

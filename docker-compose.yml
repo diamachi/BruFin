@@ -1,0 +1,18 @@
+services:
+  brufin:
+    build: .
+    container_name: brufin
+    restart: unless-stopped
+    environment:
+      BRUFIN_API_TOKEN: ${BRUFIN_API_TOKEN:-}
+      BRUFIN_ALLOWED_ORIGINS: ${BRUFIN_ALLOWED_ORIGINS:-http://localhost,https://localhost,capacitor://localhost,http://127.0.0.1,http://localhost:5173,http://127.0.0.1:5173}
+    ports:
+      - "${BRUFIN_BIND_ADDRESS:-0.0.0.0}:8080:8080"
+    volumes:
+      - ./data:/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/api/health', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s

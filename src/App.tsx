@@ -27,6 +27,7 @@ import {
   clearAllData,
   hasUserOnboarded,
   isDemoModeActive,
+  setDemoModeActive,
   loadDemoDataset,
   isBalancePromptsEnabled,
   setBalancePromptsEnabled,
@@ -41,6 +42,7 @@ import {
 import { Navbar } from './components/Navbar';
 import { BottomNav } from './components/BottomNav';
 import { DiagnosticsBar } from './components/DiagnosticsBar';
+import { DesktopNav } from './components/DesktopNav';
 import { QuickAddModal } from './components/QuickAddModal';
 import { AddRecurringModal } from './components/AddRecurringModal';
 import { MonthlyBalancePromptModal, BalancePromptMode } from './components/MonthlyBalancePromptModal';
@@ -48,6 +50,14 @@ import { Smartphone, Monitor } from 'lucide-react';
 import { getCurrentMonthKey } from './utils/dateUtils';
 import { parseHistoricalDataFile } from './utils/archiveImport';
 import type { TransactionCategoryType } from './utils/categories';
+import {
+  configureServerSync,
+  disconnectServerSync,
+  getServerSyncStatus,
+  startServerSyncMonitor,
+  subscribeToServerSync,
+} from './utils/serverSync';
+import type { ServerSyncStatus } from './utils/serverSync';
 
 const ArchiveViewerModal = React.lazy(() => import('./components/ArchiveViewerModal').then((module) => ({ default: module.ArchiveViewerModal })));
 const DiagnosticsModal = React.lazy(() => import('./components/DiagnosticsModal').then((module) => ({ default: module.DiagnosticsModal })));
@@ -125,6 +135,29 @@ export const App: React.FC = () => {
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [isPhoneFrame, setIsPhoneFrame] = useState(false);
+  const [serverSyncStatus, setServerSyncStatus] = useState<ServerSyncStatus>(() => getServerSyncStatus());
+
+  useEffect(() => {
+    const unsubscribe = subscribeToServerSync(setServerSyncStatus);
+    startServerSyncMonitor();
+    const refreshFromDatabase = () => {
+      setTransactions(loadTransactions());
+      setCreditCards(loadCreditCards());
+      setRecurringPayments(loadRecurringPayments());
+      setMonthlyTarget(loadMonthlyTarget());
+      setInvestments(loadInvestments());
+      setLoans(loadLoans());
+      setMonthlyBalances(loadMonthlyBalances());
+      setPaymentMethods(loadPaymentMethods());
+      setExpenseCategories(loadExpenseCategories());
+      setIncomeCategories(loadIncomeCategories());
+    };
+    window.addEventListener('brufin:data-changed', refreshFromDatabase);
+    return () => {
+      unsubscribe();
+      window.removeEventListener('brufin:data-changed', refreshFromDatabase);
+    };
+  }, []);
 
   // Monthly balance prompt states
   const [balancePromptsEnabled, setBalancePromptsEnabledState] = useState<boolean>(() => isBalancePromptsEnabled());
@@ -387,6 +420,31 @@ export const App: React.FC = () => {
     showToast(enabled ? 'Monthly balance prompts turned on' : 'Monthly balance prompts turned off');
   };
 
+  const handleConnectServer = async (serverUrl: string, token: string, strategy: 'server' | 'device') => {
+    await configureServerSync(serverUrl, token, strategy);
+    // Connecting may replace this device's current cache with the server copy.
+    setTransactions(loadTransactions());
+    setCreditCards(loadCreditCards());
+    setRecurringPayments(loadRecurringPayments());
+    setMonthlyTarget(loadMonthlyTarget());
+    setInvestments(loadInvestments());
+    setLoans(loadLoans());
+    setMonthlyBalances(loadMonthlyBalances());
+    setPaymentMethods(loadPaymentMethods());
+    setExpenseCategories(loadExpenseCategories());
+    setIncomeCategories(loadIncomeCategories());
+    if (strategy === 'server') {
+      setDemoModeActive(false);
+      setIsDemoMode(false);
+    } else {
+      setIsDemoMode(isDemoModeActive());
+    }
+  };
+
+  const handleDisconnectServer = async () => {
+    await disconnectServerSync();
+  };
+
   const handleImportJSON = async (file: File) => {
     try {
       const text = await file.text();
@@ -450,7 +508,7 @@ export const App: React.FC = () => {
     const merged = [...transactions, ...archived].sort((a, b) =>
       b.date.localeCompare(a.date) || (b.timestamp || '').localeCompare(a.timestamp || '')
     );
-    await saveTransactions(merged);
+    if (!(await persistWrite(saveTransactions(merged)))) return;
     setTransactions(merged);
     setArchivePreview(null);
     showToast(`Restored ${archived.length} historical transactions to this device.`);
@@ -501,7 +559,10 @@ export const App: React.FC = () => {
   };
 
   const handleClearDemoAndStartFresh = async () => {
-    if (confirm('Clear demo data and start fresh? This will delete all sample records and create a clean database for your personal use.')) {
+    const prompt = serverSyncStatus.configured
+      ? 'Clear the demo records and start fresh on this device and the connected server? Other devices will sync the empty dataset.'
+      : 'Clear demo data and start fresh? This will delete all sample records and create a clean database for your personal use.';
+    if (confirm(prompt)) {
       try { await clearAllData(); } catch (error) {
         console.error(error);
         showToast('Could not clear the local database.');
@@ -524,6 +585,7 @@ export const App: React.FC = () => {
   };
 
   const handleLoadDemoData = async () => {
+    if (serverSyncStatus.configured && !confirm('Replace the shared BruFin data with the sample dataset? All connected devices will receive the demo records.')) return;
     let data;
     try { data = await loadDemoDataset(); } catch (error) {
       console.error(error);
@@ -580,6 +642,13 @@ export const App: React.FC = () => {
       )}
 
       {/* Phone Frame Toggle on Desktop */}
+      {!isPhoneFrame && <DesktopNav
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        onOpenQuickAdd={() => { setEditingTransaction(null); setIsQuickAddOpen(true); }}
+        onOpenSettings={() => setIsSettingsOpen(true)}
+      />}
+
       <div className="hidden lg:flex fixed right-4 bottom-4 z-40 items-center space-x-2 bg-white/90 dark:bg-[#22252A] border border-[#E8E1DB] dark:border-[#363B44] rounded-2xl p-1.5 shadow-xl">
         <button
           onClick={() => setIsPhoneFrame(false)}
@@ -608,7 +677,7 @@ export const App: React.FC = () => {
         className={`w-full mx-auto transition-all duration-300 flex-1 flex flex-col ${
           isPhoneFrame
             ? 'max-w-md my-6 rounded-[40px] border-8 border-[#E8E1DB] dark:border-[#363B44] shadow-2xl overflow-hidden bg-[#F7F6F3] dark:bg-[#17191C] relative min-h-[820px]'
-            : 'max-w-2xl'
+          : 'max-w-7xl lg:ml-64 lg:w-[calc(100%-16rem)] lg:max-w-none'
         }`}
       >
         {/* Top App Bar with Light/Dark Mode Switcher */}
@@ -622,6 +691,8 @@ export const App: React.FC = () => {
           onToggleTheme={toggleTheme}
           onTapCoffee={handleTapCoffee}
           diagnosticsExpanded={isDiagnosticsExpanded}
+          syncState={serverSyncStatus.state}
+          syncLabel={{ local: 'Local', setup: 'Setup', syncing: 'Syncing', connected: 'Synced', offline: 'Queued', conflict: 'Conflict' }[serverSyncStatus.state]}
         >
           {/* Compact diagnostics dropdown anchored to the BruFin logo */}
           {isDiagnosticsActive && (
@@ -655,8 +726,7 @@ export const App: React.FC = () => {
 
         {/* View Content */}
         <main
-          className="flex-1 px-4 pt-4"
-          style={{ paddingBottom: 'calc(var(--app-safe-bottom, 0px) + 7rem)' }}
+          className="mx-auto w-full max-w-6xl flex-1 px-4 pb-28 pt-4 sm:px-6 lg:px-8 lg:pb-10 lg:pt-7"
         >
           <React.Suspense fallback={<div className="py-10 text-center text-sm text-slate-500">Loading view…</div>}>
           {activeTab === 'dashboard' && (
@@ -817,6 +887,9 @@ export const App: React.FC = () => {
         onOpenDiagnostics={() => setIsDiagnosticsModalOpen(true)}
         appScale={appScale}
         onUpdateAppScale={handleUpdateAppScale}
+        serverSyncStatus={serverSyncStatus}
+        onConnectServer={handleConnectServer}
+        onDisconnectServer={handleDisconnectServer}
       /></React.Suspense>}
 
       {archivePreview && (

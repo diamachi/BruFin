@@ -61,7 +61,7 @@ describe('local IndexedDB and historical data import', () => {
     await database.saveLocalDatabaseSections({ transactions: updated });
     expect(database.getLocalDatabaseData().transactions).toEqual(updated);
     const persistedRows = await new Promise<unknown>((resolve, reject) => {
-      const openRequest = indexedDB.open('brufin-local', 2);
+      const openRequest = indexedDB.open('brufin-local', 3);
       openRequest.onerror = () => reject(openRequest.error);
       openRequest.onsuccess = () => {
         const readRequest = openRequest.result.transaction('transactions', 'readonly').objectStore('transactions').getAll();

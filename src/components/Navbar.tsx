@@ -12,6 +12,8 @@ interface Props {
   onToggleTheme: () => void;
   onTapCoffee?: () => void;
   diagnosticsExpanded?: boolean;
+  syncLabel?: string;
+  syncState?: 'local' | 'setup' | 'syncing' | 'connected' | 'offline' | 'conflict';
   children?: React.ReactNode;
 }
 
@@ -57,6 +59,8 @@ export const Navbar: React.FC<Props> = ({
   onToggleTheme,
   onTapCoffee,
   diagnosticsExpanded = false,
+  syncLabel = 'Local',
+  syncState = 'local',
   children,
 }) => {
   const [isMonthMenuOpen, setIsMonthMenuOpen] = useState(false);
@@ -105,7 +109,7 @@ export const Navbar: React.FC<Props> = ({
           paddingBottom: '0.625rem',
         }}
       >
-        <div className="max-w-4xl mx-auto grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-1 sm:gap-2">
+        <div className="max-w-7xl mx-auto grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-1 sm:gap-2">
         {/* Brand & Coffee Logo (tap coffee to toggle RAM/Storage diagnostics monitor) */}
         <div className="relative flex items-center space-x-1.5 sm:space-x-2.5 min-w-0 shrink">
           <button
@@ -125,10 +129,18 @@ export const Navbar: React.FC<Props> = ({
               <h1 className="font-black text-slate-900 dark:text-[#F2F3F5] text-base sm:text-lg leading-none tracking-tight flex items-center shrink-0">
                 BruFin
               </h1>
-              <span className="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-semibold bg-[#FED7B8] dark:bg-[#B84E3B]/15 text-[#EF6448] border border-[#E8E1DB] dark:border-[#EF6448]/30">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#EF6448] mr-1 animate-pulse" />
-                Local
-              </span>
+              <button
+                type="button"
+                onClick={onOpenSettings}
+                aria-label={`Server sync status: ${syncLabel}. Open settings.`}
+                className={`${syncState === 'local' ? 'hidden sm:inline-flex' : 'inline-flex'} items-center px-1.5 py-0.5 rounded-full text-[9px] font-semibold border border-[#E8E1DB] dark:border-[#363B44] hover:ring-2 hover:ring-[#EF6448]/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#EF6448]/50 ${
+                syncState === 'connected' ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300' :
+                syncState === 'offline' || syncState === 'conflict' ? 'bg-amber-50 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300' :
+                'bg-[#FED7B8] dark:bg-[#B84E3B]/15 text-[#EF6448]'
+              }`} title={`Server sync: ${syncLabel}`}>
+                <span className={`w-1.5 h-1.5 rounded-full mr-1 ${syncState === 'connected' ? 'bg-emerald-500' : syncState === 'syncing' ? 'bg-amber-500 animate-pulse' : syncState === 'offline' || syncState === 'conflict' ? 'bg-amber-500' : 'bg-[#EF6448]'}`} />
+                <span className={syncState === 'local' ? '' : 'hidden sm:inline'}>{syncLabel}</span>
+              </button>
             </div>
             <p className="text-[9px] sm:text-[10px] text-slate-500 dark:text-[#A5ACB7] font-medium tracking-tight mt-0.5 truncate hidden xs:block">
               Brewing calm finances
