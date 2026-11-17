@@ -1,6 +1,6 @@
 {
   "name": "brufin",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Local-first personal finance tracker",
   "scripts": {
     "dev": "vite",
@@ -17,6 +17,7 @@
     "@capacitor/android": "^8.6.0",
     "@capacitor/cli": "^8.6.0",
     "@capacitor/core": "^8.6.0",
+    "@types/qrcode": "^1.5.6",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.2",
@@ -30,6 +31,8 @@
     "vitest": "^5.0.5"
   },
   "dependencies": {
-    "@tailwindcss/vite": "^4.3.3"
+    "@capacitor-mlkit/barcode-scanning": "^8.2.2",
+    "@tailwindcss/vite": "^4.3.3",
+    "qrcode": "^1.5.4"
   }
 }

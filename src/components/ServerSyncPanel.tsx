@@ -1,7 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { Check, Cloud, CloudOff, LoaderCircle, RefreshCw, ShieldCheck, Unplug } from 'lucide-react';
+import { BarcodeScanner, BarcodeFormat } from '@capacitor-mlkit/barcode-scanning';
+import { Capacitor } from '@capacitor/core';
+import QRCode from 'qrcode';
+import { Check, Cloud, CloudOff, LoaderCircle, QrCode, RefreshCw, ScanLine, ShieldCheck, Unplug, X } from 'lucide-react';
 import {
+  createServerPairingCode,
+  claimServerBootstrap,
+  exchangeServerPairingCode,
   getServerSyncConfig,
+  isServerBootstrapAvailable,
   resolveServerSyncConflict,
   syncNow,
 } from '../utils/serverSync';
@@ -34,13 +41,27 @@ function previewValue(value: unknown): string {
   return String(value);
 }
 
+function isLoopbackAddress(value: string): boolean {
+  try {
+    return ['localhost', '127.0.0.1', '::1'].includes(new URL(value).hostname.toLowerCase());
+  } catch {
+    return false;
+  }
+}
+
 export const ServerSyncPanel: React.FC<Props> = ({ status, onConnect, onDisconnect }) => {
   const savedConfig = getServerSyncConfig();
-  const [serverUrl, setServerUrl] = useState(savedConfig?.serverUrl || '');
+  const [serverUrl, setServerUrl] = useState(savedConfig?.serverUrl || (!Capacitor.isNativePlatform() ? window.location.origin : ''));
   const [token, setToken] = useState(savedConfig?.token || '');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [manualSetupOpen, setManualSetupOpen] = useState(!Capacitor.isNativePlatform());
+  const [bootstrapAvailable, setBootstrapAvailable] = useState(false);
+  const [checkingBootstrap, setCheckingBootstrap] = useState(false);
+  const [pairQr, setPairQr] = useState<string | null>(null);
+  const [pairExpiresAt, setPairExpiresAt] = useState<number | null>(null);
+  const [secondsLeft, setSecondsLeft] = useState(0);
 
   useEffect(() => {
     const current = getServerSyncConfig();
@@ -49,6 +70,32 @@ export const ServerSyncPanel: React.FC<Props> = ({ status, onConnect, onDisconne
       setToken(current.token);
     }
   }, [status.configured]);
+
+  useEffect(() => {
+    if (Capacitor.isNativePlatform() || status.configured || !serverUrl || serverUrl.replace(/\/$/, '') !== window.location.origin.replace(/\/$/, '')) return;
+    let active = true;
+    setCheckingBootstrap(true);
+    void isServerBootstrapAvailable(serverUrl).then((available) => {
+      if (!active) return;
+      setBootstrapAvailable(available);
+      if (available) setManualSetupOpen(false);
+    }).finally(() => {
+      if (active) setCheckingBootstrap(false);
+    });
+    return () => { active = false; };
+  }, [serverUrl, status.configured]);
+
+  useEffect(() => {
+    if (!pairExpiresAt) return;
+    const update = () => {
+      const remaining = Math.max(0, Math.ceil((pairExpiresAt * 1000 - Date.now()) / 1000));
+      setSecondsLeft(remaining);
+      if (!remaining) setPairQr(null);
+    };
+    update();
+    const timer = window.setInterval(update, 1000);
+    return () => window.clearInterval(timer);
+  }, [pairExpiresAt]);
 
   const connect = async (strategy: 'server' | 'device') => {
     if (strategy === 'server' && !confirm('Load the server copy onto this device? If the server is empty, this device’s current data will initialize it. If the server already has data, this device’s current local data will be replaced. Export a backup first if you need both copies.')) return;
@@ -65,6 +112,23 @@ export const ServerSyncPanel: React.FC<Props> = ({ status, onConnect, onDisconne
     }
   };
 
+  const claimAndConnect = async () => {
+    setBusy(true);
+    setError(null);
+    setSuccess(null);
+    try {
+      const claimedToken = await claimServerBootstrap(serverUrl);
+      setToken(claimedToken);
+      await onConnect(serverUrl, claimedToken, 'server');
+      setBootstrapAvailable(false);
+      setSuccess('Server is ready. Use Settings to show the QR code for your phone.');
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'Could not set up this BruFin server.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const disconnect = async () => {
     if (!confirm('Disconnect this device from the server? Its local data will remain on this device.')) return;
     setBusy(true);
@@ -75,6 +139,68 @@ export const ServerSyncPanel: React.FC<Props> = ({ status, onConnect, onDisconne
       setSuccess('Disconnected. This device will keep using its local data.');
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'Could not disconnect this device.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const makePairingQr = async () => {
+    const config = getServerSyncConfig();
+    const activeServerUrl = config?.serverUrl || serverUrl;
+    const activeToken = config?.token || token;
+    if (!activeServerUrl || !activeToken) {
+      setError('Enter the server URL and access token before generating a pairing QR.');
+      return;
+    }
+    if (isLoopbackAddress(activeServerUrl)) {
+      setError('A phone cannot reach localhost on this computer. Open BruFin using this computer’s LAN or VPN address, then generate the QR again.');
+      return;
+    }
+    setBusy(true);
+    setError(null);
+    setSuccess(null);
+    try {
+      const pairing = await createServerPairingCode(activeServerUrl, activeToken);
+      const payload = JSON.stringify({ type: 'brufin-pair', version: 1, serverUrl: activeServerUrl, code: pairing.code });
+      setPairQr(await QRCode.toDataURL(payload, { width: 280, margin: 2, errorCorrectionLevel: 'M' }));
+      setPairExpiresAt(pairing.expiresAt);
+      setSuccess('Pairing QR ready. It expires in 5 minutes and works once.');
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'Could not create a pairing QR.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const scanPairingQr = async () => {
+    setBusy(true);
+    setError(null);
+    setSuccess(null);
+    try {
+      if (!Capacitor.isNativePlatform()) throw new Error('Scan pairing QR codes in the BruFin Android app.');
+      const { supported } = await BarcodeScanner.isSupported();
+      if (!supported) throw new Error('This device does not have a supported camera scanner.');
+      if (Capacitor.getPlatform() === 'android') {
+        const { available } = await BarcodeScanner.isGoogleBarcodeScannerModuleAvailable();
+        if (!available) {
+          await BarcodeScanner.installGoogleBarcodeScannerModule();
+          throw new Error('The QR scanner is being installed by Google Play services. Try scanning again in a moment.');
+        }
+      }
+      const { barcodes } = await BarcodeScanner.scan({ formats: [BarcodeFormat.QrCode], autoZoom: true });
+      const raw = barcodes[0]?.rawValue;
+      if (!raw) throw new Error('No QR code was read. Try again with the QR fully in view.');
+      const payload = JSON.parse(raw) as { type?: unknown; version?: unknown; serverUrl?: unknown; code?: unknown };
+      if (payload.type !== 'brufin-pair' || payload.version !== 1 || typeof payload.serverUrl !== 'string' || typeof payload.code !== 'string') {
+        throw new Error('This is not a valid BruFin pairing QR.');
+      }
+      const pairedToken = await exchangeServerPairingCode(payload.serverUrl, payload.code);
+      setServerUrl(payload.serverUrl);
+      setToken(pairedToken);
+      setManualSetupOpen(false);
+      setSuccess('Server paired. Choose whether to use the server data or upload this device’s data.');
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'Could not scan the pairing QR.');
     } finally {
       setBusy(false);
     }
@@ -126,29 +252,45 @@ export const ServerSyncPanel: React.FC<Props> = ({ status, onConnect, onDisconne
         </div>
       )}
 
-      <label className="block space-y-1.5">
-        <span className="text-[10px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">Server URL</span>
-        <input value={serverUrl} onChange={(event) => setServerUrl(event.target.value)} placeholder="https://brufin.your-home.net" inputMode="url" autoCapitalize="none" autoCorrect="off" className="w-full rounded-xl border border-[#E8E1DB] bg-[#F7F6F3] px-3 py-2.5 text-xs text-slate-800 outline-none focus:border-[#EF6448] dark:border-[#363B44] dark:bg-[#1B1E22] dark:text-[#F2F3F5]" />
-      </label>
-      <label className="block space-y-1.5">
-        <span className="text-[10px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">Access token</span>
-        <input value={token} onChange={(event) => setToken(event.target.value)} type="password" autoComplete="current-password" placeholder="BRUFIN_API_TOKEN from your server" className="w-full rounded-xl border border-[#E8E1DB] bg-[#F7F6F3] px-3 py-2.5 text-xs text-slate-800 outline-none focus:border-[#EF6448] dark:border-[#363B44] dark:bg-[#1B1E22] dark:text-[#F2F3F5]" />
-      </label>
-
       {!status.configured || status.state === 'setup' ? (
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-          <button type="button" disabled={busy || !serverUrl || !token} onClick={() => void connect('server')} className="flex items-center justify-center gap-1.5 rounded-xl border border-[#E8E1DB] px-3 py-2.5 text-[11px] font-bold text-slate-700 hover:border-[#EF6448] dark:border-[#363B44] dark:text-slate-200 disabled:opacity-50"><Cloud className="h-3.5 w-3.5" />Use server data</button>
-          <button type="button" disabled={busy || !serverUrl || !token} onClick={() => { if (confirm('Upload this device’s current BruFin data to the server? If the server already has data, its current snapshot will be replaced.')) void connect('device'); }} className="flex items-center justify-center gap-1.5 rounded-xl bg-[#EF6448] px-3 py-2.5 text-[11px] font-bold text-white hover:bg-[#E05338] disabled:opacity-50"><ShieldCheck className="h-3.5 w-3.5" />Upload this device</button>
+        <div className="space-y-2">
+          {Capacitor.isNativePlatform() && <>
+            <button type="button" disabled={busy} onClick={() => void scanPairingQr()} className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#EF6448] px-3 py-3 text-xs font-bold text-white hover:bg-[#E05338] disabled:opacity-50"><ScanLine className="h-4 w-4" />{busy ? 'Connecting…' : 'Scan server QR'}</button>
+            <button type="button" onClick={() => setManualSetupOpen((open) => !open)} className="w-full py-1 text-[10px] font-semibold text-slate-500 underline decoration-dotted underline-offset-2 dark:text-slate-400">{manualSetupOpen ? 'Hide manual setup' : 'Set up manually instead'}</button>
+          </>}
+          {!Capacitor.isNativePlatform() && bootstrapAvailable && <div className="space-y-2 rounded-xl border border-[#EF6448]/25 bg-[#FFF8F3] p-3 dark:bg-[#2A2523]">
+            <div>
+              <p className="text-xs font-bold text-slate-800 dark:text-[#F2F3F5]">First time on this server?</p>
+              <p className="mt-1 text-[10px] leading-relaxed text-slate-600 dark:text-slate-300">Set it up here, then open Settings to show a QR code for BruFin on your phone. No token lookup needed.</p>
+              <p className="mt-1.5 text-[9px] leading-relaxed text-amber-800 dark:text-amber-300">This one-time setup is available to whoever reaches the empty server first. Use it only on your private LAN or VPN.</p>
+            </div>
+            <button type="button" disabled={busy} onClick={() => void claimAndConnect()} className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#EF6448] px-3 py-2.5 text-[11px] font-bold text-white hover:bg-[#E05338] disabled:opacity-50"><ShieldCheck className="h-4 w-4" />{busy ? 'Setting up…' : 'Set up this server'}</button>
+            <button type="button" onClick={() => setManualSetupOpen(true)} className="w-full py-0.5 text-[10px] font-semibold text-slate-500 underline decoration-dotted underline-offset-2 dark:text-slate-400">Use an access token instead</button>
+          </div>}
+          {!Capacitor.isNativePlatform() && checkingBootstrap && !bootstrapAvailable && <p className="text-[10px] text-slate-500 dark:text-slate-400">Checking whether this server needs first-time setup…</p>}
+          {manualSetupOpen && <div className="space-y-2">
+            <label className="block space-y-1.5"><span className="text-[10px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">Server URL</span><input value={serverUrl} onChange={(event) => setServerUrl(event.target.value)} placeholder="http://192.168.1.20:8080" inputMode="url" autoCapitalize="none" autoCorrect="off" className="w-full rounded-xl border border-[#E8E1DB] bg-[#F7F6F3] px-3 py-2.5 text-xs text-slate-800 outline-none focus:border-[#EF6448] dark:border-[#363B44] dark:bg-[#1B1E22] dark:text-[#F2F3F5]" />{!Capacitor.isNativePlatform() && isLoopbackAddress(serverUrl) && <span className="block text-[10px] leading-relaxed text-amber-700 dark:text-amber-300">For phone pairing, open this page with the server’s LAN/VPN address; localhost only works on this computer.</span>}</label>
+            <label className="block space-y-1.5"><span className="text-[10px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">Access token</span><input value={token} onChange={(event) => setToken(event.target.value)} type="password" autoComplete="current-password" placeholder="Server access token" className="w-full rounded-xl border border-[#E8E1DB] bg-[#F7F6F3] px-3 py-2.5 text-xs text-slate-800 outline-none focus:border-[#EF6448] dark:border-[#363B44] dark:bg-[#1B1E22] dark:text-[#F2F3F5]" /></label>
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2"><button type="button" disabled={busy || !serverUrl || !token} onClick={() => void connect('server')} className="flex items-center justify-center gap-1.5 rounded-xl border border-[#E8E1DB] px-3 py-2.5 text-[11px] font-bold text-slate-700 hover:border-[#EF6448] dark:border-[#363B44] dark:text-slate-200 disabled:opacity-50"><Cloud className="h-3.5 w-3.5" />Use server data</button><button type="button" disabled={busy || !serverUrl || !token} onClick={() => { if (confirm('Upload this device’s current BruFin data to the server? If the server already has data, its current snapshot will be replaced.')) void connect('device'); }} className="flex items-center justify-center gap-1.5 rounded-xl bg-[#EF6448] px-3 py-2.5 text-[11px] font-bold text-white hover:bg-[#E05338] disabled:opacity-50"><ShieldCheck className="h-3.5 w-3.5" />Upload this device</button></div>
+            {!Capacitor.isNativePlatform() && <button type="button" disabled={busy || !serverUrl || !token} onClick={() => void makePairingQr()} className="flex w-full items-center justify-center gap-2 rounded-xl border border-[#E8E1DB] px-3 py-2.5 text-[11px] font-bold text-slate-700 hover:border-[#EF6448] dark:border-[#363B44] dark:text-slate-200 disabled:opacity-50"><QrCode className="h-4 w-4" />Generate phone pairing QR</button>}
+          </div>}
+          {serverUrl && token && !status.configured && <div className="grid grid-cols-1 gap-2 sm:grid-cols-2"><button type="button" disabled={busy} onClick={() => void connect('server')} className="flex items-center justify-center gap-1.5 rounded-xl border border-[#E8E1DB] px-3 py-2.5 text-[11px] font-bold text-slate-700 hover:border-[#EF6448] dark:border-[#363B44] dark:text-slate-200 disabled:opacity-50"><Cloud className="h-3.5 w-3.5" />Use server data</button><button type="button" disabled={busy} onClick={() => { if (confirm('Upload this device’s current BruFin data to the server? If the server already has data, its current snapshot will be replaced.')) void connect('device'); }} className="flex items-center justify-center gap-1.5 rounded-xl bg-[#EF6448] px-3 py-2.5 text-[11px] font-bold text-white hover:bg-[#E05338] disabled:opacity-50"><ShieldCheck className="h-3.5 w-3.5" />Upload this device</button></div>}
         </div>
       ) : (
-        <div className="flex gap-2">
-          <button type="button" disabled={busy} onClick={() => void syncNow()} className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-[#EF6448] px-3 py-2.5 text-[11px] font-bold text-white hover:bg-[#E05338] disabled:opacity-50"><RefreshCw className="h-3.5 w-3.5" />Sync now</button>
-          <button type="button" disabled={busy} onClick={() => void disconnect()} className="flex items-center justify-center gap-1.5 rounded-xl border border-[#E8E1DB] px-3 py-2.5 text-[11px] font-bold text-slate-600 dark:border-[#363B44] dark:text-slate-300 disabled:opacity-50"><Unplug className="h-3.5 w-3.5" />Disconnect</button>
+        <div className="space-y-2">
+          {!Capacitor.isNativePlatform() && <button type="button" disabled={busy} onClick={() => void makePairingQr()} className="flex w-full items-center justify-center gap-2 rounded-xl border border-[#E8E1DB] px-3 py-2.5 text-[11px] font-bold text-slate-700 hover:border-[#EF6448] dark:border-[#363B44] dark:text-slate-200 disabled:opacity-50"><QrCode className="h-4 w-4" />Show QR to pair a phone</button>}
+          <div className="flex gap-2"><button type="button" disabled={busy} onClick={() => void syncNow()} className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-[#EF6448] px-3 py-2.5 text-[11px] font-bold text-white hover:bg-[#E05338] disabled:opacity-50"><RefreshCw className="h-3.5 w-3.5" />Sync now</button><button type="button" disabled={busy} onClick={() => void disconnect()} className="flex items-center justify-center gap-1.5 rounded-xl border border-[#E8E1DB] px-3 py-2.5 text-[11px] font-bold text-slate-600 dark:border-[#363B44] dark:text-slate-300 disabled:opacity-50"><Unplug className="h-3.5 w-3.5" />Disconnect</button></div>
         </div>
       )}
+      {pairQr && <div className="relative flex flex-col items-center gap-2 rounded-2xl border border-[#E8E1DB] bg-[#F7F6F3] p-3 dark:border-[#363B44] dark:bg-[#1B1E22]">
+        <button type="button" aria-label="Close pairing QR" onClick={() => setPairQr(null)} className="absolute right-2 top-2 rounded-lg p-1 text-slate-500 hover:bg-white dark:hover:bg-[#363B44]"><X className="h-4 w-4" /></button>
+        <img src={pairQr} alt="One-time BruFin device pairing QR code" className="h-56 w-56 rounded-xl bg-white p-2" />
+        <p className="text-center text-[10px] font-semibold text-slate-600 dark:text-slate-300">Scan with BruFin on the phone · expires in {Math.floor(secondsLeft / 60)}:{String(secondsLeft % 60).padStart(2, '0')}</p>
+        <p className="text-center text-[9px] text-slate-500 dark:text-slate-400">One use only. Keep this QR private and close it after pairing.</p>
+      </div>}
       {error && <p className="text-[11px] font-semibold text-rose-700 dark:text-rose-300" role="alert">{error}</p>}
       {success && <p className="text-[11px] font-semibold text-emerald-700 dark:text-emerald-300" role="status">{success}</p>}
-      <p className="text-[10px] leading-relaxed text-slate-400 dark:text-slate-500">Use a private LAN/VPN address or HTTPS URL. The token grants access to your financial data and is stored on this device.</p>
+      <p className="text-[10px] leading-relaxed text-slate-400 dark:text-slate-500">Use a private LAN/VPN address or HTTPS URL. The server page displays a short-lived one-time QR code; it does not contain your server token.</p>
     </section>
   );
 };

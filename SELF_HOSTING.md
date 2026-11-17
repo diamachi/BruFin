@@ -18,7 +18,9 @@ The API token is generated automatically on first start and saved in the persist
 docker compose up -d --build
 ```
 
-Open `http://<homelab-host>:8080`. On the first browser connection, configure the same server URL and token in **Settings → Self-hosted server**. The server database starts empty. Choose whether to upload this device's current BruFin data or load data already stored on the server.
+Open `http://<homelab-host>:8080` using the host's LAN/VPN address (not `localhost`). At startup, choose **Use my server with seamless sync**, then select **Set up this server** in the server-hosted browser. This claims the fresh empty server once and connects without requiring a token lookup. BruFin then opens Settings, where you can choose **Show QR to pair a phone**. On Android, choose **Use my server with seamless sync → Scan server QR**, scan the code, and choose **Use server data**. Pairing codes expire after five minutes and work once; the QR does not contain the long-lived API token.
+
+This automatic claim is intended only for a private homelab LAN or VPN: anyone who can reach the fresh, unclaimed server can claim it first. Do not expose it publicly during setup. Set `BRUFIN_ALLOW_FIRST_RUN_PAIRING=false` in `.env` or the Portainer stack environment to disable automatic claiming and require the token fallback. The generated token can still be retrieved with the command below.
 
 To retrieve the generated token for the browser or Android client:
 
@@ -30,19 +32,17 @@ docker compose exec brufin cat /data/api-token
 
 1. Open **Stacks → Add stack → Web editor** in Portainer and paste [`docker-compose.portainer.yml`](docker-compose.portainer.yml).
 2. Set `BRUFIN_BIND_ADDRESS` to `0.0.0.0` for LAN access, or `127.0.0.1` if a reverse proxy runs on the Docker host. `BRUFIN_ALLOWED_ORIGINS` can usually stay at its default.
-3. Deploy the stack. On first boot, BruFin automatically creates its API token and stores it in the `brufin-data` volume.
-4. In **Containers → brufin → Console**, select `/bin/sh` and run `cat /data/api-token`. Copy this token into **Settings → Self-hosted server** in BruFin on each device.
-5. Connect each device and choose whether to use its current data or the server copy.
+3. Deploy the stack. On first boot, BruFin automatically creates its API token and stores it in the `brufin-data` volume; first-run claiming is enabled by default for this private homelab setup.
+4. Open BruFin at `http://<homelab-ip>:8080`, choose **Use my server with seamless sync**, and select **Set up this server**. The browser claims and connects the empty server; then Settings opens with the QR pairing action.
+5. On Android, select **Use my server with seamless sync → Scan server QR**, then choose **Use server data**. For manual setup or if automatic claiming is disabled, get the token in the container console with `cat /data/api-token`.
 
 The same token remains valid after container recreation or image upgrades because it lives in the persistent volume. To rotate it, set a new `BRUFIN_API_TOKEN` value in the stack environment and redeploy; then update the token in every connected client. Back up the database volume before removing the stack, and select the option to preserve volumes when Portainer asks.
 
 To stop the service, run `docker compose down`. Data stays in `./data`. To create a SQLite backup, stop the service first and copy `data/brufin.sqlite3` plus any `data/brufin.sqlite3-wal`/`data/brufin.sqlite3-shm` files if present, or use SQLite's online backup API while it is running. Keep backups encrypted and private.
 
-## Deploy the published image in Portainer
+## Deploy the Docker Hub image in Portainer
 
-BruFin publishes a multi-architecture image to GitHub Container Registry (GHCR) from the `main` branch and version tags. After the first image is published, follow the Portainer quick start above and open `http://<homelab-host>:8080`.
-
-The image is `ghcr.io/diamachi/brufin:latest`; version tags such as `ghcr.io/diamachi/brufin:v0.6` are available for controlled upgrades. Portainer creates a named `brufin-data` volume for SQLite, so replacing the container or pulling a newer image preserves data. Back up that volume before changing versions. Anonymous pulls require the GHCR package to be public; otherwise configure registry credentials in Portainer.
+Follow the Portainer steps in [HOSTING.md](HOSTING.md) and use `diamachi/brufin:v0.6` for this release. Portainer creates a named `brufin-data` volume for SQLite, so replacing the container or pulling a newer image preserves data. Back up that volume before changing versions. If the Docker Hub image is private, configure Docker Hub credentials in Portainer's registry settings.
 
 ## Network access
 

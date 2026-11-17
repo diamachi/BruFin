@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import hmac
+import hashlib
 import json
 import math
 import mimetypes
@@ -23,6 +24,7 @@ DB_PATH = DATA_DIR / "brufin.sqlite3"
 HOST = os.environ.get("BRUFIN_HOST", "0.0.0.0")
 PORT = int(os.environ.get("BRUFIN_PORT", "8080"))
 API_TOKEN = os.environ.get("BRUFIN_API_TOKEN", "").strip()
+ALLOW_FIRST_RUN_PAIRING = os.environ.get("BRUFIN_ALLOW_FIRST_RUN_PAIRING", "false").strip().lower() in {"1", "true", "yes", "on"}
 MAX_BODY_BYTES = 12 * 1024 * 1024
 ALLOWED_ORIGINS = {
     value.strip()
@@ -114,6 +116,15 @@ def initialize_db() -> None:
                 revision INTEGER NOT NULL,
                 created_at TEXT NOT NULL
             );
+            CREATE TABLE IF NOT EXISTS pairing_codes (
+                code_hash TEXT PRIMARY KEY,
+                expires_at INTEGER NOT NULL,
+                used_at INTEGER
+            );
+            CREATE TABLE IF NOT EXISTS server_setup (
+                id INTEGER PRIMARY KEY CHECK (id = 1),
+                bootstrap_claimed INTEGER NOT NULL DEFAULT 0
+            );
             """
         )
         # Migrate an earlier development snapshot schema if one was created.
@@ -136,6 +147,15 @@ def initialize_db() -> None:
             "INSERT OR IGNORE INTO app_state(id, revision, has_data, monthly_target, updated_at) "
             "VALUES (1, 0, 0, 50000, datetime('now'))"
         )
+        db.execute("INSERT OR IGNORE INTO server_setup(id, bootstrap_claimed) VALUES (1, 0)")
+
+
+def is_bootstrap_available(db: sqlite3.Connection) -> bool:
+    if not ALLOW_FIRST_RUN_PAIRING:
+        return False
+    state = db.execute("SELECT has_data FROM app_state WHERE id=1").fetchone()
+    setup = db.execute("SELECT bootstrap_claimed FROM server_setup WHERE id=1").fetchone()
+    return bool(state and not state["has_data"] and setup and not setup["bootstrap_claimed"])
 
 
 def record_id(collection: str, item: object) -> str:
@@ -216,6 +236,8 @@ class BruFinHandler(BaseHTTPRequestHandler):
 
     def require_auth(self) -> bool:
         if self.authorized():
+            with DB_LOCK, closing(connect_db()) as db:
+                db.execute("UPDATE server_setup SET bootstrap_claimed=1 WHERE id=1")
             return True
         json_response(self, 401, {"error": "Authentication required"})
         return False
@@ -223,7 +245,13 @@ class BruFinHandler(BaseHTTPRequestHandler):
     def do_GET(self) -> None:
         path = urlparse(self.path).path
         if path == "/api/health":
-            json_response(self, 200, {"ok": True, "authConfigured": bool(API_TOKEN)})
+            with DB_LOCK, closing(connect_db()) as db:
+                bootstrap_available = is_bootstrap_available(db)
+            json_response(self, 200, {
+                "ok": True,
+                "authConfigured": bool(API_TOKEN),
+                "bootstrapAvailable": bootstrap_available,
+            })
             return
         if path == "/api/state":
             if not self.require_auth():
@@ -246,6 +274,86 @@ class BruFinHandler(BaseHTTPRequestHandler):
 
     def do_POST(self) -> None:
         path = urlparse(self.path).path
+        if path == "/api/bootstrap/claim":
+            if not ALLOW_FIRST_RUN_PAIRING:
+                json_response(self, 403, {"error": "Automatic first-run setup is disabled on this server"})
+                return
+            content_length = self.headers.get("Content-Length", "")
+            try:
+                length = int(content_length)
+            except ValueError:
+                json_response(self, 411, {"error": "Content-Length is required"})
+                return
+            if length <= 0 or length > 4096:
+                json_response(self, 413, {"error": "Invalid bootstrap request size"})
+                return
+            try:
+                payload = json.loads(self.rfile.read(length))
+            except (json.JSONDecodeError, UnicodeDecodeError):
+                json_response(self, 400, {"error": "Invalid JSON"})
+                return
+            if not isinstance(payload, dict):
+                json_response(self, 400, {"error": "Expected a JSON object"})
+                return
+            with DB_LOCK, closing(connect_db()) as db:
+                db.execute("BEGIN IMMEDIATE")
+                if not is_bootstrap_available(db):
+                    db.execute("COMMIT")
+                    json_response(self, 409, {"error": "First-run setup has already been claimed or the server is not empty"})
+                    return
+                db.execute("UPDATE server_setup SET bootstrap_claimed=1 WHERE id=1")
+                db.execute("COMMIT")
+            json_response(self, 200, {"token": API_TOKEN})
+            return
+        if path == "/api/pairing/exchange":
+            content_length = self.headers.get("Content-Length", "")
+            try:
+                length = int(content_length)
+            except ValueError:
+                json_response(self, 411, {"error": "Content-Length is required"})
+                return
+            if length <= 0 or length > 4096:
+                json_response(self, 413, {"error": "Invalid pairing request size"})
+                return
+            try:
+                payload = json.loads(self.rfile.read(length))
+            except (json.JSONDecodeError, UnicodeDecodeError):
+                json_response(self, 400, {"error": "Invalid JSON"})
+                return
+            code = payload.get("code") if isinstance(payload, dict) else None
+            if not isinstance(code, str) or not (30 <= len(code) <= 128):
+                json_response(self, 400, {"error": "Invalid or expired pairing code"})
+                return
+            code_hash = hashlib.sha256(code.encode("utf-8")).hexdigest()
+            now = int(time.time())
+            with DB_LOCK, closing(connect_db()) as db:
+                db.execute("BEGIN IMMEDIATE")
+                row = db.execute(
+                    "SELECT expires_at, used_at FROM pairing_codes WHERE code_hash=?", (code_hash,)
+                ).fetchone()
+                if not row or row["used_at"] is not None or row["expires_at"] < now:
+                    db.execute("COMMIT")
+                    json_response(self, 401, {"error": "Pairing code is invalid or has expired. Generate a new QR code."})
+                    return
+                db.execute("UPDATE pairing_codes SET used_at=? WHERE code_hash=?", (now, code_hash))
+                db.execute("DELETE FROM pairing_codes WHERE expires_at < ? OR used_at IS NOT NULL", (now,))
+                db.execute("COMMIT")
+            json_response(self, 200, {"token": API_TOKEN})
+            return
+        if path == "/api/pairing":
+            if not self.require_auth():
+                return
+            code = secrets.token_urlsafe(32)
+            expires_at = int(time.time()) + 300
+            code_hash = hashlib.sha256(code.encode("utf-8")).hexdigest()
+            with DB_LOCK, closing(connect_db()) as db:
+                db.execute("DELETE FROM pairing_codes WHERE expires_at < ? OR used_at IS NOT NULL", (int(time.time()),))
+                db.execute(
+                    "INSERT INTO pairing_codes(code_hash, expires_at) VALUES (?, ?)",
+                    (code_hash, expires_at),
+                )
+            json_response(self, 200, {"code": code, "expiresAt": expires_at})
+            return
         if path != "/api/state":
             json_response(self, 404, {"error": "Not found"})
             return

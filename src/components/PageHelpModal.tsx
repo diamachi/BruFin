@@ -67,7 +67,7 @@ const HELP_DATA: Record<string, PageHelpInfo> = {
       'Displays billing cycle, statement date, and due date countdowns.',
     ],
     howToUse: [
-      'Tap "+ Add Card" to track a new credit card.',
+      'Tap “Add credit card” to set up a card. Saved cards become payment options for new expenses.',
       'Swipe or click card indicators to flip between cards.',
       'Record payments or adjust credit limits anytime via Edit.',
     ],

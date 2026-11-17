@@ -26,6 +26,7 @@ import {
   getRecurringPaymentStatuses,
   clearAllData,
   hasUserOnboarded,
+  setUserOnboarded,
   isDemoModeActive,
   setDemoModeActive,
   loadDemoDataset,
@@ -422,6 +423,8 @@ export const App: React.FC = () => {
 
   const handleConnectServer = async (serverUrl: string, token: string, strategy: 'server' | 'device') => {
     await configureServerSync(serverUrl, token, strategy);
+    setUserOnboarded(true);
+    setHasOnboarded(true);
     // Connecting may replace this device's current cache with the server copy.
     setTransactions(loadTransactions());
     setCreditCards(loadCreditCards());
@@ -439,6 +442,11 @@ export const App: React.FC = () => {
     } else {
       setIsDemoMode(isDemoModeActive());
     }
+  };
+
+  const handleOnboardingConnectServer = async (serverUrl: string, token: string, strategy: 'server' | 'device') => {
+    await handleConnectServer(serverUrl, token, strategy);
+    setIsSettingsOpen(true);
   };
 
   const handleDisconnectServer = async () => {
@@ -933,6 +941,9 @@ export const App: React.FC = () => {
         isOpen={!hasOnboarded}
         onSelectDemo={handleSelectDemo}
         onSelectFresh={handleSelectFresh}
+        serverStatus={serverSyncStatus}
+        onConnectServer={handleOnboardingConnectServer}
+        onDisconnectServer={handleDisconnectServer}
       /></React.Suspense>}
     </div>
   );

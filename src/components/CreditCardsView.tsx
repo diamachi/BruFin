@@ -266,7 +266,7 @@ export const CreditCardsView: React.FC<Props> = ({
             className="px-3 py-1.5 rounded-xl bg-[#EF6448] hover:bg-[#E05338] text-white text-xs font-bold shadow-sm flex items-center gap-1 transition-all cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
-            <span>Add Card</span>
+            <span>Add credit card</span>
           </button>
         </div>
       </div>
@@ -277,13 +277,13 @@ export const CreditCardsView: React.FC<Props> = ({
           <CardIcon className="w-12 h-12 text-slate-400 dark:text-[#FF927A]/60 mx-auto" />
           <h3 className="text-sm font-bold text-slate-800 dark:text-[#F2F3F5]">No Credit Cards Added</h3>
           <p className="text-xs text-slate-500 dark:text-[#A5ACB7] max-w-xs mx-auto">
-            Add your cards to track monthly limits, statement cycles, and have them automatically appear as payment options in expenses.
+            Add a card to track its credit limit and statement cycle. After saving, it will appear in the payment options for new expenses.
           </p>
           <button
             onClick={handleOpenAdd}
             className="px-4 py-2 rounded-xl bg-[#EF6448] hover:bg-[#E05338] text-white text-xs font-bold shadow-sm cursor-pointer"
           >
-            Add Your First Card
+            Add your first credit card
           </button>
         </div>
       ) : (

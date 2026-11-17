@@ -1,9 +1,10 @@
 services:
   brufin:
-    image: ghcr.io/diamachi/brufin:latest
+    image: ${BRUFIN_IMAGE:-diamachi/brufin:v0.6}
     container_name: brufin
     restart: unless-stopped
     environment:
+      BRUFIN_ALLOW_FIRST_RUN_PAIRING: ${BRUFIN_ALLOW_FIRST_RUN_PAIRING:-true}
       BRUFIN_ALLOWED_ORIGINS: ${BRUFIN_ALLOWED_ORIGINS:-http://localhost,https://localhost,capacitor://localhost,http://127.0.0.1}
     ports:
       - "${BRUFIN_BIND_ADDRESS:-0.0.0.0}:8080:8080"

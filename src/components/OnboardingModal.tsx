@@ -1,98 +1,98 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
-import { ArrowRight, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Database, HardDrive, Server, ShieldCheck } from 'lucide-react';
 import { BruFinLogo } from './Navbar';
+import { ServerSyncPanel } from './ServerSyncPanel';
+import type { ServerSyncStatus } from '../utils/serverSync';
 
 interface Props {
   isOpen: boolean;
   onSelectDemo: () => void;
   onSelectFresh: () => void;
+  serverStatus: ServerSyncStatus;
+  onConnectServer: (serverUrl: string, token: string, strategy: 'server' | 'device') => Promise<void>;
+  onDisconnectServer: () => Promise<void>;
 }
 
 export const OnboardingModal: React.FC<Props> = ({
   isOpen,
   onSelectDemo,
   onSelectFresh,
+  serverStatus,
+  onConnectServer,
+  onDisconnectServer,
 }) => {
+  const [showServerSetup, setShowServerSetup] = useState(false);
   if (!isOpen) return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 animate-fadeIn">
-      <div className="w-full max-w-md bg-white dark:bg-[#22252A] border border-[#E8E1DB] dark:border-[#363B44] rounded-3xl shadow-2xl p-6 space-y-6 animate-scaleUp">
-        {/* App Branding */}
-        <div className="text-center space-y-2">
-          <div className="inline-flex p-3 rounded-2xl bg-[#EF6448] text-white shadow-md mb-1">
-            <BruFinLogo className="w-8 h-8" />
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 animate-fadeIn">
+      <div className="max-h-[92vh] w-full max-w-md space-y-5 overflow-y-auto rounded-3xl border border-[#E8E1DB] bg-white p-5 shadow-2xl dark:border-[#363B44] dark:bg-[#22252A] sm:p-6 animate-scaleUp">
+        <div className="text-center">
+          <div className="mb-2 inline-flex rounded-2xl bg-[#EF6448] p-3 text-white shadow-md">
+            <BruFinLogo className="h-8 w-8" />
           </div>
-          <h2 className="text-2xl font-black text-slate-900 dark:text-[#F2F3F5] tracking-tight">
-            Welcome to BruFin
+          <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-[#F2F3F5]">
+            {showServerSetup ? 'Connect to your server' : 'Welcome to BruFin'}
           </h2>
-          <p className="text-xs text-[#EF6448] font-medium">
-            Brewing Calm Finances • Local-First & Private
-          </p>
-          <p className="text-xs text-slate-500 dark:text-slate-400 max-w-xs mx-auto leading-relaxed pt-1">
-            Your financial data stays 100% on this device. Choose how you would like to begin:
+          <p className="mt-1 text-xs font-medium text-[#EF6448]">Brewing Calm Finances · Private by design</p>
+          <p className="mx-auto mt-2 max-w-xs text-xs leading-relaxed text-slate-500 dark:text-slate-400">
+            {showServerSetup
+              ? 'Pair with your self-hosted BruFin server. Your phone keeps a local copy and syncs changes when the server is reachable.'
+              : 'Choose where your BruFin data will live and how you want to start.'}
           </p>
         </div>
 
-        {/* Options */}
-        <div className="space-y-3">
-          {/* Option 1: Demo Mode */}
-          <button
-            onClick={onSelectDemo}
-            className="w-full p-4 rounded-2xl text-left bg-gradient-to-br from-[#FFF8F3] to-[#FDF4E7] dark:from-[#272B2A] dark:to-[#202322] border-2 border-[#EF6448] hover:shadow-lg transition-all group relative overflow-hidden cursor-pointer"
-          >
-            <div className="flex items-start justify-between">
-              <div className="space-y-1 pr-3">
-                <div className="flex items-center space-x-2">
-                  <span className="text-sm font-extrabold text-[#EF6448]">
-                    Explore with Demo Data
+        {showServerSetup ? (
+          <div className="space-y-3">
+            <button type="button" onClick={() => setShowServerSetup(false)} className="flex items-center gap-1 text-xs font-semibold text-slate-500 hover:text-[#EF6448] dark:text-slate-400">
+              <ArrowLeft className="h-4 w-4" />Back to choices
+            </button>
+            <ServerSyncPanel status={serverStatus} onConnect={onConnectServer} onDisconnect={onDisconnectServer} />
+          </div>
+        ) : (
+          <div className="space-y-3">
+            <button onClick={onSelectDemo} className="group relative w-full overflow-hidden rounded-2xl border-2 border-[#EF6448] bg-gradient-to-br from-[#FFF8F3] to-[#FDF4E7] p-4 text-left transition-all hover:shadow-lg dark:from-[#272B2A] dark:to-[#202322]">
+              <div className="flex items-start justify-between gap-3">
+                <div className="space-y-1">
+                  <span className="flex items-center gap-2 text-sm font-extrabold text-[#EF6448]">
+                    <Database className="h-4 w-4" />Use demo data and explore
+                    <span className="rounded-full bg-[#EF6448] px-2 py-0.5 text-[9px] uppercase text-white">Demo</span>
                   </span>
-                  <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-[#EF6448] text-white">
-                    Recommended
-                  </span>
+                  <p className="text-xs leading-relaxed text-slate-600 dark:text-slate-300">Load sample transactions, cards, balances, and investments to try the app. Replace them with your own data later.</p>
                 </div>
-                <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-                  Pre-loads realistic sample transactions, cards, bank balances, and investments so you can test all features right away.
-                </p>
-                <p className="text-[10px] text-[#EF6448] font-semibold pt-1">
-                  ✓ Delete sample data & start fresh anytime with 1 tap
-                </p>
+                <ArrowRight className="mt-1 h-4 w-4 shrink-0 text-[#EF6448] transition-transform group-hover:translate-x-0.5" />
               </div>
-              <div className="w-8 h-8 rounded-xl bg-[#EF6448] text-white flex items-center justify-center shrink-0 group-hover:translate-x-0.5 transition-transform mt-0.5">
-                <ArrowRight className="w-4 h-4" />
-              </div>
-            </div>
-          </button>
+            </button>
 
-          {/* Option 2: Clean Slate */}
-          <button
-            onClick={onSelectFresh}
-            className="w-full p-4 rounded-2xl text-left bg-white dark:bg-[#1B1E22] border border-[#E8E1DB] dark:border-[#363B44] hover:border-slate-400 dark:hover:border-slate-600 hover:shadow-md transition-all group cursor-pointer"
-          >
-            <div className="flex items-start justify-between">
-              <div className="space-y-1 pr-3">
-                <span className="text-sm font-bold text-slate-800 dark:text-[#F2F3F5] block">
-                  Start Fresh (Empty Database)
-                </span>
-                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                  Start with a completely blank database to immediately begin logging your own personal accounts and expenses.
-                </p>
+            <button onClick={onSelectFresh} className="group w-full rounded-2xl border border-[#E8E1DB] bg-white p-4 text-left transition-all hover:border-slate-400 hover:shadow-md dark:border-[#363B44] dark:bg-[#1B1E22] dark:hover:border-slate-600">
+              <div className="flex items-start justify-between gap-3">
+                <div className="space-y-1">
+                  <span className="flex items-center gap-2 text-sm font-bold text-slate-800 dark:text-[#F2F3F5]"><HardDrive className="h-4 w-4 text-slate-500" />Use standalone on this device</span>
+                  <p className="text-xs leading-relaxed text-slate-500 dark:text-slate-400">Start with an empty database stored only on this phone or browser. No server is needed.</p>
+                </div>
+                <ArrowRight className="mt-1 h-4 w-4 shrink-0 text-slate-400 transition-transform group-hover:translate-x-0.5" />
               </div>
-              <div className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-[#1B1E22] text-slate-500 dark:text-slate-400 flex items-center justify-center shrink-0 group-hover:translate-x-0.5 transition-transform mt-0.5">
-                <ArrowRight className="w-4 h-4" />
-              </div>
-            </div>
-          </button>
-        </div>
+            </button>
 
-        {/* Privacy Note */}
-        <div className="pt-2 border-t border-[#E8E1DB]/70 dark:border-[#363B44] flex items-center justify-center space-x-2 text-[11px] text-slate-400 dark:text-slate-500">
-          <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-          <span>Zero cloud tracking • Offline-first • Open source</span>
+            <button onClick={() => setShowServerSetup(true)} className="group w-full rounded-2xl border border-[#E8E1DB] bg-white p-4 text-left transition-all hover:border-[#EF6448]/60 hover:shadow-md dark:border-[#363B44] dark:bg-[#1B1E22] dark:hover:border-[#EF6448]/60">
+              <div className="flex items-start justify-between gap-3">
+                <div className="space-y-1">
+                  <span className="flex items-center gap-2 text-sm font-bold text-slate-800 dark:text-[#F2F3F5]"><Server className="h-4 w-4 text-[#EF6448]" />Use my server with seamless sync</span>
+              <p className="text-xs leading-relaxed text-slate-500 dark:text-slate-400">Set up a fresh server in its browser, then scan its QR with your phone. Changes sync across devices and queue offline.</p>
+                </div>
+                <ArrowRight className="mt-1 h-4 w-4 shrink-0 text-slate-400 transition-transform group-hover:translate-x-0.5" />
+              </div>
+            </button>
+          </div>
+        )}
+
+        <div className="flex items-center justify-center gap-2 border-t border-[#E8E1DB]/70 pt-3 text-[11px] text-slate-400 dark:border-[#363B44] dark:text-slate-500">
+          <ShieldCheck className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+          <span>Offline-first · No cloud account required</span>
         </div>
       </div>
     </div>,
-    document.body
+    document.body,
   );
 };

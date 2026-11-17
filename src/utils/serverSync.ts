@@ -197,6 +197,64 @@ export function getServerSyncConfig(): ServerSyncConfig | null {
   return parseConfig();
 }
 
+export async function isServerBootstrapAvailable(serverUrlInput: string): Promise<boolean> {
+  const serverUrl = serverUrlInput.trim().replace(/\/+$/, '');
+  if (!/^https?:\/\//i.test(serverUrl)) return false;
+  try {
+    const response = await fetch(`${serverUrl}/api/health`, { cache: 'no-store' });
+    const payload = await response.json().catch(() => ({}));
+    return response.ok && payload.bootstrapAvailable === true;
+  } catch {
+    return false;
+  }
+}
+
+export async function claimServerBootstrap(serverUrlInput: string): Promise<string> {
+  const serverUrl = serverUrlInput.trim().replace(/\/+$/, '');
+  if (!/^https?:\/\//i.test(serverUrl)) throw new Error('Enter a valid BruFin server URL.');
+  const response = await fetch(`${serverUrl}/api/bootstrap/claim`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: '{}',
+  });
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok || typeof payload.token !== 'string') {
+    throw new Error(typeof payload.error === 'string' ? payload.error : `Could not set up this server (HTTP ${response.status}).`);
+  }
+  return payload.token as string;
+}
+
+export async function createServerPairingCode(serverUrlInput: string, tokenInput: string) {
+  const serverUrl = serverUrlInput.trim().replace(/\/+$/, '');
+  const token = tokenInput.trim();
+  if (!/^https?:\/\//i.test(serverUrl) || !token) throw new Error('Connect to your server before pairing another device.');
+  const response = await fetch(`${serverUrl}/api/pairing`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body: '{}',
+  });
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok || typeof payload.code !== 'string' || typeof payload.expiresAt !== 'number') {
+    throw new Error(typeof payload.error === 'string' ? payload.error : `Could not create a pairing code (HTTP ${response.status}).`);
+  }
+  return { code: payload.code as string, expiresAt: payload.expiresAt as number };
+}
+
+export async function exchangeServerPairingCode(serverUrlInput: string, code: string): Promise<string> {
+  const serverUrl = serverUrlInput.trim().replace(/\/+$/, '');
+  if (!/^https?:\/\//i.test(serverUrl)) throw new Error('The pairing QR contains an invalid server URL.');
+  const response = await fetch(`${serverUrl}/api/pairing/exchange`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ code }),
+  });
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok || typeof payload.token !== 'string') {
+    throw new Error(typeof payload.error === 'string' ? payload.error : `Could not pair with the server (HTTP ${response.status}).`);
+  }
+  return payload.token as string;
+}
+
 export function getServerSyncStatus(): ServerSyncStatus {
   const configured = !!parseConfig();
   return { ...status, configured, conflicts: status.conflicts };

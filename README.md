@@ -7,7 +7,7 @@
   </p>
 </div>
 
-BruFin helps you track day-to-day spending and keep an eye on your wider financial picture. It works as a private local app, or can connect to a self-hosted homelab server so your browser and Android app share one data store and sync changes made offline.
+BruFin helps you track day-to-day spending and keep an eye on your wider financial picture. At startup, choose demo data, a standalone local database, or a self-hosted homelab server. In server mode, browser and Android clients share one data store and queue offline edits until the server is reachable again.
 
 <p align="center">
   <a href="#screenshots">Screenshots</a> ·
@@ -40,7 +40,7 @@ Screenshots use BruFin's built-in sample data. The same dashboard is shown in bo
 | **Investments & loans** | Keep a manual investment list, estimate returns, record loans, and explore the effect of extra repayments. |
 | **Categories** | Add, remove, and restore default income and expense categories in Settings. Existing transactions keep their saved category label. |
 | **Data tools** | Export JSON backups or transaction CSVs; import backups; preview older BruFin exports and restore only new transactions. |
-| **Self-hosting** | Run the web dashboard and private SQLite API with Docker Compose; sync browser and Android clients, including offline edits. |
+| **Self-hosting** | Run the web dashboard and private SQLite API with Docker Compose; pair Android phones by scanning a short-lived QR shown by the connected server dashboard, then sync offline edits. |
 | **Personalization** | Switch themes, adjust display scale, and optionally show compact storage and memory diagnostics. |
 | **Demo mode** | Explore with sample records, then clear them and begin with an empty local database. |
 
@@ -67,13 +67,13 @@ docker compose up -d --build
 docker compose exec brufin cat /data/api-token
 ```
 
-BruFin creates a random API token automatically on first start and stores it in the persistent data volume. Copy the token shown by the command into each client's **Settings → Self-hosted server** connection.
+BruFin creates a random API token automatically on first start and stores it in the persistent data volume. For a fresh server on a private LAN/VPN, the server-hosted app can claim first-run setup once, so you normally do not need to retrieve or enter the token. The command above is still available for manual setup or if automatic claiming is disabled.
 
-Open `http://<homelab-host>:8080`, then go to **Settings → Self-hosted server** and enter the same URL and token. Choose which data to use on first connection. Install the Android build, open the same Settings panel, and connect it to the same server. Edits remain in the local cache while offline and are retried when connectivity returns. Concurrent edits to the same record are presented for review.
+Open `http://<homelab-host>:8080` using its LAN/VPN address. Choose **Use my server with seamless sync** at startup, then select **Set up this server** in the server-hosted app. It claims the fresh server once and connects the dashboard. Then display the pairing QR from **Settings → Self-hosted server**. On Android, choose the same startup option and scan that QR. Each client keeps a local offline working copy; edits sync when the server returns. Concurrent edits to the same record are presented for review.
 
-Keep the server on a private LAN/VPN or behind HTTPS. Do not publish the API directly over plain HTTP. See [SELF_HOSTING.md](SELF_HOSTING.md) for setup, backups, network access, and troubleshooting. The current self-hosted mode uses one shared access token for a single user.
+Automatic setup is intended for a private LAN/VPN: anyone who can reach a fresh, unclaimed server can claim it first. Do not expose the server publicly during setup; set `BRUFIN_ALLOW_FIRST_RUN_PAIRING=false` to disable this and require manual token entry. Keep the server on a private LAN/VPN or behind HTTPS. Do not publish the API directly over plain HTTP. See [SELF_HOSTING.md](SELF_HOSTING.md) for setup, backups, network access, and troubleshooting. The current self-hosted mode uses one shared access token for a single user.
 
-For Portainer, follow the step-by-step [hosting guide](HOSTING.md) and use [`docker-compose.portainer.yml`](docker-compose.portainer.yml) as a Stack. GitHub Actions publishes `ghcr.io/diamachi/brufin:latest` from `main` and versioned images such as `ghcr.io/diamachi/brufin:v0.6` from version tags. The GHCR package must be marked public for anonymous pulls. The published stack uses a named Docker volume so the database and token survive container replacement.
+For Portainer, follow the step-by-step [hosting guide](HOSTING.md) and use [`docker-compose.portainer.yml`](docker-compose.portainer.yml) as a Stack. The release image is `diamachi/brufin:v0.6`. Portainer stores the database and token in a named Docker volume so they survive container replacement.
 
 ## Run on the web
 
@@ -146,7 +146,9 @@ To build a signed release APK locally, configure `BRUFIN_RELEASE_KEYSTORE_FILE`,
 
 GitHub Actions checks the project and builds a debug APK on pushes and pull requests to `main`, and can be started manually from the Actions tab. The workflow runs type checking and the database/archive import tests, builds the web assets, syncs Capacitor, compiles the APK, and uploads `brufin-debug-apk` as a 14-day artifact.
 
-Pushing a version tag such as `v0.5` builds and publishes a release-signed APK. Before creating a release tag, add these repository secrets under **Settings → Secrets and variables → Actions**:
+Pushing a version tag such as `v0.6` runs the release workflow, which builds and publishes a release-signed APK when GitHub Actions is available. To build locally instead, set the four `BRUFIN_RELEASE_*` variables from your private `android/signing/local.env`, then run `./gradlew --no-daemon assembleRelease` from `android/`. The signed APK is written to `android/app/build/outputs/apk/release/app-release.apk`; upload it to the GitHub release page with the matching release notes.
+
+For the Actions workflow, configure these repository secrets under **Settings → Secrets and variables → Actions**:
 
 | Secret | Value |
 | --- | --- |
@@ -157,7 +159,7 @@ Pushing a version tag such as `v0.5` builds and publishes a release-signed APK. 
 
 The signing directory is ignored by Git and should remain private. The release description is written in `.github/release-notes/` for that tag, so users see a feature summary rather than an autogenerated list of source changes.
 
-The signing key changes from the debug key used for v0.4. Before installing the first stable-signed release, export a BruFin JSON backup, uninstall the previous app, install the new APK, and import the backup. Android deletes the app's local data when it is uninstalled. Later releases signed with the same key can update normally.
+The signing key changed from the debug key used for v0.4. Before installing the first stable-signed release, export a BruFin JSON backup, uninstall the previous app, install the new APK, and import the backup. Android deletes the app's local data when it is uninstalled. Later releases signed with the same key can update normally.
 
 ## Useful commands
 

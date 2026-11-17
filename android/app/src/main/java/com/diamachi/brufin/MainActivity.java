@@ -1,7 +1,9 @@
 package com.diamachi.brufin;
 
 import android.os.Bundle;
+import android.content.pm.ApplicationInfo;
 import android.webkit.WebView;
+import android.webkit.WebSettings;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -11,6 +13,16 @@ public class MainActivity extends BridgeActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // The self-hosting LAN test uses plain HTTP. Capacitor's Android page runs on HTTPS,
+        // so WebView otherwise blocks it as mixed content. Keep this exception debug-only;
+        // release builds should connect to an HTTPS server URL.
+        if ((getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0) {
+            WebView bridgeWebView = getBridge() != null ? getBridge().getWebView() : null;
+            if (bridgeWebView != null) {
+                bridgeWebView.getSettings().setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
+            }
+        }
 
         // Listen for system bars and cutout insets and pass exact DP values into CSS
         ViewCompat.setOnApplyWindowInsetsListener(getWindow().getDecorView(), (v, insets) -> {
