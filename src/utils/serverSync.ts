@@ -1,4 +1,5 @@
 import type { LocalDatabaseData } from './localDatabase';
+import { Capacitor } from '@capacitor/core';
 import {
   getLocalDatabaseData,
   loadSyncMetadata,
@@ -9,11 +10,21 @@ import {
 const CONFIG_KEY = 'brufin_server_sync_config_v1';
 const BASE_KEY = 'server_sync_base';
 const CONFLICTS_KEY = 'server_sync_conflicts';
+const DEVICE_NAME_KEY = 'brufin_device_name_v1';
+const ALLOW_HTTP_KEY = 'brufin_allow_http_server_v1';
 
 export interface ServerSyncConfig {
   serverUrl: string;
   token: string;
   clientId: string;
+}
+
+export interface ServerDevice {
+  clientId: string;
+  name: string;
+  platform: 'android' | 'ios' | 'web';
+  lastSeen: number;
+  online: boolean;
 }
 
 export interface SyncConflict {
@@ -66,6 +77,41 @@ let localChangeEpoch = 0;
 function createId(): string {
   if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') return crypto.randomUUID();
   return `${Date.now().toString(36)}_${Math.random().toString(36).slice(2)}_${Math.random().toString(36).slice(2)}`;
+}
+
+function defaultDeviceName(): string {
+  if (typeof navigator !== 'undefined' && /android/i.test(navigator.userAgent)) return 'Android phone';
+  if (typeof navigator !== 'undefined' && /iphone|ipad/i.test(navigator.userAgent)) return 'iPhone or iPad';
+  return 'BruFin browser';
+}
+
+export function getServerDeviceName(): string {
+  try {
+    return localStorage.getItem(DEVICE_NAME_KEY)?.trim() || defaultDeviceName();
+  } catch {
+    return defaultDeviceName();
+  }
+}
+
+export function saveServerDeviceName(value: string): string {
+  const name = value.replace(/[\u0000-\u001f\u007f]/g, '').trim().slice(0, 48) || defaultDeviceName();
+  try { localStorage.setItem(DEVICE_NAME_KEY, name); } catch { /* Browser storage may be unavailable. */ }
+  return name;
+}
+
+export function isHttpServerAllowed(): boolean {
+  try { return localStorage.getItem(ALLOW_HTTP_KEY) === 'true'; } catch { return false; }
+}
+
+export function setHttpServerAllowed(allowed: boolean): void {
+  try { localStorage.setItem(ALLOW_HTTP_KEY, allowed ? 'true' : 'false'); } catch { /* Browser storage may be unavailable. */ }
+}
+
+function assertHttpServerAllowed(serverUrl: string): void {
+  if (!Capacitor.isNativePlatform() || !serverUrl.toLowerCase().startsWith('http://')) return;
+  if (!isHttpServerAllowed()) {
+    throw new Error('This QR uses HTTP. Turn on “Allow HTTP for trusted LAN/VPN” before pairing. HTTP does not encrypt your BruFin data or access token.');
+  }
 }
 
 function parseConfig(): ServerSyncConfig | null {
@@ -152,14 +198,23 @@ function mergeSnapshots(base: LocalDatabaseData, local: LocalDatabaseData, remot
 
 async function request<T>(path: string, init: RequestInit = {}, config = parseConfig()): Promise<T> {
   if (!config) throw new Error('Connect this device to your BruFin server in Settings.');
-  const response = await fetch(`${config.serverUrl}${path}`, {
-    ...init,
-    headers: {
-      Authorization: `Bearer ${config.token}`,
-      'Content-Type': 'application/json',
-      ...init.headers,
-    },
-  });
+  assertHttpServerAllowed(config.serverUrl);
+  let response: Response;
+  try {
+    response = await fetch(`${config.serverUrl}${path}`, {
+      ...init,
+      headers: {
+        Authorization: `Bearer ${config.token}`,
+        'Content-Type': 'application/json',
+        'X-BruFin-Client-Id': config.clientId,
+        'X-BruFin-Device-Name': getServerDeviceName(),
+        'X-BruFin-Platform': Capacitor.getPlatform(),
+        ...init.headers,
+      },
+    });
+  } catch {
+    throw new Error(`Could not reach BruFin at ${config.serverUrl}. Check the server address and port 8780, and make sure this phone can reach it on the same LAN or VPN.`);
+  }
   const payload = await response.json().catch(() => ({}));
   if (!response.ok && response.status !== 409) {
     throw new Error(typeof payload.error === 'string' ? payload.error : `Server returned HTTP ${response.status}`);
@@ -195,6 +250,11 @@ async function applyRemoteData(data: LocalDatabaseData) {
 
 export function getServerSyncConfig(): ServerSyncConfig | null {
   return parseConfig();
+}
+
+export async function getConnectedServerDevices(): Promise<ServerDevice[]> {
+  const payload = await request<{ devices?: ServerDevice[] }>('/api/devices');
+  return Array.isArray(payload.devices) ? payload.devices : [];
 }
 
 export async function isServerBootstrapAvailable(serverUrlInput: string): Promise<boolean> {
@@ -243,11 +303,17 @@ export async function createServerPairingCode(serverUrlInput: string, tokenInput
 export async function exchangeServerPairingCode(serverUrlInput: string, code: string): Promise<string> {
   const serverUrl = serverUrlInput.trim().replace(/\/+$/, '');
   if (!/^https?:\/\//i.test(serverUrl)) throw new Error('The pairing QR contains an invalid server URL.');
-  const response = await fetch(`${serverUrl}/api/pairing/exchange`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ code }),
-  });
+  assertHttpServerAllowed(serverUrl);
+  let response: Response;
+  try {
+    response = await fetch(`${serverUrl}/api/pairing/exchange`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code }),
+    });
+  } catch {
+    throw new Error(`Could not reach the server at ${serverUrl}. Verify that the phone and server share the same LAN/VPN and that the configured port is open.`);
+  }
   const payload = await response.json().catch(() => ({}));
   if (!response.ok || typeof payload.token !== 'string') {
     throw new Error(typeof payload.error === 'string' ? payload.error : `Could not pair with the server (HTTP ${response.status}).`);

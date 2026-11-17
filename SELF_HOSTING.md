@@ -9,7 +9,7 @@ This guide covers both Docker Compose from source and the prebuilt Docker Hub im
 | Setup | Image/source | Persistent storage |
 | --- | --- | --- |
 | Docker Compose on a Mac or Linux host | Build from this repository | `./data/` beside `docker-compose.yml` |
-| Portainer on a homelab | `diamachi/brufin:v0.6` | Named Docker volume `brufin-data` |
+| Portainer on a homelab | `diamachi/brufin:v0.6.1` | Named Docker volume `brufin-data` |
 
 In both setups, the container listens internally on port `8080` and publishes host port `8780` by default. You can choose another host port with `BRUFIN_HTTP_PORT`.
 
@@ -42,7 +42,7 @@ Requirements: a homelab machine with Docker and Portainer, and host port `8780` 
 
    | Variable | Value | Purpose |
    | --- | --- | --- |
-   | `BRUFIN_IMAGE` | `diamachi/brufin:v0.6` | Pin the BruFin image version |
+   | `BRUFIN_IMAGE` | `diamachi/brufin:v0.6.1` | Pin the BruFin image version |
    | `BRUFIN_BIND_ADDRESS` | `0.0.0.0` | Allow access from your LAN/VPN |
    | `BRUFIN_HTTP_PORT` | `8780` | Host port to open in the browser and app |
    | `BRUFIN_ALLOW_FIRST_RUN_PAIRING` | `true` | Enable one-time fresh-server setup |
@@ -86,7 +86,7 @@ To rotate the token, set a new `BRUFIN_API_TOKEN` value in the container environ
 
 Port `8780` is the published host port by default; the container's internal port remains `8080`. For another host port, set `BRUFIN_HTTP_PORT`. Restrict access to your home network or VPN. For access away from home, use a private VPN such as Tailscale or WireGuard, or put the service behind an HTTPS reverse proxy. Do not expose the API directly to the public internet over plain HTTP. With a reverse proxy on the Docker host, bind to `127.0.0.1` and proxy to `127.0.0.1:8780` (or the host port you configured).
 
-The Android release may require HTTPS for the server URL. An HTTPS reverse proxy or VPN-provided HTTPS hostname is recommended when connecting from Android.
+The Android app blocks HTTP by default. To pair with an HTTP server on your trusted home LAN or VPN, enable **Allow HTTP for trusted LAN/VPN** on the server setup screen or under **Settings → Self-hosted server**. HTTP does not encrypt the access token or finance data, so keep this off on public Wi-Fi and use HTTPS for remote access.
 
 ## Sync behavior
 
@@ -98,7 +98,7 @@ On first connection, BruFin asks which data copy to use because it cannot safely
 
 - **401:** Confirm that the client token matches `/data/api-token`, unless you configured `BRUFIN_API_TOKEN` yourself.
 - **Cannot connect:** Check the host URL and port (default `8780`), container health, firewall, and LAN/VPN route.
-- **Android cleartext error:** Use HTTPS or a VPN-provided HTTPS hostname. Android blocks many plain HTTP requests by default.
+- **Android cleartext error:** Enable **Allow HTTP for trusted LAN/VPN** only when connecting on a network you trust, or use HTTPS/a VPN-provided HTTPS hostname.
 - **CORS error:** Add the Android origin shown in WebView logs to `BRUFIN_ALLOWED_ORIGINS`, then recreate the container.
 - **Data conflict:** Review the choices in Settings. Export a JSON backup first if you are unsure.
 

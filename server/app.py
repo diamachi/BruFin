@@ -125,6 +125,12 @@ def initialize_db() -> None:
                 id INTEGER PRIMARY KEY CHECK (id = 1),
                 bootstrap_claimed INTEGER NOT NULL DEFAULT 0
             );
+            CREATE TABLE IF NOT EXISTS connected_devices (
+                client_id TEXT PRIMARY KEY,
+                name TEXT NOT NULL,
+                platform TEXT NOT NULL,
+                last_seen INTEGER NOT NULL
+            );
             """
         )
         # Migrate an earlier development snapshot schema if one was created.
@@ -218,7 +224,7 @@ class BruFinHandler(BaseHTTPRequestHandler):
         if origin in ALLOWED_ORIGINS:
             self.send_header("Access-Control-Allow-Origin", origin)
             self.send_header("Vary", "Origin")
-            self.send_header("Access-Control-Allow-Headers", "Authorization, Content-Type")
+            self.send_header("Access-Control-Allow-Headers", "Authorization, Content-Type, X-BruFin-Client-Id, X-BruFin-Device-Name, X-BruFin-Platform")
             self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
         self.send_header("X-Content-Type-Options", "nosniff")
         self.send_header("Referrer-Policy", "no-referrer")
@@ -238,6 +244,19 @@ class BruFinHandler(BaseHTTPRequestHandler):
         if self.authorized():
             with DB_LOCK, closing(connect_db()) as db:
                 db.execute("UPDATE server_setup SET bootstrap_claimed=1 WHERE id=1")
+                client_id = self.headers.get("X-BruFin-Client-Id", "").strip()
+                if client_id and len(client_id) <= 128 and all(char.isalnum() or char in "-_" for char in client_id):
+                    name = " ".join(self.headers.get("X-BruFin-Device-Name", "BruFin device").split())[:48]
+                    platform = self.headers.get("X-BruFin-Platform", "web").strip().lower()
+                    if platform not in {"android", "ios", "web"}:
+                        platform = "web"
+                    now = int(time.time())
+                    db.execute(
+                        "INSERT INTO connected_devices(client_id, name, platform, last_seen) VALUES (?, ?, ?, ?) "
+                        "ON CONFLICT(client_id) DO UPDATE SET name=excluded.name, platform=excluded.platform, last_seen=excluded.last_seen",
+                        (client_id, name or "BruFin device", platform, now),
+                    )
+                    db.execute("DELETE FROM connected_devices WHERE last_seen < ?", (now - 180 * 24 * 60 * 60,))
             return True
         json_response(self, 401, {"error": "Authentication required"})
         return False
@@ -259,6 +278,25 @@ class BruFinHandler(BaseHTTPRequestHandler):
             with DB_LOCK, closing(connect_db()) as db:
                 state = read_state(db)
             json_response(self, 200, state)
+            return
+        if path == "/api/devices":
+            if not self.require_auth():
+                return
+            now = int(time.time())
+            with DB_LOCK, closing(connect_db()) as db:
+                devices = [
+                    {
+                        "clientId": row["client_id"],
+                        "name": row["name"],
+                        "platform": row["platform"],
+                        "lastSeen": row["last_seen"],
+                        "online": now - row["last_seen"] <= 90,
+                    }
+                    for row in db.execute(
+                        "SELECT client_id, name, platform, last_seen FROM connected_devices ORDER BY last_seen DESC"
+                    ).fetchall()
+                ]
+            json_response(self, 200, {"devices": devices})
             return
         self.serve_web(path)
 

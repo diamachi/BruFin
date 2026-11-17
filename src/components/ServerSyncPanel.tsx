@@ -7,12 +7,17 @@ import {
   createServerPairingCode,
   claimServerBootstrap,
   exchangeServerPairingCode,
+  getConnectedServerDevices,
+  getServerDeviceName,
   getServerSyncConfig,
   isServerBootstrapAvailable,
+  isHttpServerAllowed,
   resolveServerSyncConflict,
+  saveServerDeviceName,
+  setHttpServerAllowed,
   syncNow,
 } from '../utils/serverSync';
-import type { ServerSyncStatus } from '../utils/serverSync';
+import type { ServerDevice, ServerSyncStatus } from '../utils/serverSync';
 
 interface Props {
   status: ServerSyncStatus;
@@ -49,6 +54,15 @@ function isLoopbackAddress(value: string): boolean {
   }
 }
 
+function lastSeenLabel(timestamp: number): string {
+  const minutes = Math.max(0, Math.floor((Date.now() - timestamp * 1000) / 60_000));
+  if (minutes < 1) return 'Seen just now';
+  if (minutes < 60) return `Seen ${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `Seen ${hours}h ago`;
+  return `Seen ${Math.floor(hours / 24)}d ago`;
+}
+
 export const ServerSyncPanel: React.FC<Props> = ({ status, onConnect, onDisconnect }) => {
   const savedConfig = getServerSyncConfig();
   const [serverUrl, setServerUrl] = useState(savedConfig?.serverUrl || (!Capacitor.isNativePlatform() ? window.location.origin : ''));
@@ -59,6 +73,9 @@ export const ServerSyncPanel: React.FC<Props> = ({ status, onConnect, onDisconne
   const [manualSetupOpen, setManualSetupOpen] = useState(!Capacitor.isNativePlatform());
   const [bootstrapAvailable, setBootstrapAvailable] = useState(false);
   const [checkingBootstrap, setCheckingBootstrap] = useState(false);
+  const [allowHttp, setAllowHttp] = useState(isHttpServerAllowed());
+  const [deviceName, setDeviceName] = useState(getServerDeviceName());
+  const [devices, setDevices] = useState<ServerDevice[]>([]);
   const [pairQr, setPairQr] = useState<string | null>(null);
   const [pairExpiresAt, setPairExpiresAt] = useState<number | null>(null);
   const [secondsLeft, setSecondsLeft] = useState(0);
@@ -69,6 +86,25 @@ export const ServerSyncPanel: React.FC<Props> = ({ status, onConnect, onDisconne
       setServerUrl(current.serverUrl);
       setToken(current.token);
     }
+  }, [status.configured]);
+
+  useEffect(() => {
+    if (!status.configured) {
+      setDevices([]);
+      return;
+    }
+    let active = true;
+    const refreshDevices = () => {
+      void getConnectedServerDevices().then((connectedDevices) => {
+        if (active) setDevices(connectedDevices);
+      }).catch(() => { /* Keep the last known device list while offline. */ });
+    };
+    refreshDevices();
+    const timer = window.setInterval(refreshDevices, 20_000);
+    return () => {
+      active = false;
+      window.clearInterval(timer);
+    };
   }, [status.configured]);
 
   useEffect(() => {
@@ -98,6 +134,10 @@ export const ServerSyncPanel: React.FC<Props> = ({ status, onConnect, onDisconne
   }, [pairExpiresAt]);
 
   const connect = async (strategy: 'server' | 'device') => {
+    if (Capacitor.isNativePlatform() && serverUrl.toLowerCase().startsWith('http://') && !allowHttp) {
+      setError('This server uses HTTP. Enable “Allow HTTP for trusted LAN/VPN” before connecting.');
+      return;
+    }
     if (strategy === 'server' && !confirm('Load the server copy onto this device? If the server is empty, this device’s current data will initialize it. If the server already has data, this device’s current local data will be replaced. Export a backup first if you need both copies.')) return;
     setBusy(true);
     setError(null);
@@ -194,6 +234,9 @@ export const ServerSyncPanel: React.FC<Props> = ({ status, onConnect, onDisconne
       if (payload.type !== 'brufin-pair' || payload.version !== 1 || typeof payload.serverUrl !== 'string' || typeof payload.code !== 'string') {
         throw new Error('This is not a valid BruFin pairing QR.');
       }
+      if (payload.serverUrl.toLowerCase().startsWith('http://') && !allowHttp) {
+        throw new Error('This QR uses HTTP. Enable “Allow HTTP for trusted LAN/VPN” below before scanning again.');
+      }
       const pairedToken = await exchangeServerPairingCode(payload.serverUrl, payload.code);
       setServerUrl(payload.serverUrl);
       setToken(pairedToken);
@@ -204,6 +247,20 @@ export const ServerSyncPanel: React.FC<Props> = ({ status, onConnect, onDisconne
     } finally {
       setBusy(false);
     }
+  };
+
+  const saveDeviceName = async () => {
+    const saved = saveServerDeviceName(deviceName);
+    setDeviceName(saved);
+    if (status.configured) {
+      try { setDevices(await getConnectedServerDevices()); } catch { /* A later refresh will retry. */ }
+    }
+  };
+
+  const updateHttpPreference = (enabled: boolean) => {
+    setAllowHttp(enabled);
+    setHttpServerAllowed(enabled);
+    if (status.configured) void syncNow();
   };
 
   const labelClass = status.state === 'connected'
@@ -237,6 +294,26 @@ export const ServerSyncPanel: React.FC<Props> = ({ status, onConnect, onDisconne
         {status.pending && status.state !== 'conflict' && <span> Your edits are saved locally and will retry automatically.</span>}
       </p>
 
+      {Capacitor.isNativePlatform() && <div className="rounded-xl border border-amber-300/60 bg-amber-50/60 p-3 dark:border-amber-900/70 dark:bg-amber-950/15">
+        <label className="flex cursor-pointer items-start gap-2 text-[11px] font-bold text-slate-800 dark:text-slate-100">
+          <input type="checkbox" checked={allowHttp} onChange={(event) => updateHttpPreference(event.target.checked)} className="mt-0.5 accent-[#EF6448]" />
+          <span>Allow HTTP for trusted LAN/VPN</span>
+        </label>
+        <p className="mt-1 pl-5 text-[10px] leading-relaxed text-amber-900 dark:text-amber-200">HTTP does not encrypt your access token or finance data. Enable only on a trusted home network or VPN; use HTTPS on public networks.</p>
+      </div>}
+
+      {status.configured && <div className="space-y-2 rounded-xl border border-[#E8E1DB] bg-[#FAF9F7] p-3 dark:border-[#363B44] dark:bg-[#1B1E22]">
+        <div className="flex items-center justify-between gap-2">
+          <p className="text-[11px] font-bold text-slate-800 dark:text-slate-100">Connected devices</p>
+          <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[9px] font-bold text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300">{devices.filter((device) => device.online).length} online</span>
+        </div>
+        <label className="block space-y-1"><span className="text-[9px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">This device name</span><input value={deviceName} maxLength={48} onChange={(event) => setDeviceName(event.target.value)} onBlur={() => void saveDeviceName()} onKeyDown={(event) => { if (event.key === 'Enter') event.currentTarget.blur(); }} className="w-full rounded-lg border border-[#E8E1DB] bg-white px-2.5 py-2 text-[11px] text-slate-800 outline-none focus:border-[#EF6448] dark:border-[#363B44] dark:bg-[#22252A] dark:text-slate-100" /></label>
+        {devices.length > 0 ? <ul className="space-y-1.5">{devices.map((device) => <li key={device.clientId} className="flex items-center justify-between gap-2 rounded-lg bg-white px-2.5 py-2 dark:bg-[#22252A]">
+          <div className="min-w-0"><p className="truncate text-[10px] font-semibold text-slate-800 dark:text-slate-100">{device.name}{device.clientId === getServerSyncConfig()?.clientId ? <span className="ml-1 text-slate-400">(this device)</span> : ''}</p><p className="text-[9px] text-slate-500 dark:text-slate-400">{device.online ? 'Connected now' : lastSeenLabel(device.lastSeen)}</p></div>
+          <span className={`shrink-0 rounded-full px-2 py-0.5 text-[9px] font-bold ${device.online ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300' : 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400'}`}>{device.online ? 'Online' : 'Offline'}</span>
+        </li>)}</ul> : <p className="text-[10px] leading-relaxed text-slate-500 dark:text-slate-400">This device will appear here after its next sync.</p>}
+      </div>}
+
       {status.conflicts.length > 0 && (
         <div className="space-y-2 rounded-xl border border-amber-300/70 bg-amber-50/70 p-3 dark:border-amber-900 dark:bg-amber-950/20">
           <p className="text-xs font-bold text-amber-900 dark:text-amber-200">Both this device and the server changed the same item.</p>
@@ -269,7 +346,7 @@ export const ServerSyncPanel: React.FC<Props> = ({ status, onConnect, onDisconne
           </div>}
           {!Capacitor.isNativePlatform() && checkingBootstrap && !bootstrapAvailable && <p className="text-[10px] text-slate-500 dark:text-slate-400">Checking whether this server needs first-time setup…</p>}
           {manualSetupOpen && <div className="space-y-2">
-            <label className="block space-y-1.5"><span className="text-[10px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">Server URL</span><input value={serverUrl} onChange={(event) => setServerUrl(event.target.value)} placeholder="http://192.168.1.20:8080" inputMode="url" autoCapitalize="none" autoCorrect="off" className="w-full rounded-xl border border-[#E8E1DB] bg-[#F7F6F3] px-3 py-2.5 text-xs text-slate-800 outline-none focus:border-[#EF6448] dark:border-[#363B44] dark:bg-[#1B1E22] dark:text-[#F2F3F5]" />{!Capacitor.isNativePlatform() && isLoopbackAddress(serverUrl) && <span className="block text-[10px] leading-relaxed text-amber-700 dark:text-amber-300">For phone pairing, open this page with the server’s LAN/VPN address; localhost only works on this computer.</span>}</label>
+            <label className="block space-y-1.5"><span className="text-[10px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">Server URL</span><input value={serverUrl} onChange={(event) => setServerUrl(event.target.value)} placeholder="http://192.168.1.20:8780" inputMode="url" autoCapitalize="none" autoCorrect="off" className="w-full rounded-xl border border-[#E8E1DB] bg-[#F7F6F3] px-3 py-2.5 text-xs text-slate-800 outline-none focus:border-[#EF6448] dark:border-[#363B44] dark:bg-[#1B1E22] dark:text-[#F2F3F5]" />{!Capacitor.isNativePlatform() && isLoopbackAddress(serverUrl) && <span className="block text-[10px] leading-relaxed text-amber-700 dark:text-amber-300">For phone pairing, open this page with the server’s LAN/VPN address; localhost only works on this computer.</span>}</label>
             <label className="block space-y-1.5"><span className="text-[10px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">Access token</span><input value={token} onChange={(event) => setToken(event.target.value)} type="password" autoComplete="current-password" placeholder="Server access token" className="w-full rounded-xl border border-[#E8E1DB] bg-[#F7F6F3] px-3 py-2.5 text-xs text-slate-800 outline-none focus:border-[#EF6448] dark:border-[#363B44] dark:bg-[#1B1E22] dark:text-[#F2F3F5]" /></label>
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2"><button type="button" disabled={busy || !serverUrl || !token} onClick={() => void connect('server')} className="flex items-center justify-center gap-1.5 rounded-xl border border-[#E8E1DB] px-3 py-2.5 text-[11px] font-bold text-slate-700 hover:border-[#EF6448] dark:border-[#363B44] dark:text-slate-200 disabled:opacity-50"><Cloud className="h-3.5 w-3.5" />Use server data</button><button type="button" disabled={busy || !serverUrl || !token} onClick={() => { if (confirm('Upload this device’s current BruFin data to the server? If the server already has data, its current snapshot will be replaced.')) void connect('device'); }} className="flex items-center justify-center gap-1.5 rounded-xl bg-[#EF6448] px-3 py-2.5 text-[11px] font-bold text-white hover:bg-[#E05338] disabled:opacity-50"><ShieldCheck className="h-3.5 w-3.5" />Upload this device</button></div>
             {!Capacitor.isNativePlatform() && <button type="button" disabled={busy || !serverUrl || !token} onClick={() => void makePairingQr()} className="flex w-full items-center justify-center gap-2 rounded-xl border border-[#E8E1DB] px-3 py-2.5 text-[11px] font-bold text-slate-700 hover:border-[#EF6448] dark:border-[#363B44] dark:text-slate-200 disabled:opacity-50"><QrCode className="h-4 w-4" />Generate phone pairing QR</button>}

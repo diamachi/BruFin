@@ -73,7 +73,7 @@ Open `http://<homelab-host>:8780` using its LAN/VPN address (or the host port yo
 
 Automatic setup is intended for a private LAN/VPN: anyone who can reach a fresh, unclaimed server can claim it first. Do not expose the server publicly during setup; set `BRUFIN_ALLOW_FIRST_RUN_PAIRING=false` to disable this and require manual token entry. Keep the server on a private LAN/VPN or behind HTTPS. Do not publish the API directly over plain HTTP. The current self-hosted mode uses one shared access token for a single user.
 
-See [SELF_HOSTING.md](SELF_HOSTING.md) for the combined Docker Compose and Portainer setup guide, including setup, backups, network access, and troubleshooting. The current release image is `diamachi/brufin:v0.6`; Portainer stores the database and token in a named Docker volume so they survive container replacement.
+See [SELF_HOSTING.md](SELF_HOSTING.md) for the combined Docker Compose and Portainer setup guide, including setup, backups, network access, and troubleshooting. The current release image is `diamachi/brufin:v0.6.1`; Portainer stores the database and token in a named Docker volume so they survive container replacement.
 
 ## Run on the web
 
@@ -146,7 +146,7 @@ To build a signed release APK locally, configure `BRUFIN_RELEASE_KEYSTORE_FILE`,
 
 GitHub Actions checks the project and builds a debug APK on pushes and pull requests to `main`, and can be started manually from the Actions tab. The workflow runs type checking and the database/archive import tests, builds the web assets, syncs Capacitor, compiles the APK, and uploads `brufin-debug-apk` as a 14-day artifact.
 
-Pushing a version tag such as `v0.6` runs the release workflow, which builds and publishes a release-signed APK when GitHub Actions is available. To build locally instead, set the four `BRUFIN_RELEASE_*` variables from your private `android/signing/local.env`, then run `./gradlew --no-daemon assembleRelease` from `android/`. The signed APK is written to `android/app/build/outputs/apk/release/app-release.apk`; upload it to the GitHub release page with the matching release notes.
+Pushing a version tag such as `v0.6.1` runs the release workflow, which builds and publishes a release-signed APK when GitHub Actions is available. To build locally instead, set the four `BRUFIN_RELEASE_*` variables from your private `android/signing/local.env`, then run `./gradlew --no-daemon assembleRelease` from `android/`. The signed APK is written to `android/app/build/outputs/apk/release/app-release.apk`; upload it to the GitHub release page with the matching release notes.
 
 For the Actions workflow, configure these repository secrets under **Settings → Secrets and variables → Actions**:
 
