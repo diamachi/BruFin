@@ -71,9 +71,9 @@ BruFin creates a random API token automatically on first start and stores it in 
 
 Open `http://<homelab-host>:8780` using its LAN/VPN address (or the host port you configured). Choose **Use my server with seamless sync** at startup, then select **Set up this server** in the server-hosted app. It claims the fresh server once and connects the dashboard. Then display the pairing QR from **Settings → Self-hosted server**. On Android, choose the same startup option and scan that QR. Each client keeps a local offline working copy; edits sync when the server returns. Concurrent edits to the same record are presented for review.
 
-Automatic setup is intended for a private LAN/VPN: anyone who can reach a fresh, unclaimed server can claim it first. Do not expose the server publicly during setup; set `BRUFIN_ALLOW_FIRST_RUN_PAIRING=false` to disable this and require manual token entry. Keep the server on a private LAN/VPN or behind HTTPS. Do not publish the API directly over plain HTTP. See [SELF_HOSTING.md](SELF_HOSTING.md) for setup, backups, network access, and troubleshooting. The current self-hosted mode uses one shared access token for a single user.
+Automatic setup is intended for a private LAN/VPN: anyone who can reach a fresh, unclaimed server can claim it first. Do not expose the server publicly during setup; set `BRUFIN_ALLOW_FIRST_RUN_PAIRING=false` to disable this and require manual token entry. Keep the server on a private LAN/VPN or behind HTTPS. Do not publish the API directly over plain HTTP. The current self-hosted mode uses one shared access token for a single user.
 
-For Portainer, follow the step-by-step [hosting guide](HOSTING.md) and use [`docker-compose.portainer.yml`](docker-compose.portainer.yml) as a Stack. The release image is `diamachi/brufin:v0.6`. Portainer stores the database and token in a named Docker volume so they survive container replacement.
+See [SELF_HOSTING.md](SELF_HOSTING.md) for the combined Docker Compose and Portainer setup guide, including setup, backups, network access, and troubleshooting. The current release image is `diamachi/brufin:v0.6`; Portainer stores the database and token in a named Docker volume so they survive container replacement.
 
 ## Run on the web
 
