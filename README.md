@@ -59,7 +59,7 @@ Browser storage is tied to the browser's origin and profile. IndexedDB is manage
 
 ## Self-host BruFin
 
-The Docker Compose deployment serves the BruFin dashboard and API on port `8080`, with SQLite data persisted in `./data/`.
+The Docker Compose deployment serves the BruFin dashboard and API on host port `8780` by default, with SQLite data persisted in `./data/`. Set `BRUFIN_HTTP_PORT` in `.env` to use another available host port; the container's internal API port remains `8080`.
 
 ```bash
 cp .env.example .env
@@ -69,7 +69,7 @@ docker compose exec brufin cat /data/api-token
 
 BruFin creates a random API token automatically on first start and stores it in the persistent data volume. For a fresh server on a private LAN/VPN, the server-hosted app can claim first-run setup once, so you normally do not need to retrieve or enter the token. The command above is still available for manual setup or if automatic claiming is disabled.
 
-Open `http://<homelab-host>:8080` using its LAN/VPN address. Choose **Use my server with seamless sync** at startup, then select **Set up this server** in the server-hosted app. It claims the fresh server once and connects the dashboard. Then display the pairing QR from **Settings → Self-hosted server**. On Android, choose the same startup option and scan that QR. Each client keeps a local offline working copy; edits sync when the server returns. Concurrent edits to the same record are presented for review.
+Open `http://<homelab-host>:8780` using its LAN/VPN address (or the host port you configured). Choose **Use my server with seamless sync** at startup, then select **Set up this server** in the server-hosted app. It claims the fresh server once and connects the dashboard. Then display the pairing QR from **Settings → Self-hosted server**. On Android, choose the same startup option and scan that QR. Each client keeps a local offline working copy; edits sync when the server returns. Concurrent edits to the same record are presented for review.
 
 Automatic setup is intended for a private LAN/VPN: anyone who can reach a fresh, unclaimed server can claim it first. Do not expose the server publicly during setup; set `BRUFIN_ALLOW_FIRST_RUN_PAIRING=false` to disable this and require manual token entry. Keep the server on a private LAN/VPN or behind HTTPS. Do not publish the API directly over plain HTTP. See [SELF_HOSTING.md](SELF_HOSTING.md) for setup, backups, network access, and troubleshooting. The current self-hosted mode uses one shared access token for a single user.
 

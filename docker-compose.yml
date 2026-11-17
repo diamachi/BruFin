@@ -8,7 +8,7 @@ services:
       BRUFIN_ALLOW_FIRST_RUN_PAIRING: ${BRUFIN_ALLOW_FIRST_RUN_PAIRING:-true}
       BRUFIN_ALLOWED_ORIGINS: ${BRUFIN_ALLOWED_ORIGINS:-http://localhost,https://localhost,capacitor://localhost,http://127.0.0.1,http://localhost:5173,http://127.0.0.1:5173}
     ports:
-      - "${BRUFIN_BIND_ADDRESS:-0.0.0.0}:8080:8080"
+      - "${BRUFIN_BIND_ADDRESS:-0.0.0.0}:${BRUFIN_HTTP_PORT:-8780}:8080"
     volumes:
       - ./data:/data
     healthcheck:
