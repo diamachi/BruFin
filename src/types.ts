@@ -1,3 +1,6 @@
+/**
+ * Shared finance models and application constants used by screens, persistence, and imports.
+ */
 export type TransactionType = 'Expense' | 'Income';
 
 export interface Transaction {

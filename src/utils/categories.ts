@@ -1,3 +1,6 @@
+/**
+ * Category presentation helpers: resolve built-in or custom labels, palette colors, icons, and available payment methods.
+ */
 import { CreditCard, PaymentMethodItem } from '../types';
 
 export const EXPENSE_CATEGORIES = [
@@ -27,6 +30,7 @@ export const INCOME_CATEGORIES = [
 
 export type TransactionCategoryType = 'Expense' | 'Income';
 
+/** Get themed category color. Uses reduce, character.charCodeAt, var to perform the operation. */
 export function getThemedCategoryColor(name: string, color: string): string {
   if (typeof document === 'undefined' || document.documentElement.dataset.palette !== 'monochrome') return color;
   const index = [...name].reduce((sum, character) => sum + character.charCodeAt(0), 0) % 13 + 1;
@@ -40,6 +44,7 @@ const CUSTOM_CATEGORY_STYLES = [
   { icon: 'Tag', color: '#AF8054', bg: 'bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-300' },
 ];
 
+/** Get category options. Uses defaults.map, selectedNames.map, knownCategories.find to perform the operation. */
 export function getCategoryOptions(type: TransactionCategoryType, names?: string[]) {
   const defaults = type === 'Expense' ? EXPENSE_CATEGORIES : INCOME_CATEGORIES;
   const selectedNames = names ?? defaults.map((category) => category.name);
@@ -58,6 +63,7 @@ export const DEFAULT_BASE_PAYMENT_MODES: PaymentMethodItem[] = [
   { id: 'pm_other', name: 'Other', type: 'other', icon: 'HelpCircle' }
 ];
 
+/** Get payment modes. Uses cardList.map, name.replace, base.filter to perform the operation. */
 export function getPaymentModes(creditCards?: CreditCard[], baseMethods?: PaymentMethodItem[]) {
   const base = (baseMethods && baseMethods.length > 0) ? baseMethods : DEFAULT_BASE_PAYMENT_MODES;
   const cardList = creditCards || [];
@@ -82,6 +88,7 @@ export function getPaymentModes(creditCards?: CreditCard[], baseMethods?: Paymen
 
 export const PAYMENT_MODES = getPaymentModes();
 
+/** Get category meta. Uses list.find, name.toLowerCase, categoryName.toLowerCase to perform the operation. */
 export function getCategoryMeta(categoryName: string, isIncome: boolean = false) {
   const list = isIncome ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
   const match = list.find(c => c.name.toLowerCase() === categoryName.toLowerCase())

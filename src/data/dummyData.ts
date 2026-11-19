@@ -1,3 +1,6 @@
+/**
+ * dummyData screen/component: renders its portion of the finance interface and forwards user actions through the callbacks defined in its props.
+ */
 import {
   Transaction,
   CreditCard,

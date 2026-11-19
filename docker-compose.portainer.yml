@@ -1,3 +1,4 @@
+# Homelab deployment: pull a published image and retain the named data volume across container replacements.
 services:
   brufin:
     image: ${BRUFIN_IMAGE:-diamachi/brufin:v0.6.2}

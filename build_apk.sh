@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Compile the web bundle, copy it into Capacitor, and build a local Android debug APK using the bundled JDK.
 set -e
 
 DIR="$(cd "$(dirname "$0")" && pwd)"

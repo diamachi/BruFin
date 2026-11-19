@@ -1,3 +1,6 @@
+/**
+ * Filters expense records for the selected month, groups them by date, and highlights recurring bills that still need posting.
+ */
 import React, { useState, useMemo } from 'react';
 import {
   Search,
@@ -165,6 +168,7 @@ export const ExpensesView: React.FC<Props> = ({
     return groups;
   }, [sortedExpenses]);
 
+  /** Format date header. Uses getTodayDateString, Date, yesterday.setDate to perform the operation. */
   const formatDateHeader = (dateStr: string) => {
     if (!dateStr || dateStr === 'Unknown Date') return 'Other Expenses';
     const today = getTodayDateString();

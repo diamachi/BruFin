@@ -1,3 +1,6 @@
+/**
+ * Browser entry point: mounts the React application and loads the shared stylesheet.
+ */
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
@@ -23,6 +26,7 @@ if (typeof window !== 'undefined') {
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 
+/** Render startup message. Uses root.render, var, async to perform the operation. */
 const renderStartupMessage = (message: string, canRetry: boolean) => root.render(
   <main className="min-h-screen bg-[#F7F6F3] dark:bg-[#17191C] text-slate-800 dark:text-[#F2F3F5] flex items-center justify-center p-6 font-sans">
     <section className="max-w-md rounded-3xl border border-[#E8E1DB] dark:border-[#363B44] bg-white dark:bg-[#22252A] p-6 text-center shadow-lg">
@@ -33,6 +37,7 @@ const renderStartupMessage = (message: string, canRetry: boolean) => root.render
   </main>
 );
 
+/** Boot app. Uses renderStartupMessage, initializeLocalDatabase, root.render to perform the operation. */
 const bootApp = async () => {
   renderStartupMessage('Opening your private on-device database…', false);
   try {

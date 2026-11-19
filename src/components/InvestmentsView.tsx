@@ -1,3 +1,6 @@
+/**
+ * Groups investment, loan, and return-calculator sections behind the investment page navigation.
+ */
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import {
@@ -56,6 +59,7 @@ export const InvestmentsView: React.FC<Props> = ({
   const totalPortfolioInvested = investments.reduce((sum, i) => sum + i.investedAmount, 0);
 
   // Handlers for manual investment updates
+  /** Handle open add modal. Uses setEditingItem, setFormType, setFormName to perform the operation. */
   const handleOpenAddModal = (type: InvestmentType) => {
     setEditingItem(null);
     setFormType(type);
@@ -67,6 +71,7 @@ export const InvestmentsView: React.FC<Props> = ({
     setIsModalOpen(true);
   };
 
+  /** Handle open edit modal. Uses setEditingItem, setFormType, setFormName to perform the operation. */
   const handleOpenEditModal = (item: InvestmentItem) => {
     setEditingItem(item);
     setFormType(item.type);
@@ -78,6 +83,7 @@ export const InvestmentsView: React.FC<Props> = ({
     setIsModalOpen(true);
   };
 
+  /** Handle save investment. Uses e.preventDefault, parseFloat, formName.trim to perform the operation. */
   const handleSaveInvestment = (e: React.FormEvent) => {
     e.preventDefault();
     const invNum = parseFloat(formInvested) || 0;
@@ -119,6 +125,7 @@ export const InvestmentsView: React.FC<Props> = ({
     setIsModalOpen(false);
   };
 
+  /** Handle delete investment. Uses confirm, onUpdateInvestments, investments.filter to perform the operation. */
   const handleDeleteInvestment = (id: string) => {
     if (confirm('Delete this investment item?')) {
       onUpdateInvestments(investments.filter((i) => i.id !== id));

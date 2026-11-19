@@ -1,3 +1,6 @@
+/**
+ * Collects recurring bill details, derives monthly equivalents, and submits the validated schedule to its parent.
+ */
 import React, { useState, useMemo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Check, Calculator, CalendarClock, Repeat } from 'lucide-react';
@@ -86,6 +89,7 @@ export const AddRecurringModal: React.FC<Props> = ({
 
   if (!isOpen) return null;
 
+  /** Handle submit. Uses e.preventDefault, name.trim, setError to perform the operation. */
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) {

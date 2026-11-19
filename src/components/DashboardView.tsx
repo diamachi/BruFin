@@ -1,3 +1,6 @@
+/**
+ * Aggregates monthly income, expenses, balances, and portfolio figures into the overview dashboard.
+ */
 import React, { useMemo } from 'react';
 import {
   Calendar,

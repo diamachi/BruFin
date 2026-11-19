@@ -1,3 +1,6 @@
+/**
+ * Creates or edits transactions. Form state is initialized from an existing record or defaults, validated, and passed to onSave.
+ */
 import React, { useState, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Check, RotateCcw } from 'lucide-react';
@@ -63,6 +66,7 @@ export const QuickAddModal: React.FC<Props> = ({
     }
   }, [initialData, isOpen]);
 
+  /** Handle clear. Uses setType, setCategory, getCategoryOptions to perform the operation. */
   const handleClear = () => {
     setType('Expense');
     setCategory(getCategoryOptions('Expense', expenseCategories)[0]?.name || EXPENSE_CATEGORIES[0].name);
@@ -76,6 +80,7 @@ export const QuickAddModal: React.FC<Props> = ({
     setError('');
   };
 
+  /** Handle type change. Uses setType, getCategoryOptions, setCategory to perform the operation. */
   const handleTypeChange = (newType: TransactionType) => {
     setType(newType);
     const categoryNames = newType === 'Expense' ? expenseCategories : incomeCategories;
@@ -83,11 +88,13 @@ export const QuickAddModal: React.FC<Props> = ({
     setCategory(options[0]?.name || (newType === 'Expense' ? EXPENSE_CATEGORIES[0].name : INCOME_CATEGORIES[0].name));
   };
 
+  /** Handle quick amount. Uses parseFloat, setAmount, toString to perform the operation. */
   const handleQuickAmount = (val: number) => {
     const current = parseFloat(amount) || 0;
     setAmount((current + val).toString());
   };
 
+  /** Handle submit. Uses e.preventDefault, parseFloat, isNaN to perform the operation. */
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const numAmount = parseFloat(amount);

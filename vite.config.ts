@@ -1,3 +1,6 @@
+/**
+ * Web build configuration: configures React and styling transforms for development and production bundles.
+ */
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';

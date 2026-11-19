@@ -1,3 +1,6 @@
+/**
+ * Optional server synchronization: tracks the common revision, merges local and remote snapshots, and preserves unresolved conflicts for user choice. Standalone use does not require this module to contact a server.
+ */
 import type { LocalDatabaseData } from './localDatabase';
 import { Capacitor } from '@capacitor/core';
 import {
@@ -74,17 +77,20 @@ let debounceTimer: number | undefined;
 let monitorStarted = false;
 let localChangeEpoch = 0;
 
+/** Create id. Uses crypto.randomUUID, Date.now, toString to perform the operation. */
 function createId(): string {
   if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') return crypto.randomUUID();
   return `${Date.now().toString(36)}_${Math.random().toString(36).slice(2)}_${Math.random().toString(36).slice(2)}`;
 }
 
+/** Default device name. Uses i.test to perform the operation. */
 function defaultDeviceName(): string {
   if (typeof navigator !== 'undefined' && /android/i.test(navigator.userAgent)) return 'Android phone';
   if (typeof navigator !== 'undefined' && /iphone|ipad/i.test(navigator.userAgent)) return 'iPhone or iPad';
   return 'BruFin browser';
 }
 
+/** Get server device name. Uses localStorage.getItem, trim, defaultDeviceName to perform the operation. */
 export function getServerDeviceName(): string {
   try {
     return localStorage.getItem(DEVICE_NAME_KEY)?.trim() || defaultDeviceName();
@@ -93,20 +99,24 @@ export function getServerDeviceName(): string {
   }
 }
 
+/** Save server device name. Uses value.replace, trim, slice to perform the operation. */
 export function saveServerDeviceName(value: string): string {
   const name = value.replace(/[\u0000-\u001f\u007f]/g, '').trim().slice(0, 48) || defaultDeviceName();
   try { localStorage.setItem(DEVICE_NAME_KEY, name); } catch { /* Browser storage may be unavailable. */ }
   return name;
 }
 
+/** Is http server allowed. Uses localStorage.getItem to perform the operation. */
 export function isHttpServerAllowed(): boolean {
   try { return localStorage.getItem(ALLOW_HTTP_KEY) === 'true'; } catch { return false; }
 }
 
+/** Set http server allowed. Uses localStorage.setItem to perform the operation. */
 export function setHttpServerAllowed(allowed: boolean): void {
   try { localStorage.setItem(ALLOW_HTTP_KEY, allowed ? 'true' : 'false'); } catch { /* Browser storage may be unavailable. */ }
 }
 
+/** Reject an HTTP server URL unless the user has enabled trusted LAN/VPN HTTP connections. */
 function assertHttpServerAllowed(serverUrl: string): void {
   if (!Capacitor.isNativePlatform() || !serverUrl.toLowerCase().startsWith('http://')) return;
   if (!isHttpServerAllowed()) {
@@ -114,6 +124,7 @@ function assertHttpServerAllowed(serverUrl: string): void {
   }
 }
 
+/** Parse config. Uses localStorage.getItem, JSON.parse to perform the operation. */
 function parseConfig(): ServerSyncConfig | null {
   try {
     const raw = localStorage.getItem(CONFIG_KEY);
@@ -126,24 +137,29 @@ function parseConfig(): ServerSyncConfig | null {
   }
 }
 
+/** Set status. Uses listeners.forEach, listener to perform the operation. */
 function setStatus(next: Partial<ServerSyncStatus>) {
   status = { ...status, ...next };
   listeners.forEach((listener) => listener(status));
 }
 
+/** Equal. Uses JSON.stringify to perform the operation. */
 function equal(a: unknown, b: unknown): boolean {
   return JSON.stringify(a) === JSON.stringify(b);
 }
 
+/** Clone data. Uses JSON.parse, JSON.stringify to perform the operation. */
 function cloneData(data: LocalDatabaseData): LocalDatabaseData {
   return JSON.parse(JSON.stringify(data)) as LocalDatabaseData;
 }
 
+/** Item key. Uses String to perform the operation. */
 function itemKey(section: keyof LocalDatabaseData, item: unknown): string {
   if (section === 'expenseCategories' || section === 'incomeCategories') return String(item);
   return item && typeof item === 'object' && 'id' in item ? String((item as { id: unknown }).id) : '';
 }
 
+/** Compare each record against the shared base. Accept one-sided changes and retain competing changes as explicit conflicts. */
 function mergeSnapshots(base: LocalDatabaseData, local: LocalDatabaseData, remote: LocalDatabaseData) {
   const merged = cloneData(remote);
   const conflicts: SyncConflict[] = [];
@@ -196,6 +212,7 @@ function mergeSnapshots(base: LocalDatabaseData, local: LocalDatabaseData, remot
   return { merged, conflicts };
 }
 
+/** Send an authenticated server request with device headers and translate HTTP failures into caller-visible errors. */
 async function request<T>(path: string, init: RequestInit = {}, config = parseConfig()): Promise<T> {
   if (!config) throw new Error('Connect this device to your BruFin server in Settings.');
   assertHttpServerAllowed(config.serverUrl);
@@ -222,10 +239,12 @@ async function request<T>(path: string, init: RequestInit = {}, config = parseCo
   return { ...payload, _status: response.status } as T;
 }
 
+/** Get remote. Returns the value derived from the inputs and state below. */
 async function getRemote(config?: ServerSyncConfig | null): Promise<ServerState> {
   return request<ServerState>('/api/state', {}, config);
 }
 
+/** Push snapshot. Uses parseConfig, Error, JSON.stringify to perform the operation. */
 async function pushSnapshot(data: LocalDatabaseData, baseRevision: number, config?: ServerSyncConfig | null) {
   const activeConfig = config || parseConfig();
   if (!activeConfig) throw new Error('No server configured.');
@@ -240,23 +259,28 @@ async function pushSnapshot(data: LocalDatabaseData, baseRevision: number, confi
   return response;
 }
 
+/** Set base. Uses cloneData to perform the operation. */
 async function setBase(revision: number, data: LocalDatabaseData) {
   await saveSyncMetadata<SyncBase>(BASE_KEY, { revision, data: cloneData(data) });
 }
 
+/** Apply remote data. Uses replaceLocalDatabaseData to perform the operation. */
 async function applyRemoteData(data: LocalDatabaseData) {
   await replaceLocalDatabaseData(data);
 }
 
+/** Get server sync config. Uses parseConfig to perform the operation. */
 export function getServerSyncConfig(): ServerSyncConfig | null {
   return parseConfig();
 }
 
+/** Get connected server devices. Uses Array.isArray to perform the operation. */
 export async function getConnectedServerDevices(): Promise<ServerDevice[]> {
   const payload = await request<{ devices?: ServerDevice[] }>('/api/devices');
   return Array.isArray(payload.devices) ? payload.devices : [];
 }
 
+/** Is server bootstrap available. Uses serverUrlInput.trim, replace, i.test to perform the operation. */
 export async function isServerBootstrapAvailable(serverUrlInput: string): Promise<boolean> {
   const serverUrl = serverUrlInput.trim().replace(/\/+$/, '');
   if (!/^https?:\/\//i.test(serverUrl)) return false;
@@ -269,6 +293,7 @@ export async function isServerBootstrapAvailable(serverUrlInput: string): Promis
   }
 }
 
+/** Claim server bootstrap. Uses serverUrlInput.trim, replace, i.test to perform the operation. */
 export async function claimServerBootstrap(serverUrlInput: string): Promise<string> {
   const serverUrl = serverUrlInput.trim().replace(/\/+$/, '');
   if (!/^https?:\/\//i.test(serverUrl)) throw new Error('Enter a valid BruFin server URL.');
@@ -284,6 +309,7 @@ export async function claimServerBootstrap(serverUrlInput: string): Promise<stri
   return payload.token as string;
 }
 
+/** Request a short-lived pairing code from the authenticated server for displaying in a QR code. */
 export async function createServerPairingCode(serverUrlInput: string, tokenInput: string) {
   const serverUrl = serverUrlInput.trim().replace(/\/+$/, '');
   const token = tokenInput.trim();
@@ -300,6 +326,7 @@ export async function createServerPairingCode(serverUrlInput: string, tokenInput
   return { code: payload.code as string, expiresAt: payload.expiresAt as number };
 }
 
+/** Exchange the scanned pairing code for server credentials so the phone can establish its connection. */
 export async function exchangeServerPairingCode(serverUrlInput: string, code: string): Promise<string> {
   const serverUrl = serverUrlInput.trim().replace(/\/+$/, '');
   if (!/^https?:\/\//i.test(serverUrl)) throw new Error('The pairing QR contains an invalid server URL.');
@@ -321,17 +348,20 @@ export async function exchangeServerPairingCode(serverUrlInput: string, code: st
   return payload.token as string;
 }
 
+/** Get server sync status. Uses parseConfig to perform the operation. */
 export function getServerSyncStatus(): ServerSyncStatus {
   const configured = !!parseConfig();
   return { ...status, configured, conflicts: status.conflicts };
 }
 
+/** Subscribe to server sync. Uses listeners.add, listener, getServerSyncStatus to perform the operation. */
 export function subscribeToServerSync(listener: (value: ServerSyncStatus) => void): () => void {
   listeners.add(listener);
   listener(getServerSyncStatus());
   return () => listeners.delete(listener);
 }
 
+/** Validate and save the server connection, then initialize synchronization using the selected source of data. */
 export async function configureServerSync(
   serverUrlInput: string,
   tokenInput: string,
@@ -374,12 +404,14 @@ export async function configureServerSync(
   }
 }
 
+/** Disconnect server sync. Uses localStorage.removeItem, saveSyncMetadata, setStatus to perform the operation. */
 export async function disconnectServerSync() {
   localStorage.removeItem(CONFIG_KEY);
   await saveSyncMetadata(CONFLICTS_KEY, [] satisfies SyncConflict[]);
   setStatus({ configured: false, state: 'local', pending: false, conflicts: [], message: 'This device only', revision: undefined });
 }
 
+/** Run a single shared synchronization attempt: fetch the remote revision, merge snapshots, and push changes while retaining offline work. */
 export async function syncNow(): Promise<void> {
   if (syncPromise) return syncPromise;
   const config = parseConfig();
@@ -470,6 +502,7 @@ export async function syncNow(): Promise<void> {
   return syncPromise;
 }
 
+/** Apply the chosen local or server value, persist the remaining conflicts, and resume synchronization. */
 export async function resolveServerSyncConflict(conflictId: string, choice: 'local' | 'server') {
   const conflicts = (await loadSyncMetadata<SyncConflict[]>(CONFLICTS_KEY)) || [];
   const conflict = conflicts.find((item) => item.id === conflictId);
@@ -492,9 +525,11 @@ export async function resolveServerSyncConflict(conflictId: string, choice: 'loc
   if (remaining.length === 0) await syncNow();
 }
 
+/** Subscribe to local data and connectivity changes, debouncing writes and retrying synchronization after reconnection. */
 export function startServerSyncMonitor() {
   if (monitorStarted || typeof window === 'undefined') return;
   monitorStarted = true;
+  /** On change. Uses parseConfig, setStatus, window.clearTimeout to perform the operation. */
   const onChange = () => {
     if (!parseConfig()) return;
     localChangeEpoch += 1;
@@ -502,6 +537,7 @@ export function startServerSyncMonitor() {
     window.clearTimeout(debounceTimer);
     debounceTimer = window.setTimeout(() => { void syncNow(); }, 700);
   };
+  /** On reconnect. Uses syncNow, window.addEventListener, void to perform the operation. */
   const onReconnect = () => { void syncNow(); };
   window.addEventListener('brufin:data-changed', onChange);
   window.addEventListener('online', onReconnect);

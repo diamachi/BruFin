@@ -1,3 +1,6 @@
+/**
+ * Desktop navigation: renders available destinations and highlights the active application section.
+ */
 import React from 'react';
 import {
   Banknote, CreditCard, LayoutDashboard, Plus, ReceiptText, Settings, TrendingUp, Wallet,
@@ -21,6 +24,7 @@ const items: { id: ViewTab; label: string; icon: React.ComponentType<{ className
   { id: 'investments', label: 'Investments & loans', icon: Banknote },
 ];
 
+/** Render the desktop nav interface from its props and local React state; callbacks send user changes to the owning screen. */
 export const DesktopNav: React.FC<Props> = ({ activeTab, onTabChange, onOpenQuickAdd, onOpenSettings }) => (
   <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 flex-col border-r border-[#E8E1DB] bg-[#F7F6F3] px-4 py-6 dark:border-[#363B44] dark:bg-[#17191C] lg:flex">
     <div className="mb-8 flex items-center gap-3 px-2">

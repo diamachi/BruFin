@@ -1,3 +1,6 @@
+/**
+ * Local persistence boundary: maintains an in-memory snapshot backed by IndexedDB. Writes are serialized so overlapping UI updates cannot reorder database commits.
+ */
 import {
   Transaction,
   CreditCard,
@@ -68,6 +71,7 @@ let cachedData: LocalDatabaseData = { ...EMPTY_DATA };
 let isInitialized = false;
 let writeQueue: Promise<void> = Promise.resolve();
 
+/** Open the IndexedDB connection and create or upgrade its stores when the schema version changes. */
 function openDatabase(): Promise<IDBDatabase> {
   if (databasePromise) return databasePromise;
   databasePromise = new Promise<IDBDatabase>((resolve, reject) => {
@@ -119,6 +123,7 @@ function openDatabase(): Promise<IDBDatabase> {
   return databasePromise;
 }
 
+/** Read legacy value. Uses localStorage.getItem, JSON.parse to perform the operation. */
 function readLegacyValue<T>(key: string, fallback: T): T {
   try {
     const raw = localStorage.getItem(key);
@@ -128,6 +133,7 @@ function readLegacyValue<T>(key: string, fallback: T): T {
   }
 }
 
+/** Can remove legacy value. Uses localStorage.getItem, JSON.parse, Number.isFinite to perform the operation. */
 function canRemoveLegacyValue(key: string): boolean {
   try {
     const raw = localStorage.getItem(key);
@@ -140,6 +146,7 @@ function canRemoveLegacyValue(key: string): boolean {
   }
 }
 
+/** Normalize section. Uses return, Number.isFinite, Array.isArray to perform the operation. */
 function normalizeSection<K extends SectionName>(name: K, value: unknown): LocalDatabaseData[K] {
   if (name === 'monthlyTarget') {
     return (typeof value === 'number' && Number.isFinite(value) && value > 0
@@ -158,6 +165,7 @@ function normalizeSection<K extends SectionName>(name: K, value: unknown): Local
   return (Array.isArray(value) ? value : EMPTY_DATA[name]) as LocalDatabaseData[K];
 }
 
+/** Resolve only when IndexedDB commits; reject on transaction failure so callers do not treat an aborted write as saved. */
 function waitForTransaction(transaction: IDBTransaction): Promise<void> {
   return new Promise((resolve, reject) => {
     transaction.oncomplete = () => resolve();
@@ -166,6 +174,7 @@ function waitForTransaction(transaction: IDBTransaction): Promise<void> {
   });
 }
 
+/** Persist changed sections in an IndexedDB transaction; transaction records are compared by ID to avoid rewriting unchanged rows. */
 async function writeSectionsDirect(
   database: IDBDatabase,
   data: LocalDatabaseUpdates,
@@ -192,6 +201,7 @@ async function writeSectionsDirect(
   await waitForTransaction(transaction);
 }
 
+/** Hydrate the in-memory snapshot from IndexedDB, importing supported legacy values before exposing the database to the UI. */
 export async function initializeLocalDatabase(): Promise<void> {
   if (isInitialized) return;
   const database = await openDatabase();
@@ -201,6 +211,7 @@ export async function initializeLocalDatabase(): Promise<void> {
   const { sections, transactions } = await new Promise<{ sections: StoredSection[]; transactions: Transaction[] }>((resolve, reject) => {
     let sectionRows: StoredSection[] | undefined;
     let transactionRows: Transaction[] | undefined;
+    /** Finish. Uses resolve to perform the operation. */
     const finish = () => {
       if (sectionRows && transactionRows) resolve({ sections: sectionRows, transactions: transactionRows });
     };
@@ -249,11 +260,13 @@ export async function initializeLocalDatabase(): Promise<void> {
   isInitialized = true;
 }
 
+/** Get local database data. Uses Error to perform the operation. */
 export function getLocalDatabaseData(): LocalDatabaseData {
   if (!isInitialized) throw new Error('Local database has not finished initializing.');
   return cachedData;
 }
 
+/** Queue section updates behind earlier writes, keeping the memory snapshot and persisted state in commit order. */
 export function saveLocalDatabaseSections(updates: LocalDatabaseUpdates): Promise<void> {
   if (!isInitialized) return Promise.reject(new Error('Local database has not finished initializing.'));
   const normalized = Object.fromEntries(
@@ -270,10 +283,12 @@ export function saveLocalDatabaseSections(updates: LocalDatabaseUpdates): Promis
   return operation;
 }
 
+/** Replace local database data. Uses saveLocalDatabaseSections to perform the operation. */
 export function replaceLocalDatabaseData(data: LocalDatabaseData): Promise<void> {
   return saveLocalDatabaseSections(data);
 }
 
+/** Load sync metadata. Uses openDatabase, database.transaction, transaction.objectStore to perform the operation. */
 export async function loadSyncMetadata<T>(key: string): Promise<T | null> {
   const database = await openDatabase();
   const transaction = database.transaction(SYNC_STORE, 'readonly');
@@ -284,6 +299,7 @@ export async function loadSyncMetadata<T>(key: string): Promise<T | null> {
   });
 }
 
+/** Save sync metadata. Uses openDatabase, database.transaction, transaction.objectStore to perform the operation. */
 export async function saveSyncMetadata<T>(key: string, value: T): Promise<void> {
   const database = await openDatabase();
   const transaction = database.transaction(SYNC_STORE, 'readwrite');

@@ -1,3 +1,6 @@
+/**
+ * Edits categories, payment methods, recurring payments, appearance, and storage preferences; delegates persistence to supplied callbacks.
+ */
 import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import {
@@ -126,6 +129,7 @@ export const SettingsModal: React.FC<Props> = ({
   const defaultCategoryNames = (categoryType === 'Expense' ? EXPENSE_CATEGORIES : INCOME_CATEGORIES)
     .map((category) => category.name);
 
+  /** Submit new category. Uses event.preventDefault, newCategoryName.trim, categoryNames.some to perform the operation. */
   const submitNewCategory = async (event: React.FormEvent) => {
     event.preventDefault();
     const name = newCategoryName.trim();
@@ -144,11 +148,13 @@ export const SettingsModal: React.FC<Props> = ({
     }
   };
 
+  /** Remove category. Uses onUpdateCategories, categoryNames.filter to perform the operation. */
   const removeCategory = (name: string) => {
     if (categoryNames.length <= 1) return;
     void onUpdateCategories(categoryType, categoryNames.filter((category) => category !== name));
   };
 
+  /** Handle save target. Uses e.preventDefault, parseFloat, isNaN to perform the operation. */
   const handleSaveTarget = (e: React.FormEvent) => {
     e.preventDefault();
     const val = parseFloat(targetInput);
@@ -159,6 +165,7 @@ export const SettingsModal: React.FC<Props> = ({
     }
   };
 
+  /** Handle add recurring. Uses e.preventDefault, parseFloat, recName.trim to perform the operation. */
   const handleAddRecurring = (e: React.FormEvent) => {
     e.preventDefault();
     const num = parseFloat(recAmount);
@@ -181,10 +188,12 @@ export const SettingsModal: React.FC<Props> = ({
     setShowAddRecurring(false);
   };
 
+  /** Handle delete recurring. Uses onUpdateRecurring, recurringPayments.filter to perform the operation. */
   const handleDeleteRecurring = (id: string) => {
     onUpdateRecurring(recurringPayments.filter((r) => r.id !== id));
   };
 
+  /** Handle add payment method. Uses e.preventDefault, newMethodName.trim, paymentMethods.some to perform the operation. */
   const handleAddPaymentMethod = (e: React.FormEvent) => {
     e.preventDefault();
     const cleanName = newMethodName.trim();
@@ -209,6 +218,7 @@ export const SettingsModal: React.FC<Props> = ({
     setShowAddPaymentMethod(false);
   };
 
+  /** Handle delete payment method. Uses confirm, paymentMethods.filter, onUpdatePaymentMethods to perform the operation. */
   const handleDeletePaymentMethod = (id: string, name: string) => {
     if (confirm(`Remove "${name}" from payment options? It will no longer appear in the expenses and income logs.`)) {
       const updated = paymentMethods.filter((pm) => pm.id !== id);
@@ -216,12 +226,14 @@ export const SettingsModal: React.FC<Props> = ({
     }
   };
 
+  /** Handle reset default payment methods. Uses confirm, defaults, onUpdatePaymentMethods to perform the operation. */
   const handleResetDefaultPaymentMethods = () => {
     if (confirm('Reset payment methods back to the standard defaults (UPI, Debit Card, Cash, Net Banking, Other)?')) {
       onUpdatePaymentMethods(DEFAULT_BASE_PAYMENT_MODES);
     }
   };
 
+  /** Handle file change. Uses onImportJSON to perform the operation. */
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -229,6 +241,7 @@ export const SettingsModal: React.FC<Props> = ({
     }
   };
 
+  /** Handle historical file change. Uses onOpenArchiveImport to perform the operation. */
   const handleHistoricalFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) onOpenArchiveImport(file);

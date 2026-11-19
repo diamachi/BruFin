@@ -1,3 +1,6 @@
+/**
+ * Catches React render failures and presents recovery actions, including reload and a confirmed local-data reset.
+ */
 import { Component, ErrorInfo, ReactNode } from 'react';
 import { AlertTriangle, RotateCcw, Trash2 } from 'lucide-react';
 import { clearAllData } from '../utils/storage';
@@ -13,6 +16,7 @@ interface State {
 }
 
 export class ErrorBoundary extends Component<Props, State> {
+  /** Initialize the recovery screen in its normal, error-free state. */
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -22,6 +26,7 @@ export class ErrorBoundary extends Component<Props, State> {
     };
   }
 
+  /** Switch to the fallback UI when React reports a descendant render failure. */
   static getDerivedStateFromError(error: Error): State {
     return {
       hasError: true,
@@ -30,15 +35,18 @@ export class ErrorBoundary extends Component<Props, State> {
     };
   }
 
+  /** Capture the component stack for debugging after React catches an error. */
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error('ErrorBoundary caught an unhandled error:', error, errorInfo);
     this.setState({ error, errorInfo });
   }
 
+  /** Reload the document to recreate application state from persisted data. */
   handleReload = () => {
     window.location.reload();
   };
 
+  /** Ask for confirmation, clear local BruFin data, and reload; surface storage failures instead of silently continuing. */
   handleReset = async () => {
     if (confirm('Reset BruFin and permanently delete its saved financial data on this device? Other sites’ data will be kept.')) {
       try {
@@ -51,6 +59,7 @@ export class ErrorBoundary extends Component<Props, State> {
     }
   };
 
+  /** Render children normally, or display the recovery controls when an error has been captured. */
   render() {
     if (this.state.hasError) {
       return (

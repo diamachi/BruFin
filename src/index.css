@@ -1,3 +1,4 @@
+/* Shared theme tokens and component styling. Palette variables feed both light and dark surfaces; media/container rules adapt screen layouts. */
 @import "tailwindcss";
 
 @custom-variant dark (&:where(.dark, .dark *));

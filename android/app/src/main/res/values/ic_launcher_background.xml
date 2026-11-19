@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Android launcher artwork resource. Keep the adaptive foreground and monochrome artwork inside the launcher safe area. -->
 <resources>
     <color name="ic_launcher_background">#EF6448</color>
 </resources>

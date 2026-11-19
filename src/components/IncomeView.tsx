@@ -1,3 +1,6 @@
+/**
+ * Displays and filters monthly income records and routes create/edit/delete actions back to application state.
+ */
 import React, { useState, useMemo } from 'react';
 import {
   Search,

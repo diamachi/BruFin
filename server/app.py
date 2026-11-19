@@ -42,6 +42,7 @@ COLLECTIONS = (
 
 
 def connect_db() -> sqlite3.Connection:
+    """Open the persistent SQLite database, restrict file permissions, and enable WAL, durable writes, and foreign keys."""
     DATA_DIR.mkdir(parents=True, exist_ok=True, mode=0o700)
     try:
         os.chmod(DATA_DIR, 0o700)
@@ -95,6 +96,7 @@ def load_or_create_api_token() -> str:
 
 
 def initialize_db() -> None:
+    """Create the server schema and initialize state metadata before accepting requests."""
     with DB_LOCK, closing(connect_db()) as db:
         db.executescript(
             """
@@ -157,6 +159,7 @@ def initialize_db() -> None:
 
 
 def is_bootstrap_available(db: sqlite3.Connection) -> bool:
+    """Check whether first-run pairing is enabled and the database is still eligible to be claimed."""
     if not ALLOW_FIRST_RUN_PAIRING:
         return False
     state = db.execute("SELECT has_data FROM app_state WHERE id=1").fetchone()
@@ -165,12 +168,14 @@ def is_bootstrap_available(db: sqlite3.Connection) -> bool:
 
 
 def record_id(collection: str, item: object) -> str:
+    """Choose a stable record identity for the collection so snapshot writes can address individual records."""
     if collection in ("expenseCategories", "incomeCategories"):
         return str(item)
     return str(item["id"])
 
 
 def write_records(db: sqlite3.Connection, data: dict) -> None:
+    """Store the supplied finance collections as serialized records in the caller-owned database transaction."""
     for collection in COLLECTIONS:
         desired = {
             record_id(collection, item): json.dumps(item, ensure_ascii=False, separators=(",", ":"), allow_nan=False)
@@ -192,6 +197,7 @@ def write_records(db: sqlite3.Connection, data: dict) -> None:
 
 
 def read_state(db: sqlite3.Connection) -> dict:
+    """Reconstruct the current finance snapshot and revision metadata from SQLite for synchronization responses."""
     state = db.execute("SELECT revision, has_data, monthly_target, updated_at FROM app_state WHERE id=1").fetchone()
     data = None
     if state["has_data"]:
@@ -203,6 +209,7 @@ def read_state(db: sqlite3.Connection) -> dict:
 
 
 def json_response(handler: BaseHTTPRequestHandler, status: int, value: object) -> None:
+    """Serialize a value as JSON, set response headers and status, then write the encoded body to the HTTP stream."""
     body = json.dumps(value, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
     handler.send_response(status)
     handler.send_header("Content-Type", "application/json; charset=utf-8")
@@ -217,9 +224,11 @@ class BruFinHandler(BaseHTTPRequestHandler):
 
     def log_message(self, format: str, *args: object) -> None:
         # Avoid logging request headers, payloads, tokens, or finance data.
+        """Write an HTTP request log without including the full default handler metadata."""
         print(f"[{self.log_date_time_string()}] {self.command} {self.path.split('?')[0]}")
 
     def end_headers(self) -> None:
+        """Append the configured cross-origin response headers before finishing the HTTP header block."""
         origin = self.headers.get("Origin", "")
         if origin in ALLOWED_ORIGINS:
             self.send_header("Access-Control-Allow-Origin", origin)
@@ -231,16 +240,19 @@ class BruFinHandler(BaseHTTPRequestHandler):
         super().end_headers()
 
     def do_OPTIONS(self) -> None:
+        """Answer browser preflight requests with the methods and headers allowed by this API."""
         self.send_response(204)
         self.send_header("Content-Length", "0")
         self.end_headers()
 
     def authorized(self) -> bool:
+        """Compare the supplied bearer token against the server token using constant-time comparison."""
         supplied = self.headers.get("Authorization", "")
         expected = f"Bearer {API_TOKEN}"
         return bool(API_TOKEN) and hmac.compare_digest(supplied.encode(), expected.encode())
 
     def require_auth(self) -> bool:
+        """Reject unauthenticated calls; for authenticated device requests, refresh device presence and prune stale entries."""
         if self.authorized():
             with DB_LOCK, closing(connect_db()) as db:
                 db.execute("UPDATE server_setup SET bootstrap_claimed=1 WHERE id=1")
@@ -262,6 +274,7 @@ class BruFinHandler(BaseHTTPRequestHandler):
         return False
 
     def do_GET(self) -> None:
+        """Route health, setup, state, and device-list reads; serve the compiled dashboard for non-API paths."""
         path = urlparse(self.path).path
         if path == "/api/health":
             with DB_LOCK, closing(connect_db()) as db:
@@ -301,6 +314,7 @@ class BruFinHandler(BaseHTTPRequestHandler):
         self.serve_web(path)
 
     def do_HEAD(self) -> None:
+        """Return resource headers without a response body, using the same static hosting path as GET."""
         path = urlparse(self.path).path
         if path.startswith("/api/"):
             self.send_response(405)
@@ -311,6 +325,7 @@ class BruFinHandler(BaseHTTPRequestHandler):
         self.serve_web(path, head_only=True)
 
     def do_POST(self) -> None:
+        """Route setup, pairing, and snapshot writes. Validate payloads and enforce revision checks before committing shared state."""
         path = urlparse(self.path).path
         if path == "/api/bootstrap/claim":
             if not ALLOW_FIRST_RUN_PAIRING:
@@ -483,6 +498,7 @@ class BruFinHandler(BaseHTTPRequestHandler):
         json_response(self, 200, state)
 
     def serve_web(self, request_path: str, head_only: bool = False) -> None:
+        """Resolve a requested asset beneath the web root, prevent path traversal, and serve the dashboard fallback for client routes."""
         relative = unquote(request_path).lstrip("/")
         candidate = (WEB_DIR / relative).resolve()
         try:
@@ -514,6 +530,7 @@ class BruFinHandler(BaseHTTPRequestHandler):
 
 
 def main() -> None:
+    """Initialize persistent credentials and schema, then run the threaded HTTP server on the configured bind address and port."""
     global API_TOKEN
     API_TOKEN = load_or_create_api_token()
     initialize_db()

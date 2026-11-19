@@ -1,3 +1,4 @@
+<!-- Android launcher artwork resource. Keep the adaptive foreground and monochrome artwork inside the launcher safe area. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"

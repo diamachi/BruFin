@@ -1,3 +1,4 @@
+// Root Android build: configure plugin repositories and shared Gradle tasks for the native shell.
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {

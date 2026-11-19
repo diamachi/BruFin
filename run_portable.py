@@ -21,14 +21,17 @@ if not os.path.isdir(DIST_DIR):
 
 class PortableRequestHandler(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
+        """Bind the portable static-file handler to the compiled dist directory instead of the current working directory."""
         super().__init__(*args, directory=DIST_DIR, **kwargs)
 
     def end_headers(self):
         # Enable caching-friendly offline headers
+        """Disable cached responses so a rebuilt portable dashboard is loaded on the next request."""
         self.send_header('Cache-Control', 'no-cache')
         super().end_headers()
 
 def main():
+    """Start a loopback-only static server for dist, open the browser, and handle keyboard shutdown. This runner does not host the synchronization API."""
     os.chdir(DIST_DIR)
     server_address = ('127.0.0.1', PORT)
     

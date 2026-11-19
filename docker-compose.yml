@@ -1,3 +1,4 @@
+# Local source deployment: build this checkout and persist SQLite and pairing credentials in ./data.
 services:
   brufin:
     build: .

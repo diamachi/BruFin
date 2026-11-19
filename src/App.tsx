@@ -1,3 +1,6 @@
+/**
+ * Application coordinator: owns finance state, navigation, imports, and persistence callbacks. Screens receive data and actions through props; storage and sync stay in the utility layer.
+ */
 import React, { useState, useMemo, useEffect } from 'react';
 import { Transaction, CreditCard, RecurringPayment, InvestmentItem, LoanItem, MonthlyAccountBalance, ViewTab, PaymentMethodItem } from './types';
 import {
@@ -72,6 +75,7 @@ const SettingsModal = React.lazy(() => import('./components/SettingsModal').then
 const PageHelpModal = React.lazy(() => import('./components/PageHelpModal').then((module) => ({ default: module.PageHelpModal })));
 const OnboardingModal = React.lazy(() => import('./components/OnboardingModal').then((module) => ({ default: module.OnboardingModal })));
 
+/** Render the app interface from its props and local React state; callbacks send user changes to the owning screen. */
 export const App: React.FC = () => {
   // Theme state: 'light' or 'dark'
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
@@ -97,6 +101,7 @@ export const App: React.FC = () => {
     try { localStorage.setItem('brufin_color_palette', colorPalette); } catch { /* Keep the palette active for this session. */ }
   }, [colorPalette]);
 
+  /** Toggle theme. Uses setTheme to perform the operation. */
   const toggleTheme = () => {
     setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
   };
@@ -114,6 +119,7 @@ export const App: React.FC = () => {
     }
   }, [appScale]);
 
+  /** Handle update app scale. Uses Math.max, Math.min, Math.round to perform the operation. */
   const handleUpdateAppScale = (newScale: number) => {
     const clamped = Math.max(0.8, Math.min(1.5, Math.round(newScale * 100) / 100));
     setAppScaleState(clamped);
@@ -149,6 +155,7 @@ export const App: React.FC = () => {
   useEffect(() => {
     const unsubscribe = subscribeToServerSync(setServerSyncStatus);
     startServerSyncMonitor();
+    /** Refresh from database. Uses setTransactions, loadTransactions, setCreditCards to perform the operation. */
     const refreshFromDatabase = () => {
       setTransactions(loadTransactions());
       setCreditCards(loadCreditCards());
@@ -179,6 +186,7 @@ export const App: React.FC = () => {
   const [isDiagnosticsExpanded, setIsDiagnosticsExpanded] = useState(false);
   const [isDiagnosticsModalOpen, setIsDiagnosticsModalOpen] = useState(false);
 
+  /** Handle toggle diagnostics. Uses setIsDiagnosticsActive, setDiagnosticsEnabled, setIsDiagnosticsExpanded to perform the operation. */
   const handleToggleDiagnostics = (enabled: boolean) => {
     setIsDiagnosticsActive(enabled);
     setDiagnosticsEnabled(enabled);
@@ -186,6 +194,7 @@ export const App: React.FC = () => {
     showToast(enabled ? 'Diagnostics monitor enabled' : 'Diagnostics monitor hidden');
   };
 
+  /** Handle tap coffee. Uses setIsDiagnosticsExpanded, handleToggleDiagnostics, window.requestAnimationFrame to perform the operation. */
   const handleTapCoffee = () => {
     if (isDiagnosticsExpanded) {
       setIsDiagnosticsExpanded(false);
@@ -241,11 +250,13 @@ export const App: React.FC = () => {
     }
   }, [hasOnboarded, balancePromptsEnabled, monthlyBalances]);
 
+  /** Show toast. Uses setToastMessage, setTimeout to perform the operation. */
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3000);
   };
 
+  /** Persist write. Uses console.error, showToast to perform the operation. */
   const persistWrite = async (write: Promise<void>): Promise<boolean> => {
     try {
       await write;
@@ -290,6 +301,7 @@ export const App: React.FC = () => {
   }, [transactions]);
 
   // Handlers
+  /** Handle save transaction. Uses transactions.map, persistWrite, saveTransactions to perform the operation. */
   const handleSaveTransaction = async (transactionData: Omit<Transaction, 'id'>) => {
     if (editingTransaction) {
       const updated = transactions.map((t) =>
@@ -311,6 +323,7 @@ export const App: React.FC = () => {
     }
   };
 
+  /** Handle delete transaction. Uses transactions.filter, persistWrite, saveTransactions to perform the operation. */
   const handleDeleteTransaction = async (id: string) => {
     const updated = transactions.filter((t) => t.id !== id);
     if (!(await persistWrite(saveTransactions(updated)))) return;
@@ -318,18 +331,21 @@ export const App: React.FC = () => {
     showToast('Transaction deleted');
   };
 
+  /** Handle update target. Uses persistWrite, saveMonthlyTarget, setMonthlyTarget to perform the operation. */
   const handleUpdateTarget = async (target: number) => {
     if (!(await persistWrite(saveMonthlyTarget(target)))) return;
     setMonthlyTarget(target);
     showToast(`Monthly budget target set to ₹ ${target.toLocaleString('en-IN')}`);
   };
 
+  /** Handle update recurring. Uses persistWrite, saveRecurringPayments, setRecurringPayments to perform the operation. */
   const handleUpdateRecurring = async (payments: RecurringPayment[]) => {
     if (!(await persistWrite(saveRecurringPayments(payments)))) return;
     setRecurringPayments(payments);
     showToast('Recurring payments updated');
   };
 
+  /** Handle save new recurring. Uses recurringPayments.find, recurringPayments.map, persistWrite to perform the operation. */
   const handleSaveNewRecurring = async (rec: RecurringPayment) => {
     const exists = recurringPayments.find((r) => r.id === rec.id);
     let updated: RecurringPayment[];
@@ -343,6 +359,7 @@ export const App: React.FC = () => {
     showToast(`Saved recurring bill: ${rec.name}`);
   };
 
+  /** Handle post recurring. Uses getCurrentMonthKey, postRecurringPaymentToExpenses, persistWrite to perform the operation. */
   const handlePostRecurring = async (rec: RecurringPayment) => {
     const monthKey = selectedMonth === 'All' ? getCurrentMonthKey() : selectedMonth;
     const updated = postRecurringPaymentToExpenses(rec, monthKey, transactions);
@@ -351,6 +368,7 @@ export const App: React.FC = () => {
     showToast(`Posted ${rec.name} (₹${rec.amount}) to expenses`);
   };
 
+  /** Handle post all due recurring. Uses getCurrentMonthKey, getRecurringPaymentStatuses, statuses.filter to perform the operation. */
   const handlePostAllDueRecurring = async () => {
     const monthKey = selectedMonth === 'All' ? getCurrentMonthKey() : selectedMonth;
     const statuses = getRecurringPaymentStatuses(recurringPayments, transactions, monthKey);
@@ -371,24 +389,28 @@ export const App: React.FC = () => {
     showToast(`Posted ${unposted.length} recurring bills to expenses!`);
   };
 
+  /** Handle update investments. Uses persistWrite, saveInvestments, setInvestments to perform the operation. */
   const handleUpdateInvestments = async (items: InvestmentItem[]) => {
     if (!(await persistWrite(saveInvestments(items)))) return;
     setInvestments(items);
     showToast('Investments updated');
   };
 
+  /** Handle update credit cards. Uses persistWrite, saveCreditCards, setCreditCards to perform the operation. */
   const handleUpdateCreditCards = async (cards: CreditCard[]) => {
     if (!(await persistWrite(saveCreditCards(cards)))) return;
     setCreditCards(cards);
     showToast('Credit cards updated');
   };
 
+  /** Handle update payment methods. Uses persistWrite, savePaymentMethods, setPaymentMethods to perform the operation. */
   const handleUpdatePaymentMethods = async (methods: PaymentMethodItem[]) => {
     if (!(await persistWrite(savePaymentMethods(methods)))) return;
     setPaymentMethods(methods);
     showToast('Payment methods updated');
   };
 
+  /** Handle update categories. Uses saveExpenseCategories, saveIncomeCategories, persistWrite to perform the operation. */
   const handleUpdateCategories = async (type: TransactionCategoryType, categories: string[]): Promise<boolean> => {
     const write = type === 'Expense' ? saveExpenseCategories(categories) : saveIncomeCategories(categories);
     if (!(await persistWrite(write))) return false;
@@ -398,24 +420,28 @@ export const App: React.FC = () => {
     return true;
   };
 
+  /** Handle update loans. Uses persistWrite, saveLoans, setLoans to perform the operation. */
   const handleUpdateLoans = async (items: LoanItem[]) => {
     if (!(await persistWrite(saveLoans(items)))) return;
     setLoans(items);
     showToast('Loans updated');
   };
 
+  /** Handle update balances. Uses persistWrite, saveMonthlyBalances, setMonthlyBalances to perform the operation. */
   const handleUpdateBalances = async (bals: MonthlyAccountBalance[]) => {
     if (!(await persistWrite(saveMonthlyBalances(bals)))) return;
     setMonthlyBalances(bals);
     showToast('Bank balances updated');
   };
 
+  /** Handle open update balance. Uses setBalancePromptMonthKey, setBalancePromptMode, setIsBalancePromptOpen to perform the operation. */
   const handleOpenUpdateBalance = (monthKey: string) => {
     setBalancePromptMonthKey(monthKey);
     setBalancePromptMode('manual_edit');
     setIsBalancePromptOpen(true);
   };
 
+  /** Handle save unified balance. Uses updateUnifiedMonthlyBalance, persistWrite, saveMonthlyBalances to perform the operation. */
   const handleSaveUnifiedBalance = async (mKey: string, start: number, end: number, notes?: string) => {
     const updated = updateUnifiedMonthlyBalance(monthlyBalances, mKey, start, end, notes);
     if (!(await persistWrite(saveMonthlyBalances(updated)))) return;
@@ -423,12 +449,14 @@ export const App: React.FC = () => {
     showToast(`Saved liquid balance for ${mKey}`);
   };
 
+  /** Handle toggle balance prompts. Uses setBalancePromptsEnabled, setBalancePromptsEnabledState, showToast to perform the operation. */
   const handleToggleBalancePrompts = (enabled: boolean) => {
     setBalancePromptsEnabled(enabled);
     setBalancePromptsEnabledState(enabled);
     showToast(enabled ? 'Monthly balance prompts turned on' : 'Monthly balance prompts turned off');
   };
 
+  /** Handle connect server. Uses configureServerSync, setUserOnboarded, setHasOnboarded to perform the operation. */
   const handleConnectServer = async (serverUrl: string, token: string, strategy: 'server' | 'device') => {
     await configureServerSync(serverUrl, token, strategy);
     setUserOnboarded(true);
@@ -452,15 +480,18 @@ export const App: React.FC = () => {
     }
   };
 
+  /** Handle onboarding connect server. Uses handleConnectServer, setIsSettingsOpen to perform the operation. */
   const handleOnboardingConnectServer = async (serverUrl: string, token: string, strategy: 'server' | 'device') => {
     await handleConnectServer(serverUrl, token, strategy);
     setIsSettingsOpen(true);
   };
 
+  /** Handle disconnect server. Uses disconnectServerSync to perform the operation. */
   const handleDisconnectServer = async () => {
     await disconnectServerSync();
   };
 
+  /** Handle import json. Uses file.text, JSON.parse, Array.isArray to perform the operation. */
   const handleImportJSON = async (file: File) => {
     try {
       const text = await file.text();
@@ -506,6 +537,7 @@ export const App: React.FC = () => {
     }
   };
 
+  /** Handle open archive import. Uses parseHistoricalDataFile, showToast, setIsSettingsOpen to perform the operation. */
   const handleOpenArchiveImport = async (file: File) => {
     try {
       const archived = await parseHistoricalDataFile(file);
@@ -520,6 +552,7 @@ export const App: React.FC = () => {
     }
   };
 
+  /** Handle restore archive. Uses sort, date.localeCompare, localeCompare to perform the operation. */
   const handleRestoreArchive = async (archived: Transaction[]) => {
     const merged = [...transactions, ...archived].sort((a, b) =>
       b.date.localeCompare(a.date) || (b.timestamp || '').localeCompare(a.timestamp || '')
@@ -531,6 +564,7 @@ export const App: React.FC = () => {
   };
 
   // Onboarding & Demo Dataset Handlers
+  /** Handle select demo. Uses loadDemoDataset, console.error, showToast to perform the operation. */
   const handleSelectDemo = async () => {
     let data;
     try { data = await loadDemoDataset(); } catch (error) {
@@ -552,6 +586,7 @@ export const App: React.FC = () => {
     showToast('Loaded demo data! Tap "Clear Demo" whenever you are ready to start fresh.');
   };
 
+  /** Handle select fresh. Uses clearAllData, console.error, showToast to perform the operation. */
   const handleSelectFresh = async () => {
     try { await clearAllData(); } catch (error) {
       console.error(error);
@@ -574,6 +609,7 @@ export const App: React.FC = () => {
     showToast('Clean slate ready! Add your first account or transaction.');
   };
 
+  /** Handle clear demo and start fresh. Uses confirm, clearAllData, console.error to perform the operation. */
   const handleClearDemoAndStartFresh = async () => {
     const prompt = serverSyncStatus.configured
       ? 'Clear the demo records and start fresh on this device and the connected server? Other devices will sync the empty dataset.'
@@ -600,6 +636,7 @@ export const App: React.FC = () => {
     }
   };
 
+  /** Handle load demo data. Uses confirm, loadDemoDataset, console.error to perform the operation. */
   const handleLoadDemoData = async () => {
     if (serverSyncStatus.configured && !confirm('Replace the shared BruFin data with the sample dataset? All connected devices will receive the demo records.')) return;
     let data;
@@ -622,6 +659,7 @@ export const App: React.FC = () => {
   };
 
   // Permanently delete all personal data
+  /** Handle delete all personal data. Uses clearAllData, console.error, showToast to perform the operation. */
   const handleDeleteAllPersonalData = async () => {
     try { await clearAllData(); } catch (error) {
       console.error(error);

@@ -1,3 +1,6 @@
+/**
+ * Previews imported historical transactions, compares them with current records, and restores selected data through the parent callback.
+ */
 import React, { useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Archive, X, Download, RotateCcw } from 'lucide-react';
@@ -11,10 +14,12 @@ interface Props {
   onRestore: (transactions: Transaction[]) => Promise<void>;
 }
 
+/** Signature. Uses description.trim, toLowerCase, paymentMode.trim to perform the operation. */
 function signature(transaction: Transaction): string {
   return [transaction.date, transaction.type, transaction.amount, transaction.description.trim().toLowerCase(), transaction.paymentMode.trim().toLowerCase(), transaction.category.trim().toLowerCase()].join('|');
 }
 
+/** Render the archive viewer modal interface from its props and local React state; callbacks send user changes to the owning screen. */
 export const ArchiveViewerModal: React.FC<Props> = ({ transactions, existingTransactions, onClose, onRestore }) => {
   const [isRestoring, setIsRestoring] = useState(false);
   const [restoreMessage, setRestoreMessage] = useState<string | null>(null);
@@ -47,6 +52,7 @@ export const ArchiveViewerModal: React.FC<Props> = ({ transactions, existingTran
 
   if (!transactions) return null;
 
+  /** Handle restore. Uses setIsRestoring, onRestore, setRestoreMessage to perform the operation. */
   const handleRestore = async () => {
     setIsRestoring(true);
     try {

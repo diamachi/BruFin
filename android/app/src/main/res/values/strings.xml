@@ -1,4 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
+<!-- Native Android resource for strings. Referenced by the app manifest, theme, or native layout. -->
 <resources>
     <string name="app_name">BruFin</string>
     <string name="title_activity_main">BruFin</string>

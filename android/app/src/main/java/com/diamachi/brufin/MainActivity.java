@@ -1,3 +1,4 @@
+// Android entry point: BridgeActivity hosts the compiled web app and connects Capacitor plugins.
 package com.diamachi.brufin;
 
 import android.os.Bundle;

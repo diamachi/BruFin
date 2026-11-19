@@ -1,3 +1,6 @@
+/**
+ * Aggregates expense categories into the primary horizontal bar breakdown, including amounts and relative shares.
+ */
 import React, { useState, useMemo } from 'react';
 import {
   BarChart3,
@@ -45,6 +48,7 @@ const METHOD_COLORS = [
   'var(--chart-color-13)',
 ];
 
+/** Get category chart color. Uses EXPENSE_CATEGORIES.findIndex, name.toLowerCase, character.charCodeAt to perform the operation. */
 const getCategoryChartColor = (name: string) => {
   const knownIndex = EXPENSE_CATEGORIES.findIndex((category) => category.name.toLowerCase() === name.toLowerCase());
   if (knownIndex >= 0) return METHOD_COLORS[knownIndex % METHOD_COLORS.length];
@@ -155,6 +159,7 @@ export const ExpenseDistributionCard: React.FC<Props> = ({
   }, [activeExpenses, totalExpenseAmount, daysElapsed]);
 
   // Helpers to shift specific date by +/- 1 day
+  /** Handle shift date. Uses Date, isNaN, d.getTime to perform the operation. */
   const handleShiftDate = (days: number) => {
     const d = new Date(specificDate);
     if (isNaN(d.getTime())) return;
@@ -165,6 +170,7 @@ export const ExpenseDistributionCard: React.FC<Props> = ({
     setSpecificDate(`${y}-${m}-${day}`);
   };
 
+  /** Handle set today. Uses setSpecificDate, getTodayDateString to perform the operation. */
   const handleSetToday = () => {
     setSpecificDate(getTodayDateString());
   };

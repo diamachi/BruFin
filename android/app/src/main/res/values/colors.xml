@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Native Android resource for colors. Referenced by the app manifest, theme, or native layout. -->
 <resources>
     <color name="colorPrimary">#EF6448</color>
     <color name="colorPrimaryDark">#202322</color>

@@ -1,3 +1,4 @@
+// Shared Android SDK and library versions consumed by the app and Capacitor plugin builds.
 ext {
     minSdkVersion = 24
     compileSdkVersion = 36

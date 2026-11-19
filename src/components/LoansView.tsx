@@ -1,3 +1,6 @@
+/**
+ * Shows loan balances and repayment projections and manages add/edit/delete interactions.
+ */
 import React, { useState, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import {
@@ -18,6 +21,7 @@ interface Props {
   onUpdateLoans: (loans: LoanItem[]) => void;
 }
 
+/** Render the loans view interface from its props and local React state; callbacks send user changes to the owning screen. */
 export const LoansView: React.FC<Props> = ({ loans, onUpdateLoans }) => {
   const [selectedLoanId, setSelectedLoanId] = useState<string>(loans[0]?.id || '');
   const [extraPayment, setExtraPayment] = useState<number>(1000);
@@ -90,6 +94,7 @@ export const LoansView: React.FC<Props> = ({ loans, onUpdateLoans }) => {
   const totalOutstanding = loans.reduce((sum, l) => sum + l.currentPrincipal, 0);
   const totalMonthlyEMI = loans.reduce((sum, l) => sum + l.monthlyPayment, 0);
 
+  /** Handle open add. Uses setEditingLoan, setFormName, setFormLender to perform the operation. */
   const handleOpenAdd = () => {
     setEditingLoan(null);
     setFormName('');
@@ -100,6 +105,7 @@ export const LoansView: React.FC<Props> = ({ loans, onUpdateLoans }) => {
     setIsModalOpen(true);
   };
 
+  /** Handle open edit. Uses setEditingLoan, setFormName, setFormLender to perform the operation. */
   const handleOpenEdit = (loan: LoanItem) => {
     setEditingLoan(loan);
     setFormName(loan.name);
@@ -110,6 +116,7 @@ export const LoansView: React.FC<Props> = ({ loans, onUpdateLoans }) => {
     setIsModalOpen(true);
   };
 
+  /** Handle save loan. Uses e.preventDefault, parseFloat, formName.trim to perform the operation. */
   const handleSaveLoan = (e: React.FormEvent) => {
     e.preventDefault();
     const principal = parseFloat(formPrincipal) || 0;
@@ -150,6 +157,7 @@ export const LoansView: React.FC<Props> = ({ loans, onUpdateLoans }) => {
     setIsModalOpen(false);
   };
 
+  /** Handle delete loan. Uses confirm, loans.filter, onUpdateLoans to perform the operation. */
   const handleDeleteLoan = (id: string) => {
     if (confirm('Delete this loan?')) {
       const updated = loans.filter((l) => l.id !== id);

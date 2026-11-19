@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Android network transport policy; connection preferences are also checked by the application sync layer. -->
 <network-security-config>
     <base-config cleartextTrafficPermitted="true">
         <trust-anchors>

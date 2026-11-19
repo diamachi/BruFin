@@ -1,3 +1,4 @@
+# Build the dashboard with Node, then serve it and the sync API from a smaller Python runtime. Persist /data outside the container.
 FROM node:24-alpine AS web-build
 WORKDIR /src
 COPY package.json package-lock.json ./

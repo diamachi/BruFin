@@ -1,3 +1,6 @@
+/**
+ * Detailed diagnostics view: exposes storage usage and maintenance/export actions for local finance data.
+ */
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import {
@@ -47,6 +50,7 @@ export const DiagnosticsModal: React.FC<Props> = ({
   const [archiveHistory, setArchiveHistory] = useState<ArchiveRecord[]>([]);
   const [actionMessage, setActionMessage] = useState<string | null>(null);
 
+  /** Refresh metrics. Uses getStorageDiagnostics, setStorage, setMemory to perform the operation. */
   const refreshMetrics = async () => {
     const nextStorage = await getStorageDiagnostics();
     setStorage(nextStorage);
@@ -65,6 +69,7 @@ export const DiagnosticsModal: React.FC<Props> = ({
 
   if (!isOpen || !storage || !memory) return null;
 
+  /** Handle archive. Uses archiveAndExportOldData, setActionMessage, refreshMetrics to perform the operation. */
   const handleArchive = (format: 'json' | 'csv') => {
     const res = archiveAndExportOldData(format, 12);
     setActionMessage(res.message);

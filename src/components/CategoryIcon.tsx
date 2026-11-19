@@ -1,3 +1,6 @@
+/**
+ * Resolves category icon names into shared Lucide components so categories use consistent visual symbols.
+ */
 import React from 'react';
 import {
   Utensils,
@@ -55,6 +58,7 @@ const ICON_MAP: Record<string, React.ElementType> = {
   Tag
 };
 
+/** Render the category icon interface from its props and local React state; callbacks send user changes to the owning screen. */
 export const CategoryIcon: React.FC<Props> = ({ name, className = 'w-5 h-5', size }) => {
   const IconComponent = ICON_MAP[name] || Tag;
   return <IconComponent className={className} size={size} />;

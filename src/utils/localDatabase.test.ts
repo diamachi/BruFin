@@ -1,8 +1,12 @@
+/**
+ * IndexedDB regression coverage using a browser-database substitute; exercises persisted finance data without a real browser.
+ */
 import 'fake-indexeddb/auto';
 import { describe, expect, it, vi } from 'vitest';
 import { Transaction } from '../types';
 import { parseHistoricalDataFile } from './archiveImport';
 
+/** Make file. Uses File, name.endsWith to perform the operation. */
 function makeFile(name: string, contents: string): File {
   return new File([contents], name, { type: name.endsWith('.csv') ? 'text/csv' : 'application/json' });
 }

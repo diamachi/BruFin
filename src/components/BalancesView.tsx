@@ -1,3 +1,6 @@
+/**
+ * Selects monthly account balances and edits opening/closing amounts for the chosen month.
+ */
 import React, { useState, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { Landmark, Plus, Edit2, Calendar, X, Check } from 'lucide-react';
@@ -59,6 +62,7 @@ export const BalancesView: React.FC<Props> = ({
   }, [monthlyBalances, activeMonth]);
 
   // Open edit modal
+  /** Handle open edit. Uses setTargetMonth, getUnifiedMonthlyBalance, setInputStart to perform the operation. */
   const handleOpenEdit = (m: string) => {
     setTargetMonth(m);
     const existing = getUnifiedMonthlyBalance(monthlyBalances, m);
@@ -69,6 +73,7 @@ export const BalancesView: React.FC<Props> = ({
   };
 
   // Save monthly balance
+  /** Handle save balance. Uses e.preventDefault, parseFloat, updateUnifiedMonthlyBalance to perform the operation. */
   const handleSaveBalance = (e: React.FormEvent) => {
     e.preventDefault();
     const s = parseFloat(inputStart) || 0;

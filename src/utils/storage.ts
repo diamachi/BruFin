@@ -1,3 +1,6 @@
+/**
+ * Application data facade: exposes typed finance reads/writes, preferences, exports, diagnostics, and archiving. Financial records use the local database; lightweight preferences use browser storage.
+ */
 import {
   Transaction,
   CreditCard,
@@ -39,10 +42,12 @@ export const APP_SCALE_PRESETS = [
 
 export { initializeLocalDatabase };
 
+/** Persist database sections through the storage boundary below so callers use the same validation and write path. */
 export function saveDatabaseSections(updates: LocalDatabaseUpdates): Promise<void> {
   return saveLocalDatabaseSections(updates);
 }
 
+/** Read app scale from the current local database snapshot or stored preference, applying the fallback defined below. */
 export function loadAppScale(): number {
   try {
     const val = localStorage.getItem(STORAGE_KEYS.APP_SCALE);
@@ -58,6 +63,7 @@ export function loadAppScale(): number {
   return 1.0;
 }
 
+/** Persist app scale through the storage boundary below so callers use the same validation and write path. */
 export function saveAppScale(scale: number): void {
   try {
     localStorage.setItem(STORAGE_KEYS.APP_SCALE, scale.toString());
@@ -66,6 +72,7 @@ export function saveAppScale(scale: number): void {
   }
 }
 
+/** Is diagnostics enabled. Uses localStorage.getItem to perform the operation. */
 export function isDiagnosticsEnabled(): boolean {
   try {
     const val = localStorage.getItem(STORAGE_KEYS.SHOW_DIAGNOSTICS);
@@ -75,6 +82,7 @@ export function isDiagnosticsEnabled(): boolean {
   }
 }
 
+/** Set diagnostics enabled. Uses localStorage.setItem, console.error to perform the operation. */
 export function setDiagnosticsEnabled(enabled: boolean): void {
   try {
     localStorage.setItem(STORAGE_KEYS.SHOW_DIAGNOSTICS, enabled ? 'true' : 'false');
@@ -94,6 +102,7 @@ export interface ArchiveRecord {
   totalIncome: number;
 }
 
+/** Get archive history. Uses localStorage.getItem, JSON.parse to perform the operation. */
 export function getArchiveHistory(): ArchiveRecord[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEYS.ARCHIVE_HISTORY);
@@ -103,6 +112,7 @@ export function getArchiveHistory(): ArchiveRecord[] {
   }
 }
 
+/** Is balance prompts enabled. Uses localStorage.getItem to perform the operation. */
 export function isBalancePromptsEnabled(): boolean {
   try {
     const val = localStorage.getItem(STORAGE_KEYS.BALANCE_PROMPTS_ENABLED);
@@ -112,6 +122,7 @@ export function isBalancePromptsEnabled(): boolean {
   }
 }
 
+/** Set balance prompts enabled. Uses localStorage.setItem, console.error to perform the operation. */
 export function setBalancePromptsEnabled(enabled: boolean): void {
   try {
     localStorage.setItem(STORAGE_KEYS.BALANCE_PROMPTS_ENABLED, enabled ? 'true' : 'false');
@@ -120,6 +131,7 @@ export function setBalancePromptsEnabled(enabled: boolean): void {
   }
 }
 
+/** Get dismissed balance prompts. Uses localStorage.getItem, JSON.parse to perform the operation. */
 export function getDismissedBalancePrompts(): string[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEYS.DISMISSED_PROMPTS);
@@ -129,6 +141,7 @@ export function getDismissedBalancePrompts(): string[] {
   }
 }
 
+/** Set dismissed balance prompt. Uses getDismissedBalancePrompts, current.includes, localStorage.setItem to perform the operation. */
 export function setDismissedBalancePrompt(promptId: string): void {
   try {
     const current = getDismissedBalancePrompts();
@@ -141,6 +154,7 @@ export function setDismissedBalancePrompt(promptId: string): void {
 }
 
 // Check if user has answered the initial onboarding choice
+/** Has user onboarded. Uses localStorage.getItem to perform the operation. */
 export function hasUserOnboarded(): boolean {
   try {
     return localStorage.getItem(STORAGE_KEYS.HAS_ONBOARDED) === 'true';
@@ -149,6 +163,7 @@ export function hasUserOnboarded(): boolean {
   }
 }
 
+/** Set user onboarded. Uses localStorage.setItem, console.error to perform the operation. */
 export function setUserOnboarded(value: boolean): void {
   try {
     localStorage.setItem(STORAGE_KEYS.HAS_ONBOARDED, value ? 'true' : 'false');
@@ -158,6 +173,7 @@ export function setUserOnboarded(value: boolean): void {
 }
 
 // Check if current dataset is demo data
+/** Is demo mode active. Uses localStorage.getItem to perform the operation. */
 export function isDemoModeActive(): boolean {
   try {
     return localStorage.getItem(STORAGE_KEYS.IS_DEMO_MODE) === 'true';
@@ -166,6 +182,7 @@ export function isDemoModeActive(): boolean {
   }
 }
 
+/** Set demo mode active. Uses localStorage.setItem, console.error to perform the operation. */
 export function setDemoModeActive(value: boolean): void {
   try {
     localStorage.setItem(STORAGE_KEYS.IS_DEMO_MODE, value ? 'true' : 'false');
@@ -175,90 +192,112 @@ export function setDemoModeActive(value: boolean): void {
 }
 
 // Data loaders - strictly defaulting to empty arrays for clean, private defaults
+/** Read transactions from the current local database snapshot or stored preference, applying the fallback defined below. */
 export function loadTransactions(): Transaction[] {
   return getLocalDatabaseData().transactions;
 }
 
+/** Persist transactions through the storage boundary below so callers use the same validation and write path. */
 export function saveTransactions(transactions: Transaction[]): Promise<void> {
   return saveLocalDatabaseSections({ transactions: transactions || [] });
 }
 
+/** Read credit cards from the current local database snapshot or stored preference, applying the fallback defined below. */
 export function loadCreditCards(): CreditCard[] {
   return getLocalDatabaseData().creditCards;
 }
 
+/** Persist credit cards through the storage boundary below so callers use the same validation and write path. */
 export function saveCreditCards(cards: CreditCard[]): Promise<void> {
   return saveLocalDatabaseSections({ creditCards: cards || [] });
 }
 
+/** Read recurring payments from the current local database snapshot or stored preference, applying the fallback defined below. */
 export function loadRecurringPayments(): RecurringPayment[] {
   return getLocalDatabaseData().recurringPayments;
 }
 
+/** Persist recurring payments through the storage boundary below so callers use the same validation and write path. */
 export function saveRecurringPayments(recurring: RecurringPayment[]): Promise<void> {
   return saveLocalDatabaseSections({ recurringPayments: recurring || [] });
 }
 
+/** Read monthly target from the current local database snapshot or stored preference, applying the fallback defined below. */
 export function loadMonthlyTarget(): number {
   return getLocalDatabaseData().monthlyTarget;
 }
 
+/** Persist monthly target through the storage boundary below so callers use the same validation and write path. */
 export function saveMonthlyTarget(target: number): Promise<void> {
   return saveLocalDatabaseSections({ monthlyTarget: target || DEFAULT_MONTHLY_TARGET });
 }
 
+/** Read investments from the current local database snapshot or stored preference, applying the fallback defined below. */
 export function loadInvestments(): InvestmentItem[] {
   return getLocalDatabaseData().investments;
 }
 
+/** Persist investments through the storage boundary below so callers use the same validation and write path. */
 export function saveInvestments(investments: InvestmentItem[]): Promise<void> {
   return saveLocalDatabaseSections({ investments: investments || [] });
 }
 
+/** Read loans from the current local database snapshot or stored preference, applying the fallback defined below. */
 export function loadLoans(): LoanItem[] {
   return getLocalDatabaseData().loans;
 }
 
+/** Persist loans through the storage boundary below so callers use the same validation and write path. */
 export function saveLoans(loans: LoanItem[]): Promise<void> {
   return saveLocalDatabaseSections({ loans: loans || [] });
 }
 
+/** Read payment methods from the current local database snapshot or stored preference, applying the fallback defined below. */
 export function loadPaymentMethods(): PaymentMethodItem[] {
   return getLocalDatabaseData().paymentMethods;
 }
 
+/** Persist payment methods through the storage boundary below so callers use the same validation and write path. */
 export function savePaymentMethods(methods: PaymentMethodItem[]): Promise<void> {
   return saveLocalDatabaseSections({ paymentMethods: methods || DEFAULT_BASE_PAYMENT_MODES });
 }
 
+/** Read expense categories from the current local database snapshot or stored preference, applying the fallback defined below. */
 export function loadExpenseCategories(): string[] {
   return getLocalDatabaseData().expenseCategories;
 }
 
+/** Persist expense categories through the storage boundary below so callers use the same validation and write path. */
 export function saveExpenseCategories(categories: string[]): Promise<void> {
   return saveLocalDatabaseSections({ expenseCategories: categories });
 }
 
+/** Read income categories from the current local database snapshot or stored preference, applying the fallback defined below. */
 export function loadIncomeCategories(): string[] {
   return getLocalDatabaseData().incomeCategories;
 }
 
+/** Persist income categories through the storage boundary below so callers use the same validation and write path. */
 export function saveIncomeCategories(categories: string[]): Promise<void> {
   return saveLocalDatabaseSections({ incomeCategories: categories });
 }
 
+/** Read bank accounts from the current local database snapshot or stored preference, applying the fallback defined below. */
 export function loadBankAccounts(): BankAccount[] {
   return getLocalDatabaseData().bankAccounts;
 }
 
+/** Persist bank accounts through the storage boundary below so callers use the same validation and write path. */
 export function saveBankAccounts(accounts: BankAccount[]): Promise<void> {
   return saveLocalDatabaseSections({ bankAccounts: accounts || [] });
 }
 
+/** Read monthly balances from the current local database snapshot or stored preference, applying the fallback defined below. */
 export function loadMonthlyBalances(): MonthlyAccountBalance[] {
   return getLocalDatabaseData().monthlyBalances;
 }
 
+/** Persist monthly balances through the storage boundary below so callers use the same validation and write path. */
 export function saveMonthlyBalances(balances: MonthlyAccountBalance[]): Promise<void> {
   return saveLocalDatabaseSections({ monthlyBalances: balances });
 }
@@ -420,6 +459,7 @@ export function postRecurringPaymentToExpenses(
   return updated;
 }
 
+/** Export database json. Uses Date, toISOString, loadTransactions to perform the operation. */
 export function exportDatabaseJSON(): void {
   const data = {
     appName: 'BruFin',
@@ -447,6 +487,7 @@ export function exportDatabaseJSON(): void {
   window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
 }
 
+/** Export transactions csv. Uses loadTransactions, transactions.map, String to perform the operation. */
 export function exportTransactionsCSV(): void {
   const transactions = loadTransactions();
   const headers = [
@@ -464,6 +505,7 @@ export function exportTransactionsCSV(): void {
   const rows = transactions.map((t) => {
     const expCat = t.type === 'Expense' ? t.category : '';
     const incCat = t.type === 'Income' ? t.category : '';
+    /** Escape. Uses String, test, val.replace to perform the operation. */
     const escape = (value: unknown) => {
       let val = String(value ?? '');
       if (/^[\s\u0000-\u001f]*[=+@-]/.test(val)) val = `'${val}`;
@@ -521,6 +563,7 @@ export interface MemoryDiagnostics {
   isSupported: boolean;
 }
 
+/** Format bytes. Uses Math.floor, Math.log, Math.pow to perform the operation. */
 export function formatBytes(bytes: number): string {
   if (bytes === 0) return '0 B';
   const k = 1024;
@@ -529,6 +572,7 @@ export function formatBytes(bytes: number): string {
   return `${(bytes / Math.pow(k, i)).toFixed(1)} ${sizes[i]}`;
 }
 
+/** Get storage diagnostics. Uses getLocalDatabaseData, sectionMeta.map, Blob to perform the operation. */
 export async function getStorageDiagnostics(): Promise<StorageDiagnostics> {
   const data = getLocalDatabaseData();
   const sectionMeta: { name: string; key: keyof typeof data; value: unknown }[] = [
@@ -566,6 +610,7 @@ export async function getStorageDiagnostics(): Promise<StorageDiagnostics> {
   };
 }
 
+/** Get memory diagnostics. Uses toFixed, Math.min, Math.round to perform the operation. */
 export function getMemoryDiagnostics(): MemoryDiagnostics {
   try {
     const mem = (performance as unknown as { memory?: { usedJSHeapSize?: number; totalJSHeapSize?: number; jsHeapSizeLimit?: number } })?.memory;
@@ -724,6 +769,7 @@ export function archiveAndExportOldData(format: 'json' | 'csv' = 'json', cutoffM
       'Date',
       'Remarks',
     ];
+    /** Escape. Uses String, test, val.replace to perform the operation. */
     const escape = (value: unknown) => {
       let val = String(value ?? '');
       if (/^[\s\u0000-\u001f]*[=+@-]/.test(val)) val = `'${val}`;

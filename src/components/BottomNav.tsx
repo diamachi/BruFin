@@ -1,3 +1,6 @@
+/**
+ * Mobile navigation: renders available destinations and calls the parent when a tab is selected.
+ */
 import React from 'react';
 import { LayoutDashboard, ReceiptText, Plus, CreditCard, TrendingUp } from 'lucide-react';
 import { ViewTab } from '../types';
@@ -8,6 +11,7 @@ interface Props {
   onOpenQuickAdd: () => void;
 }
 
+/** Render the bottom nav interface from its props and local React state; callbacks send user changes to the owning screen. */
 export const BottomNav: React.FC<Props> = ({ activeTab, onTabChange, onOpenQuickAdd }) => {
   const isExpensesActive = activeTab === 'expenses' || activeTab === 'transactions';
 

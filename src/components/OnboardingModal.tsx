@@ -1,3 +1,6 @@
+/**
+ * First-run choices: explore demo data, use standalone storage, or connect to a self-hosted server.
+ */
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { ArrowLeft, ArrowRight, Database, HardDrive, Server, ShieldCheck } from 'lucide-react';

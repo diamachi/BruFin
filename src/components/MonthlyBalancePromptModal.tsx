@@ -1,3 +1,6 @@
+/**
+ * Prompts for a monthly balance and supports saving, postponing, or disabling future prompts.
+ */
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Check, Landmark } from 'lucide-react';
@@ -44,6 +47,7 @@ export const MonthlyBalancePromptModal: React.FC<Props> = ({
 
   if (!isOpen) return null;
 
+  /** Handle submit. Uses e.preventDefault, parseFloat, setError to perform the operation. */
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const s = parseFloat(startInput) || 0;
@@ -66,6 +70,7 @@ export const MonthlyBalancePromptModal: React.FC<Props> = ({
     onClose();
   };
 
+  /** Handle dismiss later. Uses setDismissedBalancePrompt, onClose to perform the operation. */
   const handleDismissLater = () => {
     if (mode === 'start_of_month') {
       setDismissedBalancePrompt(`prompt_start_${monthKey}`);
@@ -75,6 +80,7 @@ export const MonthlyBalancePromptModal: React.FC<Props> = ({
     onClose();
   };
 
+  /** Handle turn off feature. Uses confirm, setBalancePromptsEnabled, onDisablePrompts to perform the operation. */
   const handleTurnOffFeature = () => {
     if (confirm('Turn off monthly start/end balance prompts? You can re-enable this anytime in Settings.')) {
       setBalancePromptsEnabled(false);

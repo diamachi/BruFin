@@ -1,3 +1,6 @@
+/**
+ * Displays card billing-cycle spending and available limits; manages card selection and add/edit forms through parent callbacks.
+ */
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import {
@@ -71,6 +74,7 @@ export const CreditCardsView: React.FC<Props> = ({
       const priorStatementDay = Math.min(card.statementDay, new Date(statementYear, statementMonthIndex, 0).getDate());
       const start = new Date(statementYear, statementMonthIndex - 1, priorStatementDay);
       start.setDate(start.getDate() + 1);
+      /** Date key. Uses date.getFullYear, String, date.getMonth to perform the operation. */
       const dateKey = (date: Date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
       const cycleStart = dateKey(start);
       const cycleEnd = dateKey(end);
@@ -109,9 +113,11 @@ export const CreditCardsView: React.FC<Props> = ({
 
   useEffect(() => {
     if (!isCardPickerOpen) return;
+    /** Handle pointer down. Uses contains, setIsCardPickerOpen to perform the operation. */
     const handlePointerDown = (event: PointerEvent) => {
       if (!cardPickerRef.current?.contains(event.target as Node)) setIsCardPickerOpen(false);
     };
+    /** Handle key down. Uses setIsCardPickerOpen to perform the operation. */
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') setIsCardPickerOpen(false);
     };
@@ -123,24 +129,29 @@ export const CreditCardsView: React.FC<Props> = ({
     };
   }, [isCardPickerOpen]);
 
+  /** Handle prev. Uses setCurrentIndex to perform the operation. */
   const handlePrev = () => {
     if (cardStats.length === 0) return;
     setCurrentIndex((prev) => (prev > 0 ? prev - 1 : cardStats.length - 1));
   };
 
+  /** Handle next. Uses setCurrentIndex to perform the operation. */
   const handleNext = () => {
     if (cardStats.length === 0) return;
     setCurrentIndex((prev) => (prev < cardStats.length - 1 ? prev + 1 : 0));
   };
 
+  /** Handle touch start. Returns the value derived from the inputs and state below. */
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.targetTouches[0].clientX;
   };
 
+  /** Handle touch move. Returns the value derived from the inputs and state below. */
   const handleTouchMove = (e: React.TouchEvent) => {
     touchEndX.current = e.targetTouches[0].clientX;
   };
 
+  /** Handle touch end. Uses handleNext, handlePrev to perform the operation. */
   const handleTouchEnd = () => {
     if (!touchStartX.current || !touchEndX.current) return;
     const diff = touchStartX.current - touchEndX.current;
@@ -153,6 +164,7 @@ export const CreditCardsView: React.FC<Props> = ({
     touchEndX.current = null;
   };
 
+  /** Handle open add. Uses setEditingCard, setFormBank, setFormShortName to perform the operation. */
   const handleOpenAdd = () => {
     setEditingCard(null);
     setFormBank('');
@@ -164,6 +176,7 @@ export const CreditCardsView: React.FC<Props> = ({
     setIsModalOpen(true);
   };
 
+  /** Handle open edit. Uses setEditingCard, setFormBank, setFormShortName to perform the operation. */
   const handleOpenEdit = (card: CreditCard) => {
     setEditingCard(card);
     setFormBank(card.bank);
@@ -176,6 +189,7 @@ export const CreditCardsView: React.FC<Props> = ({
     setIsModalOpen(true);
   };
 
+  /** Handle delete card. Uses confirm, creditCards.filter, onUpdateCreditCards to perform the operation. */
   const handleDeleteCard = (card: CreditCard) => {
     const confirmMsg = `Remove ${card.shortName}? This will also remove it from the payment options in expenses.`;
     if (confirm(confirmMsg)) {
@@ -187,6 +201,7 @@ export const CreditCardsView: React.FC<Props> = ({
     }
   };
 
+  /** Handle save card. Uses e.preventDefault, formShortName.trim, formBank.trim to perform the operation. */
   const handleSaveCard = (e: React.FormEvent) => {
     e.preventDefault();
     const shortNameClean = formShortName.trim();

@@ -1,3 +1,4 @@
+// Android app build: package the Capacitor shell, assign release versions, and load private signing credentials from environment variables.
 apply plugin: 'com.android.application'
 
 def releaseSigning = [

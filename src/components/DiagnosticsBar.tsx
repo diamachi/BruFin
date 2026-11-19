@@ -1,3 +1,6 @@
+/**
+ * Compact diagnostics display: samples storage/memory information and renders current application health indicators.
+ */
 import React, { useState, useEffect } from 'react';
 import { HardDrive, Cpu, AlertTriangle } from 'lucide-react';
 import {
@@ -13,12 +16,14 @@ interface Props {
   onOpenDetails: () => void;
 }
 
+/** Render the diagnostics bar interface from its props and local React state; callbacks send user changes to the owning screen. */
 export const DiagnosticsBar: React.FC<Props> = ({ onOpenDetails }) => {
   const [storage, setStorage] = useState<StorageDiagnostics | null>(null);
   const [memory, setMemory] = useState<MemoryDiagnostics | null>(null);
   const [archivable, setArchivable] = useState<ArchivableInfo | null>(null);
 
   useEffect(() => {
+    /** Update metrics. Uses getStorageDiagnostics, then, console.error to perform the operation. */
     const updateMetrics = () => {
       void getStorageDiagnostics().then(setStorage).catch((error) => console.error('Could not estimate local database storage', error));
       setMemory(getMemoryDiagnostics());

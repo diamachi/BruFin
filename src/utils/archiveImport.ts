@@ -1,5 +1,9 @@
+/**
+ * Historical import boundary: parses JSON or CSV, validates transaction fields, and assigns stable identities before records reach application state.
+ */
 import { Transaction, TransactionType } from '../types';
 
+/** Is date. Uses test, value.split, map to perform the operation. */
 function isDate(value: unknown): value is string {
   if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
   const [year, month, day] = value.split('-').map(Number);
@@ -7,6 +11,7 @@ function isDate(value: unknown): value is string {
   return date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day;
 }
 
+/** Stable id. Uses signature.charCodeAt, Math.imul, toString to perform the operation. */
 function stableId(signature: string): string {
   let hash = 2166136261;
   for (let i = 0; i < signature.length; i++) {
@@ -16,6 +21,7 @@ function stableId(signature: string): string {
   return `archive_${(hash >>> 0).toString(36)}`;
 }
 
+/** Normalize transaction. Uses Array.isArray, Error, Number to perform the operation. */
 function normalizeTransaction(value: unknown, index: number, occurrence: number): Transaction {
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error(`Transaction ${index + 1} is not an object.`);
   const row = value as Record<string, unknown>;
@@ -43,6 +49,7 @@ function normalizeTransaction(value: unknown, index: number, occurrence: number)
   };
 }
 
+/** Read CSV fields while tracking quoted cells so embedded commas and escaped quotes stay inside their field. */
 function parseCsv(text: string): string[][] {
   const rows: string[][] = [];
   let row: string[] = [];
@@ -69,11 +76,13 @@ function parseCsv(text: string): string[][] {
   return rows;
 }
 
+/** Parse csv transactions. Uses parseCsv, rows.shift, Error to perform the operation. */
 function parseCsvTransactions(text: string): Transaction[] {
   const rows = parseCsv(text);
   const headers = rows.shift();
   if (!headers) throw new Error('CSV file is empty.');
   const normalized = headers.map((header) => header.trim().toLowerCase().replace(/[^a-z]/g, ''));
+  /** Column. Uses aliases.includes, Error to perform the operation. */
   const column = (...aliases: string[]) => normalized.findIndex((header) => aliases.includes(header));
   const typeCol = column('expenseincome', 'type', 'transactiontype');
   const amountCol = column('amount');
@@ -115,6 +124,7 @@ function parseCsvTransactions(text: string): Transaction[] {
   });
 }
 
+/** Read an uploaded file and choose the supported JSON or CSV parser before returning validated transactions. */
 export async function parseHistoricalDataFile(file: File): Promise<Transaction[]> {
   const text = await file.text();
   const isCsv = file.name.toLowerCase().endsWith('.csv') || text.trimStart().startsWith('Timestamp,');

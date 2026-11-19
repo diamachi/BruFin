@@ -1,3 +1,6 @@
+/**
+ * Top navigation: selects the month, opens settings, changes theme, and toggles diagnostics through parent actions.
+ */
 import React, { useEffect, useRef, useState } from 'react';
 import { Settings, Calendar, Sun, Moon, ChevronDown, HelpCircle, Check } from 'lucide-react';
 import { formatMonthYear, formatMonthYearShort } from '../utils/dateUtils';
@@ -62,9 +65,11 @@ export const Navbar: React.FC<Props> = ({
         ?.focus({ preventScroll: true });
     });
 
+    /** Handle pointer down. Uses contains, setIsMonthMenuOpen to perform the operation. */
     const handlePointerDown = (event: PointerEvent) => {
       if (!monthMenuRef.current?.contains(event.target as Node)) setIsMonthMenuOpen(false);
     };
+    /** Handle key down. Uses setIsMonthMenuOpen, focus to perform the operation. */
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         setIsMonthMenuOpen(false);

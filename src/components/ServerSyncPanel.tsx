@@ -1,3 +1,6 @@
+/**
+ * Connection settings and pairing UI. The browser displays a server QR; native clients scan it and show sync status, devices, and conflicts.
+ */
 import React, { useEffect, useState } from 'react';
 import { BarcodeScanner, BarcodeFormat } from '@capacitor-mlkit/barcode-scanning';
 import { Capacitor } from '@capacitor/core';
@@ -34,6 +37,7 @@ const stateLabel: Record<ServerSyncStatus['state'], string> = {
   conflict: 'Review conflicts',
 };
 
+/** Preview value. Uses String, amount.toLocaleString, filter to perform the operation. */
 function previewValue(value: unknown): string {
   if (value === null || value === undefined) return 'Deleted';
   if (typeof value === 'string' || typeof value === 'number') return String(value);
@@ -46,6 +50,7 @@ function previewValue(value: unknown): string {
   return String(value);
 }
 
+/** Is loopback address. Uses includes, URL, hostname.toLowerCase to perform the operation. */
 function isLoopbackAddress(value: string): boolean {
   try {
     return ['localhost', '127.0.0.1', '::1'].includes(new URL(value).hostname.toLowerCase());
@@ -54,6 +59,7 @@ function isLoopbackAddress(value: string): boolean {
   }
 }
 
+/** Last seen label. Uses Math.max, Math.floor, Date.now to perform the operation. */
 function lastSeenLabel(timestamp: number): string {
   const minutes = Math.max(0, Math.floor((Date.now() - timestamp * 1000) / 60_000));
   if (minutes < 1) return 'Seen just now';
@@ -63,6 +69,7 @@ function lastSeenLabel(timestamp: number): string {
   return `Seen ${Math.floor(hours / 24)}d ago`;
 }
 
+/** Render the server sync panel interface from its props and local React state; callbacks send user changes to the owning screen. */
 export const ServerSyncPanel: React.FC<Props> = ({ status, onConnect, onDisconnect }) => {
   const savedConfig = getServerSyncConfig();
   const [serverUrl, setServerUrl] = useState(savedConfig?.serverUrl || (!Capacitor.isNativePlatform() ? window.location.origin : ''));
@@ -94,6 +101,7 @@ export const ServerSyncPanel: React.FC<Props> = ({ status, onConnect, onDisconne
       return;
     }
     let active = true;
+    /** Refresh devices. Uses getConnectedServerDevices, then, setDevices to perform the operation. */
     const refreshDevices = () => {
       void getConnectedServerDevices().then((connectedDevices) => {
         if (active) setDevices(connectedDevices);
@@ -123,6 +131,7 @@ export const ServerSyncPanel: React.FC<Props> = ({ status, onConnect, onDisconne
 
   useEffect(() => {
     if (!pairExpiresAt) return;
+    /** Update. Uses Math.max, Math.ceil, Date.now to perform the operation. */
     const update = () => {
       const remaining = Math.max(0, Math.ceil((pairExpiresAt * 1000 - Date.now()) / 1000));
       setSecondsLeft(remaining);
@@ -133,6 +142,7 @@ export const ServerSyncPanel: React.FC<Props> = ({ status, onConnect, onDisconne
     return () => window.clearInterval(timer);
   }, [pairExpiresAt]);
 
+  /** Connect. Uses Capacitor.isNativePlatform, serverUrl.toLowerCase, startsWith to perform the operation. */
   const connect = async (strategy: 'server' | 'device') => {
     if (Capacitor.isNativePlatform() && serverUrl.toLowerCase().startsWith('http://') && !allowHttp) {
       setError('This server uses HTTP. Enable “Allow HTTP for trusted LAN/VPN” before connecting.');
@@ -152,6 +162,7 @@ export const ServerSyncPanel: React.FC<Props> = ({ status, onConnect, onDisconne
     }
   };
 
+  /** Claim and connect. Uses setBusy, setError, setSuccess to perform the operation. */
   const claimAndConnect = async () => {
     setBusy(true);
     setError(null);
@@ -169,6 +180,7 @@ export const ServerSyncPanel: React.FC<Props> = ({ status, onConnect, onDisconne
     }
   };
 
+  /** Disconnect. Uses confirm, setBusy, setError to perform the operation. */
   const disconnect = async () => {
     if (!confirm('Disconnect this device from the server? Its local data will remain on this device.')) return;
     setBusy(true);
@@ -184,6 +196,7 @@ export const ServerSyncPanel: React.FC<Props> = ({ status, onConnect, onDisconne
     }
   };
 
+  /** Ask the server for a pairing code and encode the connection payload as a QR image for the phone. */
   const makePairingQr = async () => {
     const config = getServerSyncConfig();
     const activeServerUrl = config?.serverUrl || serverUrl;
@@ -212,6 +225,7 @@ export const ServerSyncPanel: React.FC<Props> = ({ status, onConnect, onDisconne
     }
   };
 
+  /** Read the mobile camera barcode, validate the pairing payload, and exchange its code to connect the phone. */
   const scanPairingQr = async () => {
     setBusy(true);
     setError(null);
@@ -249,6 +263,7 @@ export const ServerSyncPanel: React.FC<Props> = ({ status, onConnect, onDisconne
     }
   };
 
+  /** Save device name. Uses saveServerDeviceName, setDeviceName, setDevices to perform the operation. */
   const saveDeviceName = async () => {
     const saved = saveServerDeviceName(deviceName);
     setDeviceName(saved);
@@ -257,6 +272,7 @@ export const ServerSyncPanel: React.FC<Props> = ({ status, onConnect, onDisconne
     }
   };
 
+  /** Update http preference. Uses setAllowHttp, setHttpServerAllowed, syncNow to perform the operation. */
   const updateHttpPreference = (enabled: boolean) => {
     setAllowHttp(enabled);
     setHttpServerAllowed(enabled);

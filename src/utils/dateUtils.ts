@@ -1,3 +1,7 @@
+/**
+ * Shared money and calendar formatting. Local calendar dates are used for entry fields to avoid UTC date shifts.
+ */
+/** Format a signed currency amount with Indian digit grouping and the requested decimal precision. */
 export function formatINR(amount: number, showDecimals: boolean = false): string {
   const isNegative = amount < 0;
   const abs = Math.abs(amount);
@@ -12,6 +16,7 @@ export function formatINR(amount: number, showDecimals: boolean = false): string
   return isNegative ? `-${formatted}` : formatted;
 }
 
+/** Build a YYYY-MM-DD string from local date components rather than converting through UTC. */
 export function getTodayDateString(): string {
   const d = new Date();
   const year = d.getFullYear();
@@ -20,10 +25,12 @@ export function getTodayDateString(): string {
   return `${year}-${month}-${day}`;
 }
 
+/** Get current month key. Uses Date, date.getFullYear, String to perform the operation. */
 export function getCurrentMonthKey(date: Date = new Date()): string {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
 }
 
+/** Get current timestamp string. Uses Date, getTodayDateString, String to perform the operation. */
 export function getCurrentTimestampString(): string {
   const d = new Date();
   const dateStr = getTodayDateString();
@@ -33,6 +40,7 @@ export function getCurrentTimestampString(): string {
   return `${dateStr} ${hours}:${minutes}:${seconds}`;
 }
 
+/** Calculate the remaining days using the final calendar date of the supplied month. */
 export function getDaysToEOM(dateObj: Date = new Date()): number {
   const year = dateObj.getFullYear();
   const month = dateObj.getMonth();
@@ -41,6 +49,7 @@ export function getDaysToEOM(dateObj: Date = new Date()): number {
   return Math.max(0, lastDay - currentDay);
 }
 
+/** Get greeting message. Uses Date, getDaysToEOM, dateObj.toLocaleDateString to perform the operation. */
 export function getGreetingMessage(dateObj: Date = new Date()): { dateText: string; daysLeft: number } {
   const days = getDaysToEOM(dateObj);
   const options: Intl.DateTimeFormatOptions = { month: '2-digit', day: '2-digit', year: 'numeric' };
@@ -48,6 +57,7 @@ export function getGreetingMessage(dateObj: Date = new Date()): { dateText: stri
   return { dateText, daysLeft: days };
 }
 
+/** Format date label. Uses dateStr.split, Date, parseInt to perform the operation. */
 export function formatDateLabel(dateStr: string): string {
   if (!dateStr) return '';
   try {
@@ -62,11 +72,13 @@ export function formatDateLabel(dateStr: string): string {
   }
 }
 
+/** Get month year key. Uses dateStr.substring to perform the operation. */
 export function getMonthYearKey(dateStr: string): string {
   if (!dateStr) return '';
   return dateStr.substring(0, 7); // YYYY-MM
 }
 
+/** Format month year. Uses monthKey.split, Date, parseInt to perform the operation. */
 export function formatMonthYear(monthKey: string): string {
   if (!monthKey || monthKey === 'All') return 'All Time';
   const parts = monthKey.split('-');
@@ -75,6 +87,7 @@ export function formatMonthYear(monthKey: string): string {
   return d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 }
 
+/** Format month year short. Uses monthKey.split, Date, parseInt to perform the operation. */
 export function formatMonthYearShort(monthKey: string): string {
   if (!monthKey || monthKey === 'All') return 'All Time';
   const parts = monthKey.split('-');

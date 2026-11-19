@@ -1,3 +1,6 @@
+/**
+ * Displays contextual guidance for the current page using the help content supplied by the caller.
+ */
 import React from 'react';
 import { createPortal } from 'react-dom';
 import {
@@ -125,6 +128,7 @@ interface Props {
   onClose: () => void;
 }
 
+/** Render the page help modal interface from its props and local React state; callbacks send user changes to the owning screen. */
 export const PageHelpModal: React.FC<Props> = ({ tab, isOpen, onClose }) => {
   if (!isOpen) return null;
 

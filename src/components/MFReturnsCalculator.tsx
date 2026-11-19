@@ -1,3 +1,6 @@
+/**
+ * Calculates investment return scenarios from the user inputs and displays their estimated growth.
+ */
 import React, { useState, useMemo } from 'react';
 import { Calculator, ArrowRight } from 'lucide-react';
 import { formatINR } from '../utils/dateUtils';
@@ -7,6 +10,7 @@ interface Props {
   className?: string;
 }
 
+/** Render the mfreturns calculator interface from its props and local React state; callbacks send user changes to the owning screen. */
 export const MFReturnsCalculator: React.FC<Props> = ({ onInvestNow, className = '' }) => {
   const [calcType, setCalcType] = useState<'lumpsum' | 'sip'>('lumpsum');
   const [totalInvestment, setTotalInvestment] = useState<number>(25000);
