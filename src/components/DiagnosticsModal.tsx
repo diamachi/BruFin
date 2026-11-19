@@ -81,11 +81,11 @@ export const DiagnosticsModal: React.FC<Props> = ({
         {/* Header */}
         <div className="flex items-center justify-between border-b border-[#E8E1DB] dark:border-[#363B44] pb-3">
           <div className="flex items-center space-x-2.5">
-            <div className="w-9 h-9 rounded-2xl bg-[#EF6448] text-white flex items-center justify-center shadow-sm">
+            <div className="w-9 h-9 rounded-2xl bg-[var(--brufin-accent-bg)] text-white flex items-center justify-center shadow-sm">
               <Cpu className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-base font-extrabold text-[#59171B] dark:text-[#F2F3F5]">
+              <h3 className="text-base font-extrabold text-[var(--brufin-accent-deep)] dark:text-[#F2F3F5]">
                 System & Storage Inspector
               </h3>
               <p className="text-[11px] text-slate-500 dark:text-[#A5ACB7]">
@@ -123,7 +123,7 @@ export const DiagnosticsModal: React.FC<Props> = ({
         <div className="p-4 rounded-2xl bg-slate-50 dark:bg-[#1B1E22] border border-[#E8E1DB] dark:border-[#363B44] space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <Cpu className="w-4 h-4 text-[#59171B] dark:text-[#FF927A]" />
+              <Cpu className="w-4 h-4 text-[var(--brufin-accent-deep)] dark:text-[var(--brufin-accent-ink)]" />
               <h4 className="text-xs font-bold text-slate-900 dark:text-[#F2F3F5] uppercase tracking-wider">
                 JavaScript Memory & Leak Checker
               </h4>
@@ -173,7 +173,7 @@ export const DiagnosticsModal: React.FC<Props> = ({
         <div className="p-4 rounded-2xl bg-slate-50 dark:bg-[#1B1E22] border border-[#E8E1DB] dark:border-[#363B44] space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <HardDrive className="w-4 h-4 text-[#59171B] dark:text-[#FF927A]" />
+              <HardDrive className="w-4 h-4 text-[var(--brufin-accent-deep)] dark:text-[var(--brufin-accent-ink)]" />
               <h4 className="text-xs font-bold text-slate-900 dark:text-[#F2F3F5] uppercase tracking-wider">
                 Internal Storage Quota
               </h4>
@@ -187,7 +187,7 @@ export const DiagnosticsModal: React.FC<Props> = ({
           <div className="space-y-1">
             <div className="w-full h-2 rounded-full bg-slate-200 dark:bg-[#22252A] overflow-hidden">
               <div
-                className="h-full rounded-full bg-[#59171B] dark:bg-[#B84E3B] transition-all duration-300"
+                className="h-full rounded-full bg-[var(--brufin-accent-deep-bg)] dark:bg-[var(--brufin-accent-active)] transition-all duration-300"
                 style={{ width: `${Math.max(2, storage.percentOfQuota)}%` }}
               />
             </div>
@@ -216,7 +216,7 @@ export const DiagnosticsModal: React.FC<Props> = ({
         <div className="p-4 rounded-2xl bg-slate-50 dark:bg-[#1B1E22] border border-[#E8E1DB] dark:border-[#363B44] space-y-3.5">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <Archive className="w-4 h-4 text-[#59171B] dark:text-[#FF927A]" />
+              <Archive className="w-4 h-4 text-[var(--brufin-accent-deep)] dark:text-[var(--brufin-accent-ink)]" />
               <h4 className="text-xs font-bold text-slate-900 dark:text-[#F2F3F5] uppercase tracking-wider">
                 Historical Data Export
               </h4>
@@ -258,7 +258,7 @@ export const DiagnosticsModal: React.FC<Props> = ({
                 onClick={() => handleArchive('json')}
                 className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all active:scale-95 ${
                   archivable && archivable.count > 0
-                    ? 'bg-[#59171B] dark:bg-[#B84E3B] text-white hover:opacity-90'
+                    ? 'bg-[var(--brufin-accent-deep-bg)] dark:bg-[var(--brufin-accent-active)] text-white hover:opacity-90'
                     : 'bg-slate-200 dark:bg-[#1B1E22] text-slate-400 cursor-not-allowed border border-slate-300 dark:border-slate-800'
                 }`}
                 title="Download older records as a JSON backup"
@@ -284,7 +284,7 @@ export const DiagnosticsModal: React.FC<Props> = ({
           </div>
 
           <div className="text-[10px] text-slate-500 dark:text-[#A5ACB7] flex items-center gap-1 font-mono">
-            <Download className="w-3 h-3 text-[#59171B] dark:text-[#FF927A]" />
+            <Download className="w-3 h-3 text-[var(--brufin-accent-deep)] dark:text-[var(--brufin-accent-ink)]" />
             <span>Exports are local downloads. Exporting does not remove records from this device.</span>
           </div>
 
@@ -320,7 +320,7 @@ export const DiagnosticsModal: React.FC<Props> = ({
         <div className="pt-2 border-t border-[#E8E1DB] dark:border-[#363B44] flex items-center justify-between">
           <button
             onClick={() => onToggleDiagnostics(!isDiagnosticsActive)}
-            className="text-xs font-semibold text-slate-600 dark:text-[#A5ACB7] hover:text-[#59171B] dark:hover:text-[#EF6448] flex items-center gap-1.5 transition-colors"
+            className="text-xs font-semibold text-slate-600 dark:text-[#A5ACB7] hover:text-[var(--brufin-accent-deep)] dark:hover:text-[var(--brufin-accent-ink)] flex items-center gap-1.5 transition-colors"
           >
             {isDiagnosticsActive ? (
               <>
@@ -337,7 +337,7 @@ export const DiagnosticsModal: React.FC<Props> = ({
 
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-xl bg-[#EF6448] hover:bg-[#E05338] text-white font-bold text-xs shadow-md active:scale-95 transition-all cursor-pointer"
+            className="px-4 py-2 rounded-xl bg-[var(--brufin-accent-bg)] hover:bg-[var(--brufin-accent-bg-hover)] text-white font-bold text-xs shadow-md active:scale-95 transition-all cursor-pointer"
           >
             Done
           </button>

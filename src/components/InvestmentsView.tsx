@@ -136,7 +136,7 @@ export const InvestmentsView: React.FC<Props> = ({
           onClick={() => setActiveSubTab('investments')}
           className={`flex-1 min-w-0 py-2 px-1.5 sm:px-3 rounded-xl text-[10px] sm:text-xs font-bold flex flex-col items-center justify-center gap-1 transition-colors cursor-pointer ${
             activeSubTab === 'investments'
-              ? 'bg-[#EF6448] text-white shadow-sm'
+              ? 'bg-[var(--brufin-accent-bg)] text-white shadow-sm'
               : 'text-slate-500 dark:text-[#A5ACB7] hover:text-slate-900 dark:hover:text-[#F2F3F5]'
           }`}
         >
@@ -151,7 +151,7 @@ export const InvestmentsView: React.FC<Props> = ({
           onClick={() => setActiveSubTab('loans')}
           className={`flex-1 min-w-0 py-2 px-1.5 sm:px-3 rounded-xl text-[10px] sm:text-xs font-bold flex flex-col items-center justify-center gap-1 transition-colors cursor-pointer ${
             activeSubTab === 'loans'
-              ? 'bg-[#EF6448] text-white shadow-sm'
+              ? 'bg-[var(--brufin-accent-bg)] text-white shadow-sm'
               : 'text-slate-500 dark:text-[#A5ACB7] hover:text-slate-900 dark:hover:text-[#F2F3F5]'
           }`}
         >
@@ -166,7 +166,7 @@ export const InvestmentsView: React.FC<Props> = ({
           onClick={() => setActiveSubTab('calculator')}
           className={`flex-1 min-w-0 py-2 px-1.5 sm:px-3 rounded-xl text-[10px] sm:text-xs font-bold flex flex-col items-center justify-center gap-1 transition-colors cursor-pointer ${
             activeSubTab === 'calculator'
-              ? 'bg-[#EF6448] text-white shadow-sm'
+              ? 'bg-[var(--brufin-accent-bg)] text-white shadow-sm'
               : 'text-slate-500 dark:text-[#A5ACB7] hover:text-slate-900 dark:hover:text-[#F2F3F5]'
           }`}
         >
@@ -181,8 +181,8 @@ export const InvestmentsView: React.FC<Props> = ({
           {/* 1. Net Worth Portfolio Overview Banner */}
           <div className="p-4 sm:p-5 rounded-3xl bg-white dark:bg-[#22252A] border border-[#E8E1DB] dark:border-[#363B44] shadow-sm space-y-3">
             <div className="flex items-center space-x-2.5 min-w-0">
-              <div className="p-2 rounded-xl bg-[#FDF4E7] dark:bg-[#1B1E22] text-[#EF6448] shrink-0">
-                <TrendingUp className="w-5 h-5 text-[#EF6448]" />
+              <div className="p-2 rounded-xl bg-[var(--brufin-warm-soft)] dark:bg-[#1B1E22] text-[var(--brufin-accent-ink)] shrink-0">
+                <TrendingUp className="w-5 h-5 text-[var(--brufin-accent-ink)]" />
               </div>
               <div className="min-w-0">
                 <h2 className="text-sm font-bold text-slate-900 dark:text-[#F2F3F5] tracking-tight truncate">
@@ -198,7 +198,7 @@ export const InvestmentsView: React.FC<Props> = ({
               <span className="text-[10px] font-bold text-slate-500 dark:text-[#A5ACB7] uppercase tracking-wider block">
                 Total Invested Capital
               </span>
-              <span className="text-2xl sm:text-3xl font-black text-[#59171B] dark:text-[#FF927A] mt-1 block">
+              <span className="text-2xl sm:text-3xl font-black text-[var(--brufin-accent-deep)] dark:text-[var(--brufin-accent-ink)] mt-1 block">
                 {formatINR(totalPortfolioInvested)}
               </span>
             </div>
@@ -210,7 +210,7 @@ export const InvestmentsView: React.FC<Props> = ({
             <div className="p-4 sm:p-5 rounded-3xl bg-white dark:bg-[#22252A] border border-[#E8E1DB] dark:border-[#363B44] shadow-sm space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
-                  <PieChart className="w-4 h-4 text-[#EF6448]" />
+                  <PieChart className="w-4 h-4 text-[var(--brufin-accent-ink)]" />
                   <div>
                     <h3 className="text-sm font-bold text-slate-900 dark:text-[#F2F3F5] tracking-tight">Mutual Funds</h3>
                     <p className="text-[10px] text-slate-500 dark:text-[#A5ACB7]">{mutualFunds.length} active holdings</p>
@@ -218,7 +218,7 @@ export const InvestmentsView: React.FC<Props> = ({
                 </div>
                 <button
                   onClick={() => handleOpenAddModal('mutual_fund')}
-                  className="text-xs text-[#EF6448] hover:opacity-80 font-bold flex items-center gap-1 cursor-pointer"
+                  className="text-xs text-[var(--brufin-accent-ink)] hover:opacity-80 font-bold flex items-center gap-1 cursor-pointer"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>Add Fund</span>
@@ -238,7 +238,7 @@ export const InvestmentsView: React.FC<Props> = ({
                       <span className="text-xs font-black text-slate-900 dark:text-[#F2F3F5]">
                         {formatINR(fund.investedAmount)}
                       </span>
-                      <button onClick={() => handleOpenEditModal(fund)} className="text-slate-400 hover:text-[#EF6448] p-1 cursor-pointer">
+                      <button onClick={() => handleOpenEditModal(fund)} className="text-slate-400 hover:text-[var(--brufin-accent-ink)] p-1 cursor-pointer">
                         <Edit2 className="w-3.5 h-3.5" />
                       </button>
                     </div>
@@ -251,7 +251,7 @@ export const InvestmentsView: React.FC<Props> = ({
             <div className="p-4 sm:p-5 rounded-3xl bg-white dark:bg-[#22252A] border border-[#E8E1DB] dark:border-[#363B44] shadow-sm space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
-                  <Landmark className="w-4 h-4 text-[#EF6448]" />
+                  <Landmark className="w-4 h-4 text-[var(--brufin-accent-ink)]" />
                   <div>
                     <h3 className="text-sm font-bold text-slate-900 dark:text-[#F2F3F5] tracking-tight">Fixed Deposits (FDs)</h3>
                     <p className="text-[10px] text-slate-500 dark:text-[#A5ACB7]">{fds.length} active deposits</p>
@@ -259,7 +259,7 @@ export const InvestmentsView: React.FC<Props> = ({
                 </div>
                 <button
                   onClick={() => handleOpenAddModal('fd')}
-                  className="text-xs text-[#EF6448] hover:opacity-80 font-bold flex items-center gap-1 cursor-pointer"
+                  className="text-xs text-[var(--brufin-accent-ink)] hover:opacity-80 font-bold flex items-center gap-1 cursor-pointer"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>Add FD</span>
@@ -279,7 +279,7 @@ export const InvestmentsView: React.FC<Props> = ({
                       <span className="text-xs font-black text-slate-900 dark:text-[#F2F3F5]">
                         {formatINR(fd.investedAmount)}
                       </span>
-                      <button onClick={() => handleOpenEditModal(fd)} className="text-slate-400 hover:text-[#EF6448] p-1 cursor-pointer">
+                      <button onClick={() => handleOpenEditModal(fd)} className="text-slate-400 hover:text-[var(--brufin-accent-ink)] p-1 cursor-pointer">
                         <Edit2 className="w-3.5 h-3.5" />
                       </button>
                     </div>
@@ -292,7 +292,7 @@ export const InvestmentsView: React.FC<Props> = ({
             <div className="p-4 sm:p-5 rounded-3xl bg-white dark:bg-[#22252A] border border-[#E8E1DB] dark:border-[#363B44] shadow-sm space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
-                  <ShieldCheck className="w-4 h-4 text-[#EF6448]" />
+                  <ShieldCheck className="w-4 h-4 text-[var(--brufin-accent-ink)]" />
                   <div>
                     <h3 className="text-sm font-bold text-slate-900 dark:text-[#F2F3F5] tracking-tight">Provident Fund (EPF / PPF)</h3>
                     <p className="text-[10px] text-slate-500 dark:text-[#A5ACB7]">Govt guaranteed retirement corpus</p>
@@ -300,7 +300,7 @@ export const InvestmentsView: React.FC<Props> = ({
                 </div>
                 <button
                   onClick={() => handleOpenAddModal('pf')}
-                  className="text-xs text-[#EF6448] hover:opacity-80 font-bold flex items-center gap-1 cursor-pointer"
+                  className="text-xs text-[var(--brufin-accent-ink)] hover:opacity-80 font-bold flex items-center gap-1 cursor-pointer"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>Update PF</span>
@@ -317,10 +317,10 @@ export const InvestmentsView: React.FC<Props> = ({
                       </p>
                     </div>
                     <div className="flex items-center space-x-2.5 shrink-0">
-                      <span className="text-xs font-black text-[#59171B] dark:text-[#FF927A]">
+                      <span className="text-xs font-black text-[var(--brufin-accent-deep)] dark:text-[var(--brufin-accent-ink)]">
                         {formatINR(pf.investedAmount)}
                       </span>
-                      <button onClick={() => handleOpenEditModal(pf)} className="text-slate-400 hover:text-[#EF6448] p-1 cursor-pointer">
+                      <button onClick={() => handleOpenEditModal(pf)} className="text-slate-400 hover:text-[var(--brufin-accent-ink)] p-1 cursor-pointer">
                         <Edit2 className="w-3.5 h-3.5" />
                       </button>
                     </div>
@@ -333,7 +333,7 @@ export const InvestmentsView: React.FC<Props> = ({
             <div className="p-4 sm:p-5 rounded-3xl bg-white dark:bg-[#22252A] border border-[#E8E1DB] dark:border-[#363B44] shadow-sm space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
-                  <Building className="w-4 h-4 text-[#EF6448]" />
+                  <Building className="w-4 h-4 text-[var(--brufin-accent-ink)]" />
                   <div>
                     <h3 className="text-sm font-bold text-slate-900 dark:text-[#F2F3F5] tracking-tight">Direct Stocks & Equity</h3>
                     <p className="text-[10px] text-slate-500 dark:text-[#A5ACB7]">Currently ₹0 • Ready for future investments</p>
@@ -341,7 +341,7 @@ export const InvestmentsView: React.FC<Props> = ({
                 </div>
                 <button
                   onClick={() => handleOpenAddModal('stock')}
-                  className="text-xs text-[#EF6448] hover:opacity-80 font-bold flex items-center gap-1 cursor-pointer"
+                  className="text-xs text-[var(--brufin-accent-ink)] hover:opacity-80 font-bold flex items-center gap-1 cursor-pointer"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>Add Stock</span>
@@ -350,7 +350,7 @@ export const InvestmentsView: React.FC<Props> = ({
 
               {stocks.length === 0 ? (
                 <div className="p-4 rounded-2xl bg-slate-50 dark:bg-[#1B1E22] border border-[#E8E1DB] dark:border-[#363B44] text-center space-y-1.5">
-                  <p className="text-xs text-slate-700 dark:text-[#FF927A] font-medium">No direct stock holdings yet</p>
+                  <p className="text-xs text-slate-700 dark:text-[var(--brufin-accent-ink)] font-medium">No direct stock holdings yet</p>
                   <p className="text-[10px] text-slate-500 dark:text-[#A5ACB7]">
                     Total Stock Value: ₹0. When you purchase equities, tap "Add Stock" to track your portfolio.
                   </p>
@@ -369,7 +369,7 @@ export const InvestmentsView: React.FC<Props> = ({
                         <span className="text-xs font-black text-slate-900 dark:text-[#F2F3F5]">
                           {formatINR(stock.investedAmount)}
                         </span>
-                        <button onClick={() => handleOpenEditModal(stock)} className="text-slate-400 hover:text-[#EF6448] p-1 cursor-pointer">
+                        <button onClick={() => handleOpenEditModal(stock)} className="text-slate-400 hover:text-[var(--brufin-accent-ink)] p-1 cursor-pointer">
                           <Edit2 className="w-3.5 h-3.5" />
                         </button>
                       </div>
@@ -514,7 +514,7 @@ export const InvestmentsView: React.FC<Props> = ({
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2 rounded-xl bg-[#EF6448] hover:bg-[#E05338] text-white text-xs font-bold shadow-sm transition-all"
+                    className="px-5 py-2 rounded-xl bg-[var(--brufin-accent-bg)] hover:bg-[var(--brufin-accent-bg-hover)] text-white text-xs font-bold shadow-sm transition-all"
                   >
                     Save
                   </button>

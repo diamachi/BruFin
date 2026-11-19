@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import { Transaction } from '../types';
 import { formatINR, formatMonthYear, formatDateLabel, getTodayDateString } from '../utils/dateUtils';
-import { EXPENSE_CATEGORIES, getCategoryMeta } from '../utils/categories';
+import { EXPENSE_CATEGORIES, getCategoryMeta, getThemedCategoryColor } from '../utils/categories';
 import { CategoryIcon } from './CategoryIcon';
 
 export type DistributionFilterMode = 'monthly' | 'day_wise' | 'specific_date';
@@ -171,12 +171,12 @@ export const ExpenseDistributionCard: React.FC<Props> = ({
 
   return (
     <div
-      className={`p-4 sm:p-5 rounded-3xl bg-white dark:bg-[#22252A] border border-[#E8E1DB] dark:border-[#363B44] shadow-sm space-y-4 transition-colors ${className}`}
+      className={`expense-distribution-container p-4 sm:p-5 rounded-3xl bg-white dark:bg-[#22252A] border border-[#E8E1DB] dark:border-[#363B44] shadow-sm space-y-4 transition-colors ${className}`}
     >
       {/* Top Header: Title, Subtitle, and Optional "View All" link */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+      <div className="expense-distribution-header flex flex-col justify-between gap-2.5">
         <div className="flex items-center space-x-2.5">
-          <div className="w-8 h-8 rounded-2xl bg-[#59171B] dark:bg-[#B84E3B] text-white flex items-center justify-center shadow-sm shrink-0">
+          <div className="w-8 h-8 rounded-2xl bg-[var(--brufin-accent-bg)] dark:bg-[var(--brufin-accent-active)] text-white flex items-center justify-center shadow-sm shrink-0">
             <BarChart3 className="w-4 h-4 stroke-[2.5]" />
           </div>
           <div>
@@ -214,7 +214,7 @@ export const ExpenseDistributionCard: React.FC<Props> = ({
         {onNavigateToExpenses && (
           <button
             onClick={onNavigateToExpenses}
-            className="self-start sm:self-auto text-xs font-bold text-[#59171B] dark:text-[#FF927A] hover:underline flex items-center gap-1 active:scale-95 transition-transform"
+            className="self-start text-xs font-bold text-[var(--brufin-accent-deep)] dark:text-[var(--brufin-accent-ink)] hover:underline flex items-center gap-1 active:scale-95 transition-transform"
           >
             <span>Expenses Tab</span>
             <ArrowRight className="w-3.5 h-3.5" />
@@ -231,7 +231,7 @@ export const ExpenseDistributionCard: React.FC<Props> = ({
             onClick={() => setFilterMode('monthly')}
             className={`px-2.5 py-1 rounded-lg transition-all flex items-center gap-1 cursor-pointer ${
               filterMode === 'monthly'
-                ? 'bg-[#59171B] text-[#FED7B8] dark:bg-[#B84E3B] dark:text-white shadow-sm'
+                ? 'bg-[var(--brufin-accent-bg)] text-[#FED7B8] dark:bg-[var(--brufin-accent-active)] dark:text-white shadow-sm'
                 : 'text-slate-600 dark:text-[#A5ACB7] hover:text-slate-900 dark:hover:text-white'
             }`}
           >
@@ -244,7 +244,7 @@ export const ExpenseDistributionCard: React.FC<Props> = ({
             onClick={() => setFilterMode('day_wise')}
             className={`px-2.5 py-1 rounded-lg transition-all flex items-center gap-1 cursor-pointer ${
               filterMode === 'day_wise'
-                ? 'bg-[#59171B] text-[#FED7B8] dark:bg-[#B84E3B] dark:text-white shadow-sm'
+                ? 'bg-[var(--brufin-accent-bg)] text-[#FED7B8] dark:bg-[var(--brufin-accent-active)] dark:text-white shadow-sm'
                 : 'text-slate-600 dark:text-[#A5ACB7] hover:text-slate-900 dark:hover:text-white'
             }`}
           >
@@ -257,7 +257,7 @@ export const ExpenseDistributionCard: React.FC<Props> = ({
             onClick={() => setFilterMode('specific_date')}
             className={`px-2.5 py-1 rounded-lg transition-all flex items-center gap-1 cursor-pointer ${
               filterMode === 'specific_date'
-                ? 'bg-[#59171B] text-[#FED7B8] dark:bg-[#B84E3B] dark:text-white shadow-sm'
+                ? 'bg-[var(--brufin-accent-bg)] text-[#FED7B8] dark:bg-[var(--brufin-accent-active)] dark:text-white shadow-sm'
                 : 'text-slate-600 dark:text-[#A5ACB7] hover:text-slate-900 dark:hover:text-white'
             }`}
           >
@@ -273,7 +273,7 @@ export const ExpenseDistributionCard: React.FC<Props> = ({
             onClick={() => setChartMode('category')}
             className={`px-2 py-1 rounded-lg transition-all flex items-center gap-1 cursor-pointer ${
               chartMode === 'category'
-                ? 'bg-[#59171B] text-[#FED7B8] dark:bg-[#B84E3B] dark:text-white shadow-sm'
+                ? 'bg-[var(--brufin-accent-bg)] text-[#FED7B8] dark:bg-[var(--brufin-accent-active)] dark:text-white shadow-sm'
                 : 'text-slate-600 dark:text-[#A5ACB7] hover:text-slate-900 dark:hover:text-white'
             }`}
           >
@@ -285,7 +285,7 @@ export const ExpenseDistributionCard: React.FC<Props> = ({
             onClick={() => setChartMode('method')}
             className={`px-2 py-1 rounded-lg transition-all flex items-center gap-1 cursor-pointer ${
               chartMode === 'method'
-                ? 'bg-[#59171B] text-[#FED7B8] dark:bg-[#B84E3B] dark:text-white shadow-sm'
+                ? 'bg-[var(--brufin-accent-bg)] text-[#FED7B8] dark:bg-[var(--brufin-accent-active)] dark:text-white shadow-sm'
                 : 'text-slate-600 dark:text-[#A5ACB7] hover:text-slate-900 dark:hover:text-white'
             }`}
           >
@@ -327,7 +327,7 @@ export const ExpenseDistributionCard: React.FC<Props> = ({
             <button
               type="button"
               onClick={handleSetToday}
-              className="px-2 py-1 rounded-xl bg-[#F7F6F3] dark:bg-[#22252A] text-[#59171B] dark:text-[#FF927A] border border-[#E8E1DB] dark:border-[#363B44] text-[10px] font-bold hover:bg-[#FED7B8]/40 transition-colors"
+              className="px-2 py-1 rounded-xl bg-[#F7F6F3] dark:bg-[#22252A] text-[var(--brufin-accent-deep)] dark:text-[var(--brufin-accent-ink)] border border-[#E8E1DB] dark:border-[#363B44] text-[10px] font-bold hover:bg-[var(--brufin-accent-soft)]/40 transition-colors"
             >
               Today
             </button>
@@ -335,7 +335,7 @@ export const ExpenseDistributionCard: React.FC<Props> = ({
 
           <div className="text-[11px] font-semibold text-slate-600 dark:text-slate-300">
             {formatDateLabel(specificDate)} •{' '}
-            <span className="font-bold text-[#59171B] dark:text-[#FF927A]">
+            <span className="font-bold text-[var(--brufin-accent-deep)] dark:text-[var(--brufin-accent-ink)]">
               {formatINR(totalExpenseAmount)}
             </span>
           </div>
@@ -371,7 +371,7 @@ export const ExpenseDistributionCard: React.FC<Props> = ({
               <p className="text-[9px] font-bold text-slate-400 dark:text-[#A5ACB7] uppercase tracking-wider">
                 {filterMode === 'day_wise' ? 'Daily Average' : 'Total'}
               </p>
-              <p className="text-sm font-black text-[#59171B] dark:text-[#FF927A] tracking-tight">
+              <p className="text-sm font-black text-[var(--brufin-accent-deep)] dark:text-[var(--brufin-accent-ink)] tracking-tight">
                 {formatINR(filterMode === 'day_wise' ? Math.round(totalExpenseAmount / daysElapsed) : totalExpenseAmount)}
               </p>
             </div>
@@ -383,7 +383,7 @@ export const ExpenseDistributionCard: React.FC<Props> = ({
                 return (
                   <div
                     key={item.name}
-                    className="p-2.5 rounded-2xl bg-slate-50/70 dark:bg-[#1B1E22] border border-[#E8E1DB]/50 dark:border-[#363B44] space-y-2 transition-all hover:border-[#59171B]/40 dark:hover:border-[#EF6448]/40"
+                    className="p-2.5 rounded-2xl bg-slate-50/70 dark:bg-[#1B1E22] border border-[#E8E1DB]/50 dark:border-[#363B44] space-y-2 transition-all hover:border-[var(--brufin-accent-deep)]/40 dark:hover:border-[var(--brufin-accent-border)]/40"
                   >
                     <div className="flex items-center justify-between text-xs">
                       <div className="flex items-center space-x-2.5 truncate">
@@ -415,12 +415,12 @@ export const ExpenseDistributionCard: React.FC<Props> = ({
                           <span className="font-black text-slate-900 dark:text-white">
                             {formatINR(item.amount)}
                           </span>
-                          <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-slate-200 dark:bg-[#22252A] text-slate-700 dark:text-[#FF927A]">
+                          <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-slate-200 dark:bg-[#22252A] text-slate-700 dark:text-[var(--brufin-accent-ink)]">
                             {item.percent.toFixed(1)}%
                           </span>
                         </div>
                         {filterMode === 'day_wise' && (
-                          <div className="text-[10px] font-bold text-[#59171B] dark:text-[#FF927A]">
+                          <div className="text-[10px] font-bold text-[var(--brufin-accent-deep)] dark:text-[var(--brufin-accent-ink)]">
                             ~{formatINR(item.avgDaily)}/day
                           </div>
                         )}
@@ -458,18 +458,19 @@ export const ExpenseDistributionCard: React.FC<Props> = ({
               <div className="space-y-1.5">
                 {activeExpenses.map((t) => {
                   const meta = getCategoryMeta(t.category);
+                  const categoryColor = getThemedCategoryColor(meta.name, meta.color);
                   return (
                     <div
                       key={t.id}
                       onClick={() => onEditTransaction?.(t)}
                       className={`p-2.5 rounded-xl bg-white dark:bg-[#22252A] border border-[#E8E1DB]/60 dark:border-[#363B44] flex items-center justify-between gap-2 transition-all ${
-                        onEditTransaction ? 'cursor-pointer hover:border-[#59171B] dark:hover:border-[#EF6448]' : ''
+                        onEditTransaction ? 'cursor-pointer hover:border-[var(--brufin-accent-deep)] dark:hover:border-[var(--brufin-accent-border)]' : ''
                       }`}
                     >
                       <div className="flex items-center space-x-2.5 min-w-0">
                         <div
                           className="w-6 h-6 rounded-lg flex items-center justify-center shrink-0"
-                          style={{ backgroundColor: `${meta.color}20`, color: meta.color }}
+                          style={{ backgroundColor: `color-mix(in srgb, ${categoryColor} 12%, transparent)`, color: categoryColor }}
                         >
                           <CategoryIcon name={meta.icon} className="w-3 h-3" />
                         </div>
@@ -482,7 +483,7 @@ export const ExpenseDistributionCard: React.FC<Props> = ({
                           </span>
                         </div>
                       </div>
-                      <span className="text-xs font-black text-[#59171B] dark:text-[#FF927A] shrink-0">
+                      <span className="text-xs font-black text-[var(--brufin-accent-deep)] dark:text-[var(--brufin-accent-ink)] shrink-0">
                         {formatINR(t.amount)}
                       </span>
                     </div>

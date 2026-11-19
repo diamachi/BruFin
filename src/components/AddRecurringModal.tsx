@@ -158,8 +158,8 @@ export const AddRecurringModal: React.FC<Props> = ({
         {/* Header */}
         <div className="flex items-center justify-between border-b border-[#E8E1DB] dark:border-[#363B44] pb-3">
           <div>
-            <h3 className="text-sm font-bold text-[#59171B] dark:text-[#FF927A] flex items-center gap-1.5">
-              <CalendarClock className="w-4 h-4 text-[#8C2735] dark:text-[#FF927A]" />
+            <h3 className="text-sm font-bold text-[var(--brufin-accent-deep)] dark:text-[var(--brufin-accent-ink)] flex items-center gap-1.5">
+              <CalendarClock className="w-4 h-4 text-[#8C2735] dark:text-[var(--brufin-accent-ink)]" />
               <span>{initialData ? 'Edit Recurring Bill' : 'Add Monthly Recurring Bill'}</span>
             </h3>
             <p className="text-[11px] text-slate-500 dark:text-slate-400">
@@ -191,7 +191,7 @@ export const AddRecurringModal: React.FC<Props> = ({
               onClick={() => setBillingMode('monthly')}
               className={`py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
                 billingMode === 'monthly'
-                  ? 'bg-white dark:bg-[#1B1E22] text-[#59171B] dark:text-[#FF927A] shadow-sm border border-[#E8E1DB] dark:border-[#363B44]'
+                  ? 'bg-white dark:bg-[#1B1E22] text-[var(--brufin-accent-deep)] dark:text-[var(--brufin-accent-ink)] shadow-sm border border-[#E8E1DB] dark:border-[#363B44]'
                   : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
@@ -203,7 +203,7 @@ export const AddRecurringModal: React.FC<Props> = ({
               onClick={() => setBillingMode('total_split')}
               className={`py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
                 billingMode === 'total_split'
-                  ? 'bg-white dark:bg-[#1B1E22] text-[#59171B] dark:text-[#FF927A] shadow-sm border border-[#E8E1DB] dark:border-[#363B44]'
+                  ? 'bg-white dark:bg-[#1B1E22] text-[var(--brufin-accent-deep)] dark:text-[var(--brufin-accent-ink)] shadow-sm border border-[#E8E1DB] dark:border-[#363B44]'
                   : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
@@ -227,7 +227,7 @@ export const AddRecurringModal: React.FC<Props> = ({
                 setName(e.target.value);
                 setError('');
               }}
-              className="w-full bg-slate-50 dark:bg-[#1B1E22] border border-[#E8E1DB] dark:border-[#363B44] rounded-xl px-3.5 py-2.5 text-xs text-slate-900 dark:text-white font-medium focus:outline-none focus:ring-1 focus:ring-[#EF6448]"
+              className="w-full bg-slate-50 dark:bg-[#1B1E22] border border-[#E8E1DB] dark:border-[#363B44] rounded-xl px-3.5 py-2.5 text-xs text-slate-900 dark:text-white font-medium focus:outline-none focus:ring-1 focus:ring-[var(--brufin-accent-ink)]"
               required
             />
           </div>
@@ -249,7 +249,7 @@ export const AddRecurringModal: React.FC<Props> = ({
                       setMonthlyAmount(e.target.value);
                       setError('');
                     }}
-                    className="w-full bg-slate-50 dark:bg-[#1B1E22] border border-[#E8E1DB] dark:border-[#363B44] rounded-xl pl-8 pr-3.5 py-2.5 text-xs text-slate-900 dark:text-white font-bold focus:outline-none focus:ring-1 focus:ring-[#EF6448]"
+                    className="w-full bg-slate-50 dark:bg-[#1B1E22] border border-[#E8E1DB] dark:border-[#363B44] rounded-xl pl-8 pr-3.5 py-2.5 text-xs text-slate-900 dark:text-white font-bold focus:outline-none focus:ring-1 focus:ring-[var(--brufin-accent-ink)]"
                     required
                   />
                 </div>
@@ -263,7 +263,7 @@ export const AddRecurringModal: React.FC<Props> = ({
                     id="ongoing-check"
                     checked={isOngoing}
                     onChange={(e) => setIsOngoing(e.target.checked)}
-                    className="w-4 h-4 rounded text-[#EF6448] focus:ring-[#EF6448] border-[#E8E1DB]"
+                    className="w-4 h-4 rounded text-[var(--brufin-accent-ink)] focus:ring-[var(--brufin-accent-ink)] border-[#E8E1DB]"
                   />
                   <label htmlFor="ongoing-check" className="text-xs font-medium text-slate-700 dark:text-slate-300 cursor-pointer">
                     Ongoing indefinite bill (no end date)
@@ -332,7 +332,7 @@ export const AddRecurringModal: React.FC<Props> = ({
                 <span className="text-[11px] font-medium text-slate-600 dark:text-slate-400">
                   Monthly Commitment:
                 </span>
-                <span className="text-xs font-black text-[#59171B] dark:text-[#FF927A]">
+                <span className="text-xs font-black text-[var(--brufin-accent-deep)] dark:text-[var(--brufin-accent-ink)]">
                   {formatINR(computedMonthly)} / month
                 </span>
               </div>
@@ -362,7 +362,7 @@ export const AddRecurringModal: React.FC<Props> = ({
                     onClick={() => setDueDay(d.toString())}
                     className={`text-[9px] px-1.5 py-0.5 rounded font-bold transition-colors cursor-pointer ${
                       dueDay === d.toString()
-                        ? 'bg-[#EF6448] text-white shadow-xs'
+                        ? 'bg-[var(--brufin-accent-bg)] text-white shadow-xs'
                         : 'bg-slate-100 dark:bg-[#1B1E22] text-slate-500 hover:text-slate-800'
                     }`}
                   >
@@ -407,7 +407,7 @@ export const AddRecurringModal: React.FC<Props> = ({
           {/* Live Preview Card */}
           <div className="p-3 rounded-2xl bg-amber-50/60 dark:bg-[#1B1E22]/60 border border-amber-200/60 dark:border-[#363B44] flex items-center justify-between">
             <div className="truncate pr-2">
-              <span className="text-[10px] text-amber-800 dark:text-[#FF927A] font-bold uppercase block tracking-wider">
+              <span className="text-[10px] text-amber-800 dark:text-[var(--brufin-accent-ink)] font-bold uppercase block tracking-wider">
                 Monthly Card Preview
               </span>
               <p className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">
@@ -418,7 +418,7 @@ export const AddRecurringModal: React.FC<Props> = ({
               </span>
             </div>
             <div className="text-right shrink-0">
-              <span className="text-sm font-black text-[#59171B] dark:text-[#FF927A] block">
+              <span className="text-sm font-black text-[var(--brufin-accent-deep)] dark:text-[var(--brufin-accent-ink)] block">
                 {formatINR(computedMonthly)}
               </span>
               <span className="text-[9px] text-slate-400">per month</span>
@@ -436,7 +436,7 @@ export const AddRecurringModal: React.FC<Props> = ({
             </button>
             <button
               type="submit"
-              className="px-5 py-2.5 rounded-xl bg-[#EF6448] hover:bg-[#E05338] text-white text-xs font-black shadow-md flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer"
+              className="px-5 py-2.5 rounded-xl bg-[var(--brufin-accent-bg)] hover:bg-[var(--brufin-accent-bg-hover)] text-white text-xs font-black shadow-md flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer"
             >
               <Check className="w-4 h-4 stroke-[3]" />
               <span>{initialData ? 'Update Bill' : 'Save Recurring Bill'}</span>

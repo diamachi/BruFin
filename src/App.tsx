@@ -77,6 +77,9 @@ export const App: React.FC = () => {
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
     try { return localStorage.getItem('brufin_theme') === 'dark' ? 'dark' : 'light'; } catch { return 'light'; }
   });
+  const [colorPalette, setColorPalette] = useState<'standard' | 'monochrome'>(() => {
+    try { return localStorage.getItem('brufin_color_palette') === 'monochrome' ? 'monochrome' : 'standard'; } catch { return 'standard'; }
+  });
 
   useEffect(() => {
     if (theme === 'dark') {
@@ -88,6 +91,11 @@ export const App: React.FC = () => {
     }
     try { localStorage.setItem('brufin_theme', theme); } catch { /* Keep the theme active for this session. */ }
   }, [theme]);
+
+  useEffect(() => {
+    document.documentElement.dataset.palette = colorPalette;
+    try { localStorage.setItem('brufin_color_palette', colorPalette); } catch { /* Keep the palette active for this session. */ }
+  }, [colorPalette]);
 
   const toggleTheme = () => {
     setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
@@ -636,11 +644,11 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F7F6F3] dark:bg-[#17191C] text-slate-800 dark:text-[#F2F3F5] flex flex-col justify-between selection:bg-[#FED7B8] selection:text-[#202322] dark:selection:bg-[#EF6448]/30 dark:selection:text-[#EF6448] font-sans antialiased transition-colors duration-200">
+    <div className="min-h-screen bg-[#F7F6F3] dark:bg-[#17191C] text-slate-800 dark:text-[#F2F3F5] flex flex-col justify-between selection:bg-[var(--brufin-accent-soft)] selection:text-[#202322] dark:selection:bg-[var(--brufin-accent-bg)]/30 dark:selection:text-[var(--brufin-accent-ink)] font-sans antialiased transition-colors duration-200">
       {/* Toast Notification */}
       {toastMessage && (
         <div
-          className="fixed left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-2xl bg-[#EF6448] text-white text-xs font-semibold shadow-xl border border-[#E8E1DB] dark:border-[#363B44] backdrop-blur-md animate-bounce"
+          className="fixed left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-2xl bg-[var(--brufin-accent-bg)] text-white text-xs font-semibold shadow-xl border border-[#E8E1DB] dark:border-[#363B44] backdrop-blur-md animate-bounce"
           style={{
             top: 'calc(var(--app-safe-top, 0px) + 4.5rem)',
           }}
@@ -661,7 +669,7 @@ export const App: React.FC = () => {
         <button
           onClick={() => setIsPhoneFrame(false)}
           className={`p-2 rounded-xl text-xs font-medium flex items-center gap-1.5 transition-colors ${
-            !isPhoneFrame ? 'bg-[#EF6448] text-white' : 'text-slate-500 hover:text-[#EF6448]'
+            !isPhoneFrame ? 'bg-[var(--brufin-accent-bg)] text-white' : 'text-slate-500 hover:text-[var(--brufin-accent-ink)]'
           }`}
           title="Responsive View"
         >
@@ -671,7 +679,7 @@ export const App: React.FC = () => {
         <button
           onClick={() => setIsPhoneFrame(true)}
           className={`p-2 rounded-xl text-xs font-medium flex items-center gap-1.5 transition-colors ${
-            isPhoneFrame ? 'bg-[#EF6448] text-white' : 'text-slate-500 hover:text-[#EF6448]'
+            isPhoneFrame ? 'bg-[var(--brufin-accent-bg)] text-white' : 'text-slate-500 hover:text-[var(--brufin-accent-ink)]'
           }`}
           title="Mobile Device Mockup"
         >
@@ -718,14 +726,14 @@ export const App: React.FC = () => {
           <div className="bg-gradient-to-r from-[#FDF4E7] via-[#FFF8F3] to-[#FDF4E7] dark:from-[#272B2A] dark:via-[#202328] dark:to-[#272B2A] border-b border-[#E8E1DB] dark:border-[#363B44] px-4 py-2 flex items-center justify-between gap-2.5 text-xs animate-fadeIn">
             <div className="flex items-center space-x-2 truncate">
               <span className="text-sm">☕</span>
-              <span className="font-bold text-[#EF6448]">Demo Mode:</span>
+              <span className="font-bold text-[var(--brufin-accent-ink)]">Demo Mode:</span>
               <span className="text-slate-600 dark:text-slate-300 text-[11px] truncate">
                 Previewing sample records
               </span>
             </div>
             <button
               onClick={handleClearDemoAndStartFresh}
-              className="px-2.5 py-1 rounded-xl bg-[#EF6448] hover:bg-[#E05338] text-white font-bold text-[10px] shadow-sm shrink-0 transition-transform active:scale-95 flex items-center gap-1 cursor-pointer"
+              className="px-2.5 py-1 rounded-xl bg-[var(--brufin-accent-bg)] hover:bg-[var(--brufin-accent-bg-hover)] text-white font-bold text-[10px] shadow-sm shrink-0 transition-transform active:scale-95 flex items-center gap-1 cursor-pointer"
             >
               <span>Clear & Start Fresh</span>
             </button>
@@ -895,6 +903,8 @@ export const App: React.FC = () => {
         onOpenDiagnostics={() => setIsDiagnosticsModalOpen(true)}
         appScale={appScale}
         onUpdateAppScale={handleUpdateAppScale}
+        colorPalette={colorPalette}
+        onColorPaletteChange={setColorPalette}
         serverSyncStatus={serverSyncStatus}
         onConnectServer={handleConnectServer}
         onDisconnectServer={handleDisconnectServer}

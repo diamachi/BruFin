@@ -143,7 +143,7 @@ export const PageHelpModal: React.FC<Props> = ({ tab, isOpen, onClose }) => {
         {/* Header */}
         <div className="flex items-start justify-between border-b border-[#E8E1DB] dark:border-[#363B44] pb-3">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-2xl bg-[#EF6448] text-white flex items-center justify-center shrink-0 shadow-sm">
+            <div className="w-10 h-10 rounded-2xl bg-[var(--brufin-accent-bg)] text-white flex items-center justify-center shrink-0 shadow-sm">
               <Icon className="w-5 h-5 stroke-[2]" />
             </div>
             <div>
@@ -151,7 +151,7 @@ export const PageHelpModal: React.FC<Props> = ({ tab, isOpen, onClose }) => {
                 <h3 className="text-base font-extrabold text-slate-900 dark:text-[#F2F3F5] tracking-tight">
                   {info.title}
                 </h3>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#EF6448]/15 text-[#EF6448] border border-[#EF6448]/30">
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[var(--brufin-accent-bg)]/15 text-[var(--brufin-accent-ink)] border border-[var(--brufin-accent-border)]/30">
                   Help & Guide
                 </span>
               </div>
@@ -170,14 +170,14 @@ export const PageHelpModal: React.FC<Props> = ({ tab, isOpen, onClose }) => {
 
         {/* Section 1: What this page does */}
         <div className="space-y-2">
-          <h4 className="text-xs font-bold text-[#EF6448] uppercase tracking-wider flex items-center gap-1.5">
+          <h4 className="text-xs font-bold text-[var(--brufin-accent-ink)] uppercase tracking-wider flex items-center gap-1.5">
             <HelpCircle className="w-3.5 h-3.5" />
             <span>What This Page Does</span>
           </h4>
           <ul className="space-y-1.5 bg-white/70 dark:bg-[#1B1E22] p-3 rounded-2xl border border-[#E8E1DB] dark:border-[#363B44] text-xs text-slate-700 dark:text-[#E8DDD2]">
             {info.whatItDoes.map((item, idx) => (
               <li key={idx} className="flex items-start space-x-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#EF6448] shrink-0 mt-1.5" />
+                <span className="w-1.5 h-1.5 rounded-full bg-[var(--brufin-accent-bg)] shrink-0 mt-1.5" />
                 <span className="leading-relaxed">{item}</span>
               </li>
             ))}
@@ -186,14 +186,14 @@ export const PageHelpModal: React.FC<Props> = ({ tab, isOpen, onClose }) => {
 
         {/* Section 2: How to use it */}
         <div className="space-y-2">
-          <h4 className="text-xs font-bold text-[#EF6448] uppercase tracking-wider flex items-center gap-1.5">
+          <h4 className="text-xs font-bold text-[var(--brufin-accent-ink)] uppercase tracking-wider flex items-center gap-1.5">
             <CheckCircle2 className="w-3.5 h-3.5" />
             <span>How to Use It</span>
           </h4>
           <ol className="space-y-2 bg-white/70 dark:bg-[#1B1E22] p-3 rounded-2xl border border-[#E8E1DB] dark:border-[#363B44] text-xs text-slate-700 dark:text-[#F2F3F5]">
             {info.howToUse.map((step, idx) => (
               <li key={idx} className="flex items-start space-x-2.5">
-                <span className="w-4 h-4 rounded-full bg-[#EF6448]/15 text-[#EF6448] text-[10px] font-black flex items-center justify-center shrink-0 mt-0.5">
+                <span className="w-4 h-4 rounded-full bg-[var(--brufin-accent-bg)]/15 text-[var(--brufin-accent-ink)] text-[10px] font-black flex items-center justify-center shrink-0 mt-0.5">
                   {idx + 1}
                 </span>
                 <span className="leading-relaxed">{step}</span>
@@ -203,10 +203,10 @@ export const PageHelpModal: React.FC<Props> = ({ tab, isOpen, onClose }) => {
         </div>
 
         {/* Section 3: Pro-tip */}
-        <div className="p-3 rounded-2xl bg-[#FED7B8]/30 dark:bg-[#1B1E22] border border-[#E8E1DB] dark:border-[#363B44] flex items-start space-x-2.5 text-xs">
-          <Lightbulb className="w-4 h-4 text-[#EF6448] shrink-0 mt-0.5" />
+        <div className="p-3 rounded-2xl bg-[var(--brufin-accent-soft)]/30 dark:bg-[#1B1E22] border border-[#E8E1DB] dark:border-[#363B44] flex items-start space-x-2.5 text-xs">
+          <Lightbulb className="w-4 h-4 text-[var(--brufin-accent-ink)] shrink-0 mt-0.5" />
           <p className="text-slate-800 dark:text-[#F2F3F5] leading-relaxed">
-            <strong className="font-bold text-[#EF6448]">Pro Tip: </strong>
+            <strong className="font-bold text-[var(--brufin-accent-ink)]">Pro Tip: </strong>
             {info.proTip}
           </p>
         </div>
@@ -215,7 +215,7 @@ export const PageHelpModal: React.FC<Props> = ({ tab, isOpen, onClose }) => {
         <div className="pt-2">
           <button
             onClick={onClose}
-            className="w-full py-2.5 rounded-xl bg-[#EF6448] hover:bg-[#E05338] text-white text-xs font-bold shadow-sm transition-all cursor-pointer"
+            className="w-full py-2.5 rounded-xl bg-[var(--brufin-accent-bg)] hover:bg-[var(--brufin-accent-bg-hover)] text-white text-xs font-bold shadow-sm transition-all cursor-pointer"
           >
             Got It
           </button>

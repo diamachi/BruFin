@@ -22,10 +22,10 @@ interface Props {
 }
 
 const COLOR_PRESETS = [
-  { name: 'Wine Velvet', colorHex: '#59171B', gradient: 'from-[#59171B] via-[#7B2028] to-[#FED7B8]', pastelBg: 'bg-[#F7F6F3] text-[#59171B] border-[#E8E1DB]', pastelText: 'text-[#59171B]', pastelBorder: 'border-[#E8E1DB]' },
-  { name: 'Peach Blush', colorHex: '#FED7B8', gradient: 'from-[#FED7B8] via-[#F8C197] to-[#59171B]', pastelBg: 'bg-[#FED7B8] text-[#59171B] border-[#59171B]', pastelText: 'text-[#59171B]', pastelBorder: 'border-[#59171B]' },
+  { name: 'Wine Velvet', colorHex: '#59171B', gradient: 'from-[#59171B] via-[#7B2028] to-[var(--brufin-accent-bg-alt)]', pastelBg: 'bg-[#F7F6F3] text-[var(--brufin-accent-deep)] border-[#E8E1DB]', pastelText: 'text-[var(--brufin-accent-deep)]', pastelBorder: 'border-[#E8E1DB]' },
+  { name: 'Peach Blush', colorHex: '#FED7B8', gradient: 'from-[var(--brufin-accent-soft)] via-[#F8C197] to-[#59171B]', pastelBg: 'bg-[var(--brufin-accent-soft)] text-[var(--brufin-accent-deep)] border-[var(--brufin-accent-deep)]', pastelText: 'text-[var(--brufin-accent-deep)]', pastelBorder: 'border-[var(--brufin-accent-deep)]' },
   { name: 'Espresso Mocha', colorHex: '#1F1C19', gradient: 'from-[#2E2822] via-[#1F1C19] to-[#141210]', pastelBg: 'bg-[#2E2822] text-[#FED7B8] border-[#38322B]', pastelText: 'text-[#FED7B8]', pastelBorder: 'border-[#38322B]' },
-  { name: 'Honey Gold', colorHex: '#B87B2E', gradient: 'from-[#B87B2E] via-[#D49544] to-[#26211C]', pastelBg: 'bg-[#FDF4E7] text-[#996520] border-[#F5DEBE]', pastelText: 'text-[#996520]', pastelBorder: 'border-[#B87B2E]' },
+  { name: 'Honey Gold', colorHex: '#B87B2E', gradient: 'from-[#B87B2E] via-[#D49544] to-[#26211C]', pastelBg: 'bg-[var(--brufin-warm-soft)] text-[var(--brufin-warm-ink)] border-[var(--brufin-warm-border)]', pastelText: 'text-[var(--brufin-warm-ink)]', pastelBorder: 'border-[var(--brufin-gold)]' },
   { name: 'Amber Roast', colorHex: '#D97706', gradient: 'from-amber-600 via-yellow-700 to-amber-950', pastelBg: 'bg-amber-50 text-amber-950 border-amber-200/80', pastelText: 'text-amber-900', pastelBorder: 'border-amber-300' },
   { name: 'Hazelnut', colorHex: '#7D5A40', gradient: 'from-[#7D5A40] via-[#5C3E29] to-[#141210]', pastelBg: 'bg-[#F8F1EB] text-[#5C3E29] border-[#D9C6B8]', pastelText: 'text-[#5C3E29]', pastelBorder: 'border-[#7D5A40]' },
 ];
@@ -250,7 +250,7 @@ export const CreditCardsView: React.FC<Props> = ({
           <div>
             <h2 className="text-sm font-bold text-slate-900 dark:text-[#F2F3F5] tracking-tight">Credit Cards</h2>
             <p className="text-[11px] text-slate-500 dark:text-[#A5ACB7]">
-              Total Spend: <strong className="text-slate-800 dark:text-[#FF927A]">{formatINR(totalSpentAcrossAll)}</strong> ({selectedMonth === 'All' ? 'All Time' : selectedMonth})
+              Total Spend: <strong className="text-slate-800 dark:text-[var(--brufin-accent-ink)]">{formatINR(totalSpentAcrossAll)}</strong> ({selectedMonth === 'All' ? 'All Time' : selectedMonth})
             </p>
           </div>
         </div>
@@ -263,7 +263,7 @@ export const CreditCardsView: React.FC<Props> = ({
           )}
           <button
             onClick={handleOpenAdd}
-            className="px-3 py-1.5 rounded-xl bg-[#EF6448] hover:bg-[#E05338] text-white text-xs font-bold shadow-sm flex items-center gap-1 transition-all cursor-pointer"
+            className="px-3 py-1.5 rounded-xl bg-[var(--brufin-accent-bg)] hover:bg-[var(--brufin-accent-bg-hover)] text-white text-xs font-bold shadow-sm flex items-center gap-1 transition-all cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Add credit card</span>
@@ -274,14 +274,14 @@ export const CreditCardsView: React.FC<Props> = ({
       {/* 2. Empty State if no cards exist */}
       {cardStats.length === 0 ? (
         <div className="p-8 text-center rounded-3xl bg-white dark:bg-[#22252A] border border-[#E8E1DB] dark:border-[#363B44] shadow-sm space-y-3">
-          <CardIcon className="w-12 h-12 text-slate-400 dark:text-[#FF927A]/60 mx-auto" />
+          <CardIcon className="w-12 h-12 text-slate-400 dark:text-[var(--brufin-accent-ink)]/60 mx-auto" />
           <h3 className="text-sm font-bold text-slate-800 dark:text-[#F2F3F5]">No Credit Cards Added</h3>
           <p className="text-xs text-slate-500 dark:text-[#A5ACB7] max-w-xs mx-auto">
             Add a card to track its credit limit and statement cycle. After saving, it will appear in the payment options for new expenses.
           </p>
           <button
             onClick={handleOpenAdd}
-            className="px-4 py-2 rounded-xl bg-[#EF6448] hover:bg-[#E05338] text-white text-xs font-bold shadow-sm cursor-pointer"
+            className="px-4 py-2 rounded-xl bg-[var(--brufin-accent-bg)] hover:bg-[var(--brufin-accent-bg-hover)] text-white text-xs font-bold shadow-sm cursor-pointer"
           >
             Add your first credit card
           </button>
@@ -297,10 +297,10 @@ export const CreditCardsView: React.FC<Props> = ({
                   aria-haspopup="listbox"
                   aria-expanded={isCardPickerOpen}
                   onClick={() => setIsCardPickerOpen((open) => !open)}
-                  className="w-full min-h-12 px-4 py-2.5 rounded-2xl flex items-center justify-between gap-3 bg-white dark:bg-[#22252A] border border-[#E8E1DB] dark:border-[#363B44] shadow-sm hover:border-[#EF6448]/60 dark:hover:border-[#EF6448]/60 transition-colors"
+                  className="w-full min-h-12 px-4 py-2.5 rounded-2xl flex items-center justify-between gap-3 bg-white dark:bg-[#22252A] border border-[#E8E1DB] dark:border-[#363B44] shadow-sm hover:border-[var(--brufin-accent-border)]/60 dark:hover:border-[var(--brufin-accent-border)]/60 transition-colors"
                 >
                   <span className="min-w-0 flex items-center gap-3 text-left">
-                    <span className="w-8 h-8 rounded-xl flex items-center justify-center bg-[#FDF4E7] dark:bg-[#EF6448]/15 text-[#996520] dark:text-[#FF927A] shrink-0">
+                    <span className="w-8 h-8 rounded-xl flex items-center justify-center bg-[var(--brufin-warm-soft)] dark:bg-[var(--brufin-accent-bg)]/15 text-[var(--brufin-warm-ink)] dark:text-[var(--brufin-accent-ink)] shrink-0">
                       <CardIcon className="w-4 h-4" />
                     </span>
                     <span className="min-w-0">
@@ -331,17 +331,17 @@ export const CreditCardsView: React.FC<Props> = ({
                           }}
                           className={`w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl text-left transition-colors ${
                             isSelected
-                              ? 'bg-[#FDF4E7] dark:bg-[#EF6448]/15'
+                              ? 'bg-[var(--brufin-warm-soft)] dark:bg-[var(--brufin-accent-bg)]/15'
                               : 'hover:bg-slate-50 dark:hover:bg-[#2B3037]'
                           }`}
                         >
                           <span className="min-w-0">
-                            <span className={`block text-xs font-bold truncate ${isSelected ? 'text-[#996520] dark:text-[#FF927A]' : 'text-slate-800 dark:text-[#F2F3F5]'}`}>
+                            <span className={`block text-xs font-bold truncate ${isSelected ? 'text-[var(--brufin-warm-ink)] dark:text-[var(--brufin-accent-ink)]' : 'text-slate-800 dark:text-[#F2F3F5]'}`}>
                               {card.shortName}
                             </span>
                             <span className="block text-[10px] text-slate-500 dark:text-[#A5ACB7] truncate">{card.bank} ···· {card.last4}</span>
                           </span>
-                          {isSelected && <span className="w-2 h-2 rounded-full bg-[#EF6448] shrink-0" aria-hidden="true" />}
+                          {isSelected && <span className="w-2 h-2 rounded-full bg-[var(--brufin-accent-bg)] shrink-0" aria-hidden="true" />}
                         </button>
                       );
                     })}
@@ -367,7 +367,7 @@ export const CreditCardsView: React.FC<Props> = ({
                 </div>
 
                 <div className="flex items-center space-x-1.5">
-                  <span className="text-[11px] font-semibold text-slate-700 dark:text-[#FF927A] bg-[#F7F6F3] dark:bg-[#1B1E22] px-2.5 py-1 rounded-full border border-[#E8E1DB] dark:border-[#363B44]">
+                  <span className="text-[11px] font-semibold text-slate-700 dark:text-[var(--brufin-accent-ink)] bg-[#F7F6F3] dark:bg-[#1B1E22] px-2.5 py-1 rounded-full border border-[#E8E1DB] dark:border-[#363B44]">
                     Stmt: {activeCard.statementDay}th
                   </span>
                   <button
@@ -406,7 +406,7 @@ export const CreditCardsView: React.FC<Props> = ({
               {/* Hairline Utilization Bar */}
               <div className="space-y-1.5 mb-5">
                 <div className="flex justify-between text-[11px] font-semibold">
-                  <span className="text-[#996520] dark:text-[#FF927A]">
+                  <span className="text-[var(--brufin-warm-ink)] dark:text-[var(--brufin-accent-ink)]">
                     {formatINR(activeCard.remaining)} Available
                   </span>
                   <span className="text-slate-500 dark:text-[#A5ACB7]">
@@ -420,7 +420,7 @@ export const CreditCardsView: React.FC<Props> = ({
                         ? 'bg-rose-500'
                         : activeCard.utilization > 30
                         ? 'bg-[#4A3B28]'
-                        : 'bg-[#B87B2E] dark:bg-[#B84E3B]'
+                        : 'bg-[var(--brufin-gold)] dark:bg-[var(--brufin-accent-active)]'
                     }`}
                     style={{ width: `${Math.min(100, activeCard.utilization)}%` }}
                   />
@@ -611,7 +611,7 @@ export const CreditCardsView: React.FC<Props> = ({
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2 rounded-xl bg-[#EF6448] hover:bg-[#E05338] text-white text-xs font-bold shadow-sm transition-all"
+                    className="px-5 py-2 rounded-xl bg-[var(--brufin-accent-bg)] hover:bg-[var(--brufin-accent-bg-hover)] text-white text-xs font-bold shadow-sm transition-all"
                   >
                     Save Card
                   </button>

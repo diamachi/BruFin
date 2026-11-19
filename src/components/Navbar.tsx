@@ -22,29 +22,15 @@ interface Props {
  */
 export const BruFinLogo: React.FC<{ className?: string }> = ({ className = 'w-9 h-9' }) => (
   <div
-    className={`relative ${className} rounded-2xl bg-gradient-to-br from-[#EF6448] via-[#E05338] to-[#FED7B8] dark:from-[#292D34] dark:via-[#202328] dark:to-[#17191C] p-1.5 flex items-center justify-center shadow-md shadow-[#EF6448]/20 dark:shadow-[#17191C]/80 border border-[#E8E1DB]/60 dark:border-[#363B44] text-white dark:text-[#FF927A] shrink-0 select-none transition-transform hover:scale-105`}
+    className={`relative ${className} rounded-2xl bg-[var(--brufin-accent-bg)] dark:bg-[#292D34] p-1.5 flex items-center justify-center shadow-sm border border-white/25 dark:border-[#434852] text-white dark:text-[var(--brufin-accent-ink)] shrink-0 select-none transition-transform hover:scale-105`}
   >
-    <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
-      {/* Steam Curves */}
-      <path d="M11 5C10.5 7 12 8.5 11.5 10.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" opacity="0.9" />
-      <path d="M16 4C15.5 6.2 17.5 7.8 16.5 10.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-      <path d="M21 5C20.5 7 22 8.5 21.5 10.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" opacity="0.9" />
-      
-      {/* Coffee Cup Body */}
-      <path d="M8 12H24C24 12 24.5 21.5 16 21.5C7.5 21.5 8 12 8 12Z" fill="currentColor" fillOpacity="0.15" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
-      
-      {/* Cup Handle */}
-      <path d="M23.5 14H25.5C27 14 28 15 28 16.5C28 18 27 19 25.5 19H22.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-      
-      {/* Saucer */}
-      <path d="M7 24.5H25" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" opacity="0.9" />
-      
-      {/* Embossed Rupee Sign */}
-      <path d="M13.5 14.5H18.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
-      <path d="M13.5 16.2H18" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
-      <path d="M15 14.5V19.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
-      <path d="M15 14.5C17.2 14.5 17.2 16.5 15 16.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M16.2 17.5L18.2 19.8" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+    <svg viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full" aria-hidden="true">
+      <g stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M178 96c-22 36 18 53-3 88M256 76c-22 39 20 58-2 101M334 96c-22 36 18 53-3 88" strokeWidth="27" />
+        <path d="M352 218h41c35 0 54 24 54 57s-19 57-54 57h-50" strokeWidth="29" />
+        <path d="M122 205h246v55c0 70-44 112-123 112s-123-42-123-112v-55Z" fill="currentColor" strokeWidth="12" />
+        <path d="M116 409h282" strokeWidth="30" />
+      </g>
     </svg>
   </div>
 );
@@ -133,12 +119,12 @@ export const Navbar: React.FC<Props> = ({
                 type="button"
                 onClick={onOpenSettings}
                 aria-label={`Server sync status: ${syncLabel}. Open settings.`}
-                className={`${syncState === 'local' ? 'hidden sm:inline-flex' : 'inline-flex'} items-center px-1.5 py-0.5 rounded-full text-[9px] font-semibold border border-[#E8E1DB] dark:border-[#363B44] hover:ring-2 hover:ring-[#EF6448]/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#EF6448]/50 ${
+                className={`${syncState === 'local' ? 'hidden sm:inline-flex' : 'inline-flex'} items-center px-1.5 py-0.5 rounded-full text-[9px] font-semibold border border-[#E8E1DB] dark:border-[#363B44] hover:ring-2 hover:ring-[var(--brufin-accent-ink)]/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brufin-accent-ink)]/50 ${
                 syncState === 'connected' ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300' :
                 syncState === 'offline' || syncState === 'conflict' ? 'bg-amber-50 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300' :
-                'bg-[#FED7B8] dark:bg-[#B84E3B]/15 text-[#EF6448]'
+                'bg-[var(--brufin-accent-soft)] dark:bg-[var(--brufin-accent-active)]/15 text-[var(--brufin-accent-ink)]'
               }`} title={`Server sync: ${syncLabel}`}>
-                <span className={`w-1.5 h-1.5 rounded-full mr-1 ${syncState === 'connected' ? 'bg-emerald-500' : syncState === 'syncing' ? 'bg-amber-500 animate-pulse' : syncState === 'offline' || syncState === 'conflict' ? 'bg-amber-500' : 'bg-[#EF6448]'}`} />
+                <span className={`w-1.5 h-1.5 rounded-full mr-1 ${syncState === 'connected' ? 'bg-emerald-500' : syncState === 'syncing' ? 'bg-amber-500 animate-pulse' : syncState === 'offline' || syncState === 'conflict' ? 'bg-amber-500' : 'bg-[var(--brufin-accent-bg)]'}`} />
                 <span className={syncState === 'local' ? '' : 'hidden sm:inline'}>{syncLabel}</span>
               </button>
             </div>
@@ -175,11 +161,11 @@ export const Navbar: React.FC<Props> = ({
               aria-haspopup="listbox"
               aria-expanded={isMonthMenuOpen}
               aria-controls="month-selector-listbox"
-              className="flex h-[34px] w-[120px] items-center gap-1.5 rounded-xl border border-[#E8E1DB] bg-white/95 px-2 text-left text-[11px] font-semibold text-slate-800 shadow-sm transition-colors hover:border-[#D8C8BC] hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#EF6448]/50 dark:border-[#363B44] dark:bg-[#22252A] dark:text-[#F2F3F5] dark:hover:border-[#4A505A] dark:hover:bg-[#2B3037] sm:h-[36px] sm:w-[152px] sm:gap-2 sm:px-2.5 sm:text-xs"
+              className="flex h-[34px] w-[120px] items-center gap-1.5 rounded-xl border border-[#E8E1DB] bg-white/95 px-2 text-left text-[11px] font-semibold text-slate-800 shadow-sm transition-colors hover:border-[#D8C8BC] hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brufin-accent-ink)]/50 dark:border-[#363B44] dark:bg-[#22252A] dark:text-[#F2F3F5] dark:hover:border-[#4A505A] dark:hover:bg-[#2B3037] sm:h-[36px] sm:w-[152px] sm:gap-2 sm:px-2.5 sm:text-xs"
             >
-              <Calendar className="h-3.5 w-3.5 shrink-0 text-[#EF6448]" />
+              <Calendar className="h-3.5 w-3.5 shrink-0 text-[var(--brufin-accent-ink)]" />
               <span className="min-w-0 flex-1 truncate">{formatMonthYearShort(selectedMonth)}</span>
-              <ChevronDown className={`h-3 w-3 shrink-0 text-[#EF6448] transition-transform duration-200 ${isMonthMenuOpen ? 'rotate-180' : ''}`} />
+              <ChevronDown className={`h-3 w-3 shrink-0 text-[var(--brufin-accent-ink)] transition-transform duration-200 ${isMonthMenuOpen ? 'rotate-180' : ''}`} />
             </button>
 
             <div
@@ -224,7 +210,7 @@ export const Navbar: React.FC<Props> = ({
                     }}
                     className={`flex w-full items-center justify-between rounded-xl px-2.5 py-2 text-left text-xs transition-colors ${
                       selectedMonth === 'All'
-                        ? 'bg-[#FCE8DE] font-bold text-[#B84E3B] dark:bg-[#B84E3B]/20 dark:text-[#FF927A]'
+                        ? 'bg-[var(--brufin-accent-selected)] font-bold text-[var(--brufin-accent-ink)] dark:bg-[var(--brufin-accent-active)]/20 dark:text-[var(--brufin-accent-ink)]'
                         : 'font-medium text-slate-700 hover:bg-white/80 dark:text-slate-200 dark:hover:bg-[#2B3037]'
                     }`}
                   >
@@ -249,7 +235,7 @@ export const Navbar: React.FC<Props> = ({
                           }}
                           className={`flex w-full items-center justify-between rounded-xl px-2.5 py-2 text-left text-xs transition-colors ${
                             selectedMonth === month
-                              ? 'bg-[#FCE8DE] font-bold text-[#B84E3B] dark:bg-[#B84E3B]/20 dark:text-[#FF927A]'
+                              ? 'bg-[var(--brufin-accent-selected)] font-bold text-[var(--brufin-accent-ink)] dark:bg-[var(--brufin-accent-active)]/20 dark:text-[var(--brufin-accent-ink)]'
                               : 'font-medium text-slate-700 hover:bg-white/80 dark:text-slate-200 dark:hover:bg-[#2B3037]'
                           }`}
                         >
@@ -272,7 +258,7 @@ export const Navbar: React.FC<Props> = ({
             <button
               onClick={onOpenHelp}
               title="Page Guide & Tips"
-              className="p-1.5 sm:p-2 rounded-xl bg-white/95 dark:bg-[#22252A] text-slate-600 dark:text-[#FF927A] hover:text-[#EF6448] dark:hover:text-[#F2F3F5] border border-[#E8E1DB] dark:border-[#363B44] hover:border-[#EF6448] transition-all active:scale-95 shadow-sm shrink-0 cursor-pointer"
+              className="p-1.5 sm:p-2 rounded-xl bg-white/95 dark:bg-[#22252A] text-slate-600 dark:text-[var(--brufin-accent-ink)] hover:text-[var(--brufin-accent-ink)] dark:hover:text-[#F2F3F5] border border-[#E8E1DB] dark:border-[#363B44] hover:border-[var(--brufin-accent-border)] transition-all active:scale-95 shadow-sm shrink-0 cursor-pointer"
             >
               <HelpCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </button>
@@ -282,10 +268,10 @@ export const Navbar: React.FC<Props> = ({
           <button
             onClick={onToggleTheme}
             title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-            className="p-1.5 sm:p-2 rounded-xl bg-white/95 dark:bg-[#22252A] text-slate-600 dark:text-[#FF927A] hover:text-[#EF6448] dark:hover:text-[#F2F3F5] border border-[#E8E1DB] dark:border-[#363B44] hover:border-[#EF6448] transition-all active:scale-95 shadow-sm shrink-0 cursor-pointer"
+            className="p-1.5 sm:p-2 rounded-xl bg-white/95 dark:bg-[#22252A] text-slate-600 dark:text-[var(--brufin-accent-ink)] hover:text-[var(--brufin-accent-ink)] dark:hover:text-[#F2F3F5] border border-[#E8E1DB] dark:border-[#363B44] hover:border-[var(--brufin-accent-border)] transition-all active:scale-95 shadow-sm shrink-0 cursor-pointer"
           >
             {theme === 'dark' ? (
-              <Sun className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#EF6448] hover:rotate-45 transition-transform duration-300" />
+              <Sun className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[var(--brufin-accent-ink)] hover:rotate-45 transition-transform duration-300" />
             ) : (
               <Moon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-700 hover:-rotate-12 transition-transform duration-300" />
             )}
@@ -295,7 +281,7 @@ export const Navbar: React.FC<Props> = ({
           <button
             onClick={onOpenSettings}
             title="Settings & Backup"
-            className="p-1.5 sm:p-2 rounded-xl bg-white/95 dark:bg-[#22252A] text-slate-600 dark:text-[#FF927A] hover:text-[#EF6448] dark:hover:text-[#F2F3F5] border border-[#E8E1DB] dark:border-[#363B44] hover:border-[#EF6448] transition-all active:scale-95 shadow-sm shrink-0 cursor-pointer"
+            className="p-1.5 sm:p-2 rounded-xl bg-white/95 dark:bg-[#22252A] text-slate-600 dark:text-[var(--brufin-accent-ink)] hover:text-[var(--brufin-accent-ink)] dark:hover:text-[#F2F3F5] border border-[#E8E1DB] dark:border-[#363B44] hover:border-[var(--brufin-accent-border)] transition-all active:scale-95 shadow-sm shrink-0 cursor-pointer"
           >
             <Settings className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           </button>

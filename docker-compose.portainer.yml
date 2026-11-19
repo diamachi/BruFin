@@ -1,6 +1,6 @@
 services:
   brufin:
-    image: ${BRUFIN_IMAGE:-diamachi/brufin:v0.6.1}
+    image: ${BRUFIN_IMAGE:-diamachi/brufin:v0.6.2}
     container_name: brufin
     restart: unless-stopped
     environment:

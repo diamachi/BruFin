@@ -1,7 +1,7 @@
 import { CreditCard, PaymentMethodItem } from '../types';
 
 export const EXPENSE_CATEGORIES = [
-  { name: 'Dining out / Food Delivery', icon: 'Utensils', color: '#EF6448', bg: 'bg-orange-50 dark:bg-[#EF6448]/15 text-orange-700 dark:text-[#EF6448]' },
+  { name: 'Dining out / Food Delivery', icon: 'Utensils', color: '#EF6448', bg: 'bg-orange-50 dark:bg-[var(--brufin-accent-bg)]/15 text-orange-700 dark:text-[var(--brufin-accent-ink)]' },
   { name: 'Groceries', icon: 'ShoppingCart', color: '#8C6845', bg: 'bg-[#FDF6F0] dark:bg-[#1C1F1E] text-[#7A532E] dark:text-[#D4A373]' },
   { name: 'Rent / Maintenance', icon: 'Home', color: '#6E6259', bg: 'bg-[#FFF8F3] dark:bg-[#1C1F1E] text-slate-700 dark:text-[#F4F6F5]' },
   { name: 'Utilities - Electricity / Gas / Internet', icon: 'Zap', color: '#C28E58', bg: 'bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-300' },
@@ -12,20 +12,26 @@ export const EXPENSE_CATEGORIES = [
   { name: 'Gifts', icon: 'Gift', color: '#A85A48', bg: 'bg-orange-50 dark:bg-orange-950/30 text-orange-700 dark:text-orange-300' },
   { name: 'Travel', icon: 'Plane', color: '#A65B2E', bg: 'bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-300' },
   { name: 'Insurance', icon: 'ShieldCheck', color: '#7D7065', bg: 'bg-[#FFF8F3] dark:bg-[#1C1F1E] text-slate-700 dark:text-[#F4F6F5]' },
-  { name: 'Loan EMI', icon: 'BadgePercent', color: '#EF6448', bg: 'bg-[#FED7B8]/40 dark:bg-[#EF6448]/15 text-[#EF6448]' },
+  { name: 'Loan EMI', icon: 'BadgePercent', color: '#EF6448', bg: 'bg-[var(--brufin-accent-soft)]/40 dark:bg-[var(--brufin-accent-bg)]/15 text-[var(--brufin-accent-ink)]' },
   { name: 'Other', icon: 'MoreHorizontal', color: '#78716C', bg: 'bg-stone-100 dark:bg-[#1C1F1E] text-stone-700 dark:text-stone-300' },
 ];
 
 export const INCOME_CATEGORIES = [
-  { name: 'Salary', icon: 'Briefcase', color: '#EF6448', bg: 'bg-[#FDF4E7] dark:bg-[#EF6448]/15 text-[#996520] dark:text-[#EF6448]' },
+  { name: 'Salary', icon: 'Briefcase', color: '#EF6448', bg: 'bg-[var(--brufin-warm-soft)] dark:bg-[var(--brufin-accent-bg)]/15 text-[var(--brufin-warm-ink)] dark:text-[var(--brufin-accent-ink)]' },
   { name: 'Cashback / Refunds', icon: 'RefreshCw', color: '#C47D52', bg: 'bg-orange-50 dark:bg-orange-950/30 text-orange-700 dark:text-orange-300' },
-  { name: 'Interest', icon: 'TrendingUp', color: '#EF6448', bg: 'bg-[#FDF4E7] dark:bg-[#EF6448]/15 text-[#996520] dark:text-[#EF6448]' },
+  { name: 'Interest', icon: 'TrendingUp', color: '#EF6448', bg: 'bg-[var(--brufin-warm-soft)] dark:bg-[var(--brufin-accent-bg)]/15 text-[var(--brufin-warm-ink)] dark:text-[var(--brufin-accent-ink)]' },
   { name: 'Dividend', icon: 'Award', color: '#C28E58', bg: 'bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-300' },
   { name: 'Gifts', icon: 'Gift', color: '#B86B77', bg: 'bg-rose-50 dark:bg-rose-950/30 text-rose-700 dark:text-rose-300' },
   { name: 'Other', icon: 'MoreHorizontal', color: '#78716C', bg: 'bg-stone-100 dark:bg-[#1C1F1E] text-stone-700 dark:text-stone-300' },
 ];
 
 export type TransactionCategoryType = 'Expense' | 'Income';
+
+export function getThemedCategoryColor(name: string, color: string): string {
+  if (typeof document === 'undefined' || document.documentElement.dataset.palette !== 'monochrome') return color;
+  const index = [...name].reduce((sum, character) => sum + character.charCodeAt(0), 0) % 13 + 1;
+  return `var(--chart-color-${index})`;
+}
 
 const CUSTOM_CATEGORY_STYLES = [
   { icon: 'Tag', color: '#6585A3', bg: 'bg-sky-50 dark:bg-sky-950/30 text-sky-700 dark:text-sky-300' },

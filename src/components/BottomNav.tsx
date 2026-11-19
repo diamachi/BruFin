@@ -27,8 +27,8 @@ export const BottomNav: React.FC<Props> = ({ activeTab, onTabChange, onOpenQuick
               onClick={() => onTabChange('dashboard')}
               className={`flex flex-col items-center justify-center py-1 rounded-xl transition-all duration-200 cursor-pointer ${
                 activeTab === 'dashboard'
-                  ? 'text-[#EF6448] font-bold'
-                  : 'text-slate-500/70 dark:text-[#A5ACB7] hover:text-[#EF6448] dark:hover:text-[#F2F3F5]'
+                  ? 'text-[var(--brufin-accent-ink)] font-bold'
+                  : 'text-slate-500/70 dark:text-[#A5ACB7] hover:text-[var(--brufin-accent-ink)] dark:hover:text-[#F2F3F5]'
               }`}
             >
               <LayoutDashboard className={`w-5 h-5 transition-transform ${activeTab === 'dashboard' ? 'scale-110' : ''}`} />
@@ -40,8 +40,8 @@ export const BottomNav: React.FC<Props> = ({ activeTab, onTabChange, onOpenQuick
               onClick={() => onTabChange('expenses')}
               className={`flex flex-col items-center justify-center py-1 rounded-xl transition-all duration-200 cursor-pointer ${
                 isExpensesActive
-                  ? 'text-[#EF6448] font-bold'
-                  : 'text-slate-500/70 dark:text-[#A5ACB7] hover:text-[#EF6448] dark:hover:text-[#F2F3F5]'
+                  ? 'text-[var(--brufin-accent-ink)] font-bold'
+                  : 'text-slate-500/70 dark:text-[#A5ACB7] hover:text-[var(--brufin-accent-ink)] dark:hover:text-[#F2F3F5]'
               }`}
             >
               <ReceiptText className={`w-5 h-5 transition-transform ${isExpensesActive ? 'scale-110' : ''}`} />
@@ -53,7 +53,7 @@ export const BottomNav: React.FC<Props> = ({ activeTab, onTabChange, onOpenQuick
           <div className="absolute left-1/2 -translate-x-1/2 -top-5 z-20 pointer-events-auto">
             <button
               onClick={onOpenQuickAdd}
-              className="w-14 h-14 rounded-full bg-[#EF6448] hover:bg-[#E05338] text-white shadow-xl shadow-[#EF6448]/35 hover:scale-105 active:scale-95 transition-all flex items-center justify-center border-4 border-white dark:border-[#202322] cursor-pointer"
+              className="w-14 h-14 rounded-full bg-[var(--brufin-accent-bg)] hover:bg-[var(--brufin-accent-bg-hover)] text-white shadow-xl shadow-[var(--brufin-accent-bg)]/35 hover:scale-105 active:scale-95 transition-all flex items-center justify-center border-4 border-white dark:border-[#202322] cursor-pointer"
               title="Add Expense or Income"
             >
               <Plus className="w-7 h-7 stroke-[3.5] text-white" />
@@ -67,8 +67,8 @@ export const BottomNav: React.FC<Props> = ({ activeTab, onTabChange, onOpenQuick
               onClick={() => onTabChange('cards')}
               className={`flex flex-col items-center justify-center py-1 rounded-xl transition-all duration-200 cursor-pointer ${
                 activeTab === 'cards'
-                  ? 'text-[#EF6448] font-bold'
-                  : 'text-slate-500/70 dark:text-[#A5ACB7] hover:text-[#EF6448] dark:hover:text-[#F2F3F5]'
+                  ? 'text-[var(--brufin-accent-ink)] font-bold'
+                  : 'text-slate-500/70 dark:text-[#A5ACB7] hover:text-[var(--brufin-accent-ink)] dark:hover:text-[#F2F3F5]'
               }`}
             >
               <CreditCard className={`w-5 h-5 transition-transform ${activeTab === 'cards' ? 'scale-110' : ''}`} />
@@ -80,8 +80,8 @@ export const BottomNav: React.FC<Props> = ({ activeTab, onTabChange, onOpenQuick
               onClick={() => onTabChange('investments')}
               className={`flex flex-col items-center justify-center py-1 rounded-xl transition-all duration-200 cursor-pointer ${
                 activeTab === 'investments'
-                  ? 'text-[#EF6448] font-bold'
-                  : 'text-slate-500/70 dark:text-[#A5ACB7] hover:text-[#EF6448] dark:hover:text-[#F2F3F5]'
+                  ? 'text-[var(--brufin-accent-ink)] font-bold'
+                  : 'text-slate-500/70 dark:text-[#A5ACB7] hover:text-[var(--brufin-accent-ink)] dark:hover:text-[#F2F3F5]'
               }`}
             >
               <TrendingUp className={`w-5 h-5 transition-transform ${activeTab === 'investments' ? 'scale-110' : ''}`} />

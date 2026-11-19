@@ -30,7 +30,7 @@ export const DesktopNav: React.FC<Props> = ({ activeTab, onTabChange, onOpenQuic
         <p className="text-[10px] font-medium text-slate-500 dark:text-[#A5ACB7]">Brewing calm finances</p>
       </div>
     </div>
-    <button onClick={onOpenQuickAdd} className="mb-6 flex h-11 items-center justify-center gap-2 rounded-2xl bg-[#EF6448] text-sm font-bold text-white shadow-md shadow-[#EF6448]/20 transition hover:bg-[#E05338] active:scale-[0.98]">
+    <button onClick={onOpenQuickAdd} className="mb-6 flex h-11 items-center justify-center gap-2 rounded-2xl bg-[var(--brufin-accent-bg)] text-sm font-bold text-white shadow-md shadow-[var(--brufin-accent-bg)]/20 transition hover:bg-[var(--brufin-accent-bg-hover)] active:scale-[0.98]">
       <Plus className="h-4 w-4" /> Add transaction
     </button>
     <p className="mb-2 px-3 text-[9px] font-bold uppercase tracking-[0.16em] text-slate-400 dark:text-slate-500">Workspace</p>
@@ -38,7 +38,7 @@ export const DesktopNav: React.FC<Props> = ({ activeTab, onTabChange, onOpenQuic
       {items.map(({ id, label, icon: Icon }) => {
         const selected = activeTab === id || (id === 'investments' && activeTab === 'loans');
         return (
-          <button key={id} onClick={() => onTabChange(id)} aria-current={selected ? 'page' : undefined} className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-xs font-semibold transition-colors ${selected ? 'bg-[#FCE8DE] text-[#B84E3B] dark:bg-[#B84E3B]/20 dark:text-[#FF927A]' : 'text-slate-600 hover:bg-white/80 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-[#22252A] dark:hover:text-white'}`}>
+          <button key={id} onClick={() => onTabChange(id)} aria-current={selected ? 'page' : undefined} className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-xs font-semibold transition-colors ${selected ? 'bg-[var(--brufin-accent-selected)] text-[var(--brufin-accent-ink)] dark:bg-[var(--brufin-accent-active)]/20 dark:text-[var(--brufin-accent-ink)]' : 'text-slate-600 hover:bg-white/80 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-[#22252A] dark:hover:text-white'}`}>
             <Icon className="h-4 w-4 shrink-0" />
             <span>{label}</span>
           </button>
@@ -48,7 +48,7 @@ export const DesktopNav: React.FC<Props> = ({ activeTab, onTabChange, onOpenQuic
     <div className="mt-auto rounded-2xl border border-[#E8E1DB] bg-white/80 p-3 dark:border-[#363B44] dark:bg-[#22252A]">
       <p className="text-[10px] font-bold text-slate-700 dark:text-slate-200">Private by design</p>
       <p className="mt-1 text-[10px] leading-relaxed text-slate-500 dark:text-slate-400">Your records stay on this device or your BruFin server.</p>
-      <button onClick={onOpenSettings} className="mt-3 flex items-center gap-2 text-[11px] font-semibold text-slate-500 transition hover:text-[#EF6448] dark:text-slate-400">
+      <button onClick={onOpenSettings} className="mt-3 flex items-center gap-2 text-[11px] font-semibold text-slate-500 transition hover:text-[var(--brufin-accent-ink)] dark:text-slate-400">
         <Settings className="h-3.5 w-3.5" /> Settings
       </button>
     </div>

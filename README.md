@@ -41,14 +41,14 @@ Screenshots use BruFin's built-in sample data. The same dashboard is shown in bo
 | **Categories** | Add, remove, and restore default income and expense categories in Settings. Existing transactions keep their saved category label. |
 | **Data tools** | Export JSON backups or transaction CSVs; import backups; preview older BruFin exports and restore only new transactions. |
 | **Self-hosting** | Run the web dashboard and private SQLite API with Docker Compose; pair Android phones by scanning a short-lived QR shown by the connected server dashboard, then sync offline edits. |
-| **Personalization** | Switch themes, adjust display scale, and optionally show compact storage and memory diagnostics. |
+| **Personalization** | Switch between light/dark modes and BruFin/monochrome palettes, adjust display scale, and optionally show storage and memory diagnostics. |
 | **Demo mode** | Explore with sample records, then clear them and begin with an empty local database. |
 
 Investment and loan figures are estimates based on values you enter. BruFin does not fetch live market, bank, or lender data.
 
 ## Privacy & data storage
 
-By default, BruFin works locally without an account or server. Financial records are stored in IndexedDB (`brufin-local`, schema version 3); theme, display scale, and server connection preferences use `localStorage`. If you configure a self-hosted server, that server becomes the shared source of truth while IndexedDB remains each device's offline working copy.
+By default, BruFin works locally without an account or server. Financial records are stored in IndexedDB (`brufin-local`, schema version 3); theme, color palette, display scale, and server connection preferences use `localStorage`. If you configure a self-hosted server, that server becomes the shared source of truth while IndexedDB remains each device's offline working copy.
 
 - **Web:** IndexedDB is managed by the browser and scoped to the exact origin and browser profile. For example, `localhost`, a LAN IP address, and a deployed domain each have separate data. The browser controls the physical files; BruFin does not create a separate database file you can move directly.
 - **Android:** IndexedDB is held in the app's private WebView data area for application ID `com.diamachi.brufin`. Android isolates that storage from other apps; it is not exposed as a normal document or standalone SQLite file.
@@ -73,7 +73,25 @@ Open `http://<homelab-host>:8780` using its LAN/VPN address (or the host port yo
 
 Automatic setup is intended for a private LAN/VPN: anyone who can reach a fresh, unclaimed server can claim it first. Do not expose the server publicly during setup; set `BRUFIN_ALLOW_FIRST_RUN_PAIRING=false` to disable this and require manual token entry. Keep the server on a private LAN/VPN or behind HTTPS. Do not publish the API directly over plain HTTP. The current self-hosted mode uses one shared access token for a single user.
 
-See [SELF_HOSTING.md](SELF_HOSTING.md) for the combined Docker Compose and Portainer setup guide, including setup, backups, network access, and troubleshooting. The current release image is `diamachi/brufin:v0.6.1`; Portainer stores the database and token in a named Docker volume so they survive container replacement.
+See [SELF_HOSTING.md](SELF_HOSTING.md) for the combined Docker Compose and Portainer setup guide, including setup, backups, network access, and troubleshooting. The current release image is `diamachi/brufin:v0.6.2`; Portainer stores the database and token in a named Docker volume so they survive container replacement.
+
+## Update BruFin without losing existing data
+
+App and server updates are separate. Updating the Android app does not update your homelab server, and updating the server image does not update the app on your phone.
+
+### Update the Android app
+
+For an existing BruFin install, download the new APK from the GitHub release and install it **over the current app**. BruFin keeps the same Android application ID and release signing key, so an in-place update preserves the phone's local database, server pairing, and preferences. Do not uninstall BruFin or clear its app storage to update it; Android removes local app data when you uninstall. Keep a JSON backup before a major update as an extra safety copy.
+
+If Android reports a signing-key conflict, stop and check that you downloaded the official release APK. Uninstalling may remove standalone records that have not reached the server; export them first if the installed app cannot be updated in place.
+
+### Update the self-hosted server
+
+Replace the server container while keeping its existing data storage attached. For Portainer, change `BRUFIN_IMAGE` to the new version (currently `diamachi/brufin:v0.6.2`), pull the image, and redeploy the stack with the existing `brufin-data` volume selected. For a source-based Compose install, update the repository and run `docker compose up -d --build`. Keep the `./data` directory. Replacing the container is expected; deleting the volume or data directory is what removes the server database and API token. This release does not require a database reset or data import.
+
+### Connect an app that already has records to a server
+
+Back up both copies before the first connection if both contain records you may need. On the app's first server connection, **Use server data** replaces that device's local copy with the server's existing data. **Upload this device** replaces the server snapshot with that device's local data. Pick the copy you want to keep; do not upload a phone snapshot over a populated server unless that is intentional. After the client is paired, normal updates keep syncing through the server, and same-record conflicts are shown for review. A new phone should choose **Use server data** to download the existing shared records.
 
 ## Run on the web
 
@@ -146,7 +164,7 @@ To build a signed release APK locally, configure `BRUFIN_RELEASE_KEYSTORE_FILE`,
 
 GitHub Actions checks the project and builds a debug APK on pushes and pull requests to `main`, and can be started manually from the Actions tab. The workflow runs type checking and the database/archive import tests, builds the web assets, syncs Capacitor, compiles the APK, and uploads `brufin-debug-apk` as a 14-day artifact.
 
-Pushing a version tag such as `v0.6.1` runs the release workflow, which builds and publishes a release-signed APK when GitHub Actions is available. To build locally instead, set the four `BRUFIN_RELEASE_*` variables from your private `android/signing/local.env`, then run `./gradlew --no-daemon assembleRelease` from `android/`. The signed APK is written to `android/app/build/outputs/apk/release/app-release.apk`; upload it to the GitHub release page with the matching release notes.
+Pushing a version tag such as `v0.6.2` runs the release workflow, which builds and publishes a release-signed APK when GitHub Actions is available. To build locally instead, set the four `BRUFIN_RELEASE_*` variables from your private `android/signing/local.env`, then run `./gradlew --no-daemon assembleRelease` from `android/`. The signed APK is written to `android/app/build/outputs/apk/release/app-release.apk`; upload it to the GitHub release page with the matching release notes.
 
 For the Actions workflow, configure these repository secrets under **Settings → Secrets and variables → Actions**:
 

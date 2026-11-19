@@ -28,7 +28,7 @@ const renderStartupMessage = (message: string, canRetry: boolean) => root.render
     <section className="max-w-md rounded-3xl border border-[#E8E1DB] dark:border-[#363B44] bg-white dark:bg-[#22252A] p-6 text-center shadow-lg">
       <h1 className="text-lg font-black">BruFin local database</h1>
       <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{message}</p>
-      {canRetry && <button onClick={bootApp} className="mt-4 rounded-xl bg-[#59171B] px-4 py-2 text-sm font-bold text-white">Retry</button>}
+      {canRetry && <button onClick={bootApp} className="mt-4 rounded-xl bg-[var(--brufin-accent-deep-bg)] px-4 py-2 text-sm font-bold text-white">Retry</button>}
     </section>
   </main>
 );

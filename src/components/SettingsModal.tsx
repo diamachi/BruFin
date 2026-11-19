@@ -15,6 +15,7 @@ import {
   Cpu,
   Archive,
   Type,
+  Palette,
   ZoomIn,
   ZoomOut,
   Tag,
@@ -53,6 +54,8 @@ interface Props {
   onOpenDiagnostics?: () => void;
   appScale?: number;
   onUpdateAppScale?: (scale: number) => void;
+  colorPalette: 'standard' | 'monochrome';
+  onColorPaletteChange: (palette: 'standard' | 'monochrome') => void;
   serverSyncStatus: ServerSyncStatus;
   onConnectServer: (serverUrl: string, token: string, strategy: 'server' | 'device') => Promise<void>;
   onDisconnectServer: () => Promise<void>;
@@ -92,6 +95,8 @@ export const SettingsModal: React.FC<Props> = ({
   onOpenDiagnostics,
   appScale = 1.0,
   onUpdateAppScale,
+  colorPalette,
+  onColorPaletteChange,
   serverSyncStatus,
   onConnectServer,
   onDisconnectServer,
@@ -241,7 +246,7 @@ export const SettingsModal: React.FC<Props> = ({
         {/* Header */}
         <div className="px-5 py-4 border-b border-[#E8E1DB] dark:border-[#363B44] flex items-center justify-between bg-[#F7F6F3] dark:bg-[#22252A]">
           <div className="flex items-center space-x-2">
-            <Database className="w-5 h-5 text-[#EF6448]" />
+            <Database className="w-5 h-5 text-[var(--brufin-accent-ink)]" />
             <h2 className="text-base font-bold text-slate-900 dark:text-[#F2F3F5] tracking-tight">Settings & Preferences</h2>
           </div>
           <button
@@ -259,6 +264,27 @@ export const SettingsModal: React.FC<Props> = ({
             onConnect={onConnectServer}
             onDisconnect={onDisconnectServer}
           />
+
+          <div className="p-4 rounded-2xl bg-white dark:bg-[#17191C] border border-[#E8E1DB] dark:border-[#363B44] space-y-3 shadow-xs">
+            <div className="flex items-center gap-2">
+              <Palette className="w-4 h-4 text-[var(--brufin-accent-ink)]" />
+              <h3 className="text-xs font-bold text-slate-900 dark:text-[#F2F3F5] uppercase tracking-wider">Color palette</h3>
+            </div>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">Choose BruFin’s warm accents or a neutral monochrome look. The palette works with either light or dark mode.</p>
+            <div role="group" aria-label="Color palette" className="grid grid-cols-2 gap-1 rounded-xl bg-[#F7F6F3] dark:bg-[#1B1E22] p-1 border border-[#E8E1DB] dark:border-[#363B44]">
+              {(['standard', 'monochrome'] as const).map((palette) => (
+                <button
+                  key={palette}
+                  type="button"
+                  aria-pressed={colorPalette === palette}
+                  onClick={() => onColorPaletteChange(palette)}
+                  className={`rounded-lg py-2 text-xs font-semibold transition-colors ${colorPalette === palette ? 'bg-[var(--brufin-accent-bg)] text-white shadow-sm' : 'text-slate-600 dark:text-slate-300 hover:bg-white/70 dark:hover:bg-[#363B44]'}`}
+                >
+                  {palette === 'standard' ? 'BruFin' : 'Monochrome'}
+                </button>
+              ))}
+            </div>
+          </div>
 
           {/* 1. Monthly Expense Target */}
           <div className="p-4 rounded-2xl bg-white dark:bg-[#17191C] border border-[#E8E1DB] dark:border-[#363B44] space-y-3 shadow-xs">
@@ -282,7 +308,7 @@ export const SettingsModal: React.FC<Props> = ({
               </div>
               <button
                 type="submit"
-                className="px-4 py-2 rounded-xl bg-[#EF6448] hover:bg-[#E05338] text-white text-xs font-bold transition-colors flex items-center gap-1.5 shrink-0 cursor-pointer shadow-sm"
+                className="px-4 py-2 rounded-xl bg-[var(--brufin-accent-bg)] hover:bg-[var(--brufin-accent-bg-hover)] text-white text-xs font-bold transition-colors flex items-center gap-1.5 shrink-0 cursor-pointer shadow-sm"
               >
                 {targetSaved ? <CheckCircle2 className="w-4 h-4 text-white" /> : <Save className="w-4 h-4" />}
                 <span>{targetSaved ? 'Saved' : 'Save'}</span>
@@ -294,13 +320,13 @@ export const SettingsModal: React.FC<Props> = ({
           <div className="p-4 rounded-2xl bg-white dark:bg-[#17191C] border border-[#E8E1DB] dark:border-[#363B44] space-y-3 shadow-xs">
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-2">
-                <Tag className="w-4 h-4 text-[#EF6448]" />
+                <Tag className="w-4 h-4 text-[var(--brufin-accent-ink)]" />
                 <h3 className="text-xs font-bold text-slate-900 dark:text-[#F2F3F5] uppercase tracking-wider">Categories</h3>
               </div>
               <button
                 type="button"
                 onClick={() => void onUpdateCategories(categoryType, defaultCategoryNames)}
-                className="text-[10px] text-slate-500 dark:text-slate-400 hover:text-[#EF6448] flex items-center gap-1"
+                className="text-[10px] text-slate-500 dark:text-slate-400 hover:text-[var(--brufin-accent-ink)] flex items-center gap-1"
               >
                 <RotateCcw className="w-3 h-3" /> Restore defaults
               </button>
@@ -316,7 +342,7 @@ export const SettingsModal: React.FC<Props> = ({
                   key={type}
                   type="button"
                   onClick={() => { setCategoryType(type); setCategoryError(''); }}
-                  className={`rounded-lg py-1.5 text-xs font-semibold transition-colors ${categoryType === type ? 'bg-[#EF6448] text-white shadow-sm' : 'text-slate-600 dark:text-slate-300 hover:bg-white/70 dark:hover:bg-[#363B44]'}`}
+                  className={`rounded-lg py-1.5 text-xs font-semibold transition-colors ${categoryType === type ? 'bg-[var(--brufin-accent-bg)] text-white shadow-sm' : 'text-slate-600 dark:text-slate-300 hover:bg-white/70 dark:hover:bg-[#363B44]'}`}
                 >
                   {type} categories
                 </button>
@@ -331,11 +357,11 @@ export const SettingsModal: React.FC<Props> = ({
                 onChange={(event) => { setNewCategoryName(event.target.value); setCategoryError(''); }}
                 placeholder={categoryType === 'Expense' ? 'e.g. Pet care' : 'e.g. Freelance'}
                 aria-label={`New ${categoryType.toLowerCase()} category name`}
-                className="min-w-0 flex-1 bg-[#F7F6F3] dark:bg-[#1B1E22] border border-[#E8E1DB] dark:border-[#363B44] rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#EF6448]/30"
+                className="min-w-0 flex-1 bg-[#F7F6F3] dark:bg-[#1B1E22] border border-[#E8E1DB] dark:border-[#363B44] rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[var(--brufin-accent-ink)]/30"
               />
               <button
                 type="submit"
-                className="px-3 rounded-xl bg-[#EF6448] hover:bg-[#E05338] text-white text-xs font-bold flex items-center gap-1 shadow-sm"
+                className="px-3 rounded-xl bg-[var(--brufin-accent-bg)] hover:bg-[var(--brufin-accent-bg-hover)] text-white text-xs font-bold flex items-center gap-1 shadow-sm"
               >
                 <Plus className="w-3.5 h-3.5" /> Add
               </button>
@@ -366,12 +392,12 @@ export const SettingsModal: React.FC<Props> = ({
           <div className="p-4 rounded-2xl bg-white dark:bg-[#17191C] border border-[#E8E1DB] dark:border-[#363B44] space-y-3.5 shadow-xs">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
-                <Type className="w-4 h-4 text-[#EF6448]" />
+                <Type className="w-4 h-4 text-[var(--brufin-accent-ink)]" />
                 <h3 className="text-xs font-bold text-slate-900 dark:text-[#F2F3F5] uppercase tracking-wider">
                   Display & Text Size
                 </h3>
               </div>
-              <span className="text-xs font-bold text-[#EF6448] bg-[#EF6448]/15 px-2 py-0.5 rounded-full border border-[#EF6448]/30">
+              <span className="text-xs font-bold text-[var(--brufin-accent-ink)] bg-[var(--brufin-accent-bg)]/15 px-2 py-0.5 rounded-full border border-[var(--brufin-accent-border)]/30">
                 {Math.round(appScale * 100)}%
               </span>
             </div>
@@ -391,7 +417,7 @@ export const SettingsModal: React.FC<Props> = ({
                     onClick={() => onUpdateAppScale?.(preset.value)}
                     className={`py-1.5 px-1 rounded-lg text-center transition-all cursor-pointer ${
                       isSelected
-                        ? 'bg-[#EF6448] text-white font-bold shadow-sm'
+                        ? 'bg-[var(--brufin-accent-bg)] text-white font-bold shadow-sm'
                         : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                     }`}
                   >
@@ -419,7 +445,7 @@ export const SettingsModal: React.FC<Props> = ({
                 step="0.05"
                 value={appScale}
                 onChange={(e) => onUpdateAppScale?.(parseFloat(e.target.value))}
-                className="w-full accent-[#EF6448] cursor-pointer"
+                className="w-full accent-[var(--brufin-accent-bg)] cursor-pointer"
               />
             </div>
 
@@ -440,7 +466,7 @@ export const SettingsModal: React.FC<Props> = ({
                 <button
                   type="button"
                   onClick={() => onUpdateAppScale?.(1.0)}
-                  className="text-[10px] font-bold text-[#EF6448] hover:underline cursor-pointer"
+                  className="text-[10px] font-bold text-[var(--brufin-accent-ink)] hover:underline cursor-pointer"
                 >
                   Reset (100%)
                 </button>
@@ -452,7 +478,7 @@ export const SettingsModal: React.FC<Props> = ({
           <div className="p-4 rounded-2xl bg-white dark:bg-[#17191C] border border-[#E8E1DB] dark:border-[#363B44] flex items-center justify-between gap-3 shadow-xs">
             <div className="space-y-0.5">
               <div className="flex items-center space-x-2">
-                <Landmark className="w-4 h-4 text-[#EF6448]" />
+                <Landmark className="w-4 h-4 text-[var(--brufin-accent-ink)]" />
                 <h3 className="text-xs font-bold text-slate-900 dark:text-[#F2F3F5] uppercase tracking-wider">
                   Monthly Balance Check-in Prompts
                 </h3>
@@ -466,7 +492,7 @@ export const SettingsModal: React.FC<Props> = ({
                 type="button"
                 onClick={() => onToggleBalancePrompts(!balancePromptsEnabled)}
                 className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                  balancePromptsEnabled ? 'bg-[#EF6448]' : 'bg-slate-300 dark:bg-slate-700'
+                  balancePromptsEnabled ? 'bg-[var(--brufin-accent-bg)]' : 'bg-slate-300 dark:bg-slate-700'
                 }`}
                 title="Toggle monthly balance check-in prompts"
               >
@@ -484,7 +510,7 @@ export const SettingsModal: React.FC<Props> = ({
             <div className="flex items-center justify-between gap-3">
               <div className="space-y-0.5">
                 <div className="flex items-center space-x-2">
-                  <Cpu className="w-4 h-4 text-[#EF6448]" />
+                  <Cpu className="w-4 h-4 text-[var(--brufin-accent-ink)]" />
                   <h3 className="text-xs font-bold text-slate-900 dark:text-[#F2F3F5] uppercase tracking-wider">
                     Storage & RAM Monitor
                   </h3>
@@ -498,7 +524,7 @@ export const SettingsModal: React.FC<Props> = ({
                   type="button"
                   onClick={() => onToggleDiagnostics(!diagnosticsEnabled)}
                   className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                    diagnosticsEnabled ? 'bg-[#EF6448]' : 'bg-slate-300 dark:bg-slate-700'
+                    diagnosticsEnabled ? 'bg-[var(--brufin-accent-bg)]' : 'bg-slate-300 dark:bg-slate-700'
                   }`}
                   title="Toggle the storage and RAM diagnostics monitor"
                 >
@@ -520,7 +546,7 @@ export const SettingsModal: React.FC<Props> = ({
                 }}
                 className="w-full py-2 px-3 rounded-xl bg-[#F7F6F3] dark:bg-[#1B1E22] hover:bg-slate-100 dark:hover:bg-[#363C3A] border border-[#E8E1DB] dark:border-[#363B44] text-slate-700 dark:text-[#F2F3F5] text-xs font-semibold transition-all flex items-center justify-center gap-1.5"
               >
-                <Archive className="w-3.5 h-3.5 text-[#EF6448]" />
+                <Archive className="w-3.5 h-3.5 text-[var(--brufin-accent-ink)]" />
                 <span>Open Storage & 1-Year Retention Center</span>
               </button>
             )}
@@ -539,7 +565,7 @@ export const SettingsModal: React.FC<Props> = ({
               </div>
               <button
                 onClick={() => setShowAddPaymentMethod(!showAddPaymentMethod)}
-                className="text-xs text-[#EF6448] hover:opacity-80 font-semibold flex items-center gap-1 shrink-0 cursor-pointer"
+                className="text-xs text-[var(--brufin-accent-ink)] hover:opacity-80 font-semibold flex items-center gap-1 shrink-0 cursor-pointer"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>{showAddPaymentMethod ? 'Cancel' : 'Add Method'}</span>
@@ -578,7 +604,7 @@ export const SettingsModal: React.FC<Props> = ({
                         }}
                         className={`p-2 rounded-xl text-[11px] font-medium flex items-center gap-1.5 border transition-all cursor-pointer ${
                           newMethodIcon === opt.icon
-                            ? 'bg-[#EF6448] text-white border-[#EF6448] shadow-sm font-bold'
+                            ? 'bg-[var(--brufin-accent-bg)] text-white border-[var(--brufin-accent-border)] shadow-sm font-bold'
                             : 'bg-slate-50 dark:bg-[#1B1E22] border-[#E8E1DB] dark:border-[#363B44] text-slate-600 dark:text-slate-400'
                         }`}
                       >
@@ -591,7 +617,7 @@ export const SettingsModal: React.FC<Props> = ({
 
                 <button
                   type="submit"
-                  className="w-full py-2 rounded-xl bg-[#EF6448] hover:bg-[#E05338] text-white text-xs font-bold transition-all shadow-sm cursor-pointer"
+                  className="w-full py-2 rounded-xl bg-[var(--brufin-accent-bg)] hover:bg-[var(--brufin-accent-bg-hover)] text-white text-xs font-bold transition-all shadow-sm cursor-pointer"
                 >
                   Save Payment Method
                 </button>
@@ -653,7 +679,7 @@ export const SettingsModal: React.FC<Props> = ({
               </div>
               <button
                 onClick={() => setShowAddRecurring(!showAddRecurring)}
-                className="text-xs text-[#EF6448] hover:opacity-80 font-semibold flex items-center gap-1 cursor-pointer"
+                className="text-xs text-[var(--brufin-accent-ink)] hover:opacity-80 font-semibold flex items-center gap-1 cursor-pointer"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>{showAddRecurring ? 'Cancel' : 'Add Bill'}</span>
@@ -687,7 +713,7 @@ export const SettingsModal: React.FC<Props> = ({
                 />
                 <button
                   type="submit"
-                  className="w-full py-1.5 rounded-lg bg-[#EF6448] hover:bg-[#E05338] text-white text-xs font-bold transition-all shadow-sm cursor-pointer"
+                  className="w-full py-1.5 rounded-lg bg-[var(--brufin-accent-bg)] hover:bg-[var(--brufin-accent-bg-hover)] text-white text-xs font-bold transition-all shadow-sm cursor-pointer"
                 >
                   Add Recurring Payment
                 </button>
@@ -728,7 +754,7 @@ export const SettingsModal: React.FC<Props> = ({
               </div>
               <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
                 isDemoMode
-                  ? 'bg-amber-50 dark:bg-[#B84E3B]/15 text-[#996520] dark:text-[#FF927A] border-[#F5DEBE] dark:border-[#EF6448]/30'
+                  ? 'bg-amber-50 dark:bg-[var(--brufin-accent-active)]/15 text-[var(--brufin-warm-ink)] dark:text-[var(--brufin-accent-ink)] border-[var(--brufin-warm-border)] dark:border-[var(--brufin-accent-border)]/30'
                   : 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800/40'
               }`}>
                 {isDemoMode ? '🟡 Demo Mode Active' : '🟢 Personal Database'}
@@ -745,7 +771,7 @@ export const SettingsModal: React.FC<Props> = ({
                       onClose();
                     }
                   }}
-                  className="flex-1 py-2.5 px-3 rounded-xl bg-[#EF6448] hover:bg-[#E05338] text-white text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-1.5 cursor-pointer"
+                  className="flex-1 py-2.5 px-3 rounded-xl bg-[var(--brufin-accent-bg)] hover:bg-[var(--brufin-accent-bg-hover)] text-white text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-1.5 cursor-pointer"
                 >
                   <RotateCcw className="w-3.5 h-3.5" />
                   <span>Clear Demo & Start Fresh</span>
@@ -761,7 +787,7 @@ export const SettingsModal: React.FC<Props> = ({
                   }}
                   className="flex-1 py-2 px-3 rounded-xl bg-[#F7F6F3] dark:bg-[#1B1E22] hover:bg-slate-100 dark:hover:bg-[#363C3A] border border-[#E8E1DB] dark:border-[#363B44] text-slate-700 dark:text-slate-200 text-xs font-semibold transition-all flex items-center justify-center gap-1.5"
                 >
-                  <Database className="w-3.5 h-3.5 text-[#B87B2E] dark:text-[#FF927A]" />
+                  <Database className="w-3.5 h-3.5 text-[var(--brufin-gold)] dark:text-[var(--brufin-accent-ink)]" />
                   <span>Load Sample Demo Data</span>
                 </button>
               )}
@@ -782,7 +808,7 @@ export const SettingsModal: React.FC<Props> = ({
                 onClick={exportDatabaseJSON}
                 className="p-3 rounded-xl bg-[#F7F6F3] dark:bg-[#1B1E22] hover:bg-slate-100 dark:hover:bg-[#363C3A] border border-[#E8E1DB] dark:border-[#363B44] text-left transition-colors flex items-center space-x-2 text-xs font-semibold text-slate-700 dark:text-slate-200 cursor-pointer"
               >
-                <Download className="w-4 h-4 text-[#EF6448] shrink-0" />
+                <Download className="w-4 h-4 text-[var(--brufin-accent-ink)] shrink-0" />
                 <span>Export JSON Backup</span>
               </button>
 
@@ -790,14 +816,14 @@ export const SettingsModal: React.FC<Props> = ({
                 onClick={exportTransactionsCSV}
                 className="p-3 rounded-xl bg-[#F7F6F3] dark:bg-[#1B1E22] hover:bg-slate-100 dark:hover:bg-[#363C3A] border border-[#E8E1DB] dark:border-[#363B44] text-left transition-colors flex items-center space-x-2 text-xs font-semibold text-slate-700 dark:text-slate-200 cursor-pointer"
               >
-                <FileSpreadsheet className="w-4 h-4 text-[#EF6448] shrink-0" />
+                <FileSpreadsheet className="w-4 h-4 text-[var(--brufin-accent-ink)] shrink-0" />
                 <span>Export to Excel / CSV</span>
               </button>
             </div>
 
             <div className="pt-2">
               <label className="block p-3 rounded-xl bg-[#F7F6F3] dark:bg-[#1B1E22] hover:bg-slate-100 dark:hover:bg-[#363C3A] border border-dashed border-[#E8E1DB] dark:border-[#363B44] text-center cursor-pointer transition-colors text-xs text-slate-600 dark:text-slate-300 font-semibold">
-                <Upload className="w-4 h-4 text-[#EF6448] inline mr-2" />
+                <Upload className="w-4 h-4 text-[var(--brufin-accent-ink)] inline mr-2" />
                 <span>Import JSON Backup File</span>
                 <input
                   type="file"
@@ -808,7 +834,7 @@ export const SettingsModal: React.FC<Props> = ({
               </label>
             </div>
             <label className="block cursor-pointer rounded-xl border border-dashed border-[#E8E1DB] bg-[#F7F6F3] p-3 text-center text-xs font-semibold text-slate-600 transition-colors hover:bg-slate-100 dark:border-[#363B44] dark:bg-[#1B1E22] dark:text-slate-300 dark:hover:bg-[#363C3A]">
-              <Archive className="mr-2 inline h-4 w-4 text-[#EF6448]" />
+              <Archive className="mr-2 inline h-4 w-4 text-[var(--brufin-accent-ink)]" />
               <span>View or Restore Historical JSON / CSV</span>
               <input type="file" accept=".json,.csv,application/json,text/csv" onChange={handleHistoricalFileChange} className="hidden" />
             </label>

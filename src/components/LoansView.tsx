@@ -224,7 +224,7 @@ export const LoansView: React.FC<Props> = ({ loans, onUpdateLoans }) => {
           </p>
           <button
             onClick={handleOpenAdd}
-            className="px-4 py-2 rounded-xl bg-[#EF6448] hover:bg-[#E05338] text-white text-xs font-bold shadow-sm transition-all"
+            className="px-4 py-2 rounded-xl bg-[var(--brufin-accent-bg)] hover:bg-[var(--brufin-accent-bg-hover)] text-white text-xs font-bold shadow-sm transition-all"
           >
             + Add Your First Loan
           </button>
@@ -260,7 +260,7 @@ export const LoansView: React.FC<Props> = ({ loans, onUpdateLoans }) => {
                 </div>
                 <button
                   onClick={() => handleOpenEdit(activeLoan)}
-                  className="p-2 rounded-xl bg-slate-100 dark:bg-[#1B1E22] hover:bg-slate-200 dark:hover:bg-[#363C3A] text-slate-600 dark:text-[#FF927A] transition-colors"
+                  className="p-2 rounded-xl bg-slate-100 dark:bg-[#1B1E22] hover:bg-slate-200 dark:hover:bg-[#363C3A] text-slate-600 dark:text-[var(--brufin-accent-ink)] transition-colors"
                 >
                   <Edit2 className="w-3.5 h-3.5" />
                 </button>
@@ -270,9 +270,9 @@ export const LoansView: React.FC<Props> = ({ loans, onUpdateLoans }) => {
               {calculation && calculation.isValid ? (
                 <div className="space-y-6">
                   {/* Debt-free Announcement */}
-                  <div className="p-4 rounded-2xl bg-[#FDF4E7] dark:bg-[#1B1E22] border border-[#F5DEBE] dark:border-[#363B44] flex items-center justify-between">
+                  <div className="p-4 rounded-2xl bg-[var(--brufin-warm-soft)] dark:bg-[#1B1E22] border border-[var(--brufin-warm-border)] dark:border-[#363B44] flex items-center justify-between">
                     <div className="space-y-1">
-                      <span className="text-[10px] font-bold text-[#996520] dark:text-[#FF927A] uppercase tracking-wider flex items-center gap-1">
+                      <span className="text-[10px] font-bold text-[var(--brufin-warm-ink)] dark:text-[var(--brufin-accent-ink)] uppercase tracking-wider flex items-center gap-1">
                         <CheckCircle2 className="w-3.5 h-3.5" /> Debt-Free Target Date
                       </span>
                       <p className="text-xl sm:text-2xl font-black text-slate-900 dark:text-[#F2F3F5]">
@@ -291,11 +291,11 @@ export const LoansView: React.FC<Props> = ({ loans, onUpdateLoans }) => {
                   {/* Simulator Slider: "What if you pay extra?" */}
                   <div className="p-4 rounded-2xl bg-white dark:bg-[#17191C] border border-[#E8E1DB] dark:border-[#363B44] space-y-3.5 shadow-xs">
                     <div className="flex items-center justify-between gap-2 flex-wrap">
-                      <div className="flex items-center space-x-1.5 text-xs font-bold text-[#EF6448]">
+                      <div className="flex items-center space-x-1.5 text-xs font-bold text-[var(--brufin-accent-ink)]">
                         <Zap className="w-4 h-4 fill-current" />
                         <span>Payoff Accelerator Simulator</span>
                       </div>
-                      <span className="text-xs font-black text-[#EF6448] px-2.5 py-1 rounded-lg bg-[#EF6448]/15 border border-[#EF6448]/30">
+                      <span className="text-xs font-black text-[var(--brufin-accent-ink)] px-2.5 py-1 rounded-lg bg-[var(--brufin-accent-bg)]/15 border border-[var(--brufin-accent-border)]/30">
                         +{formatINR(extraPayment)} / mo
                       </span>
                     </div>
@@ -319,8 +319,8 @@ export const LoansView: React.FC<Props> = ({ loans, onUpdateLoans }) => {
 
                     {extraPayment > 0 && calculation.monthsSaved > 0 && (
                       <div className="p-3 rounded-xl bg-[#F7F6F3] dark:bg-[#1B1E22] border border-[#E8E1DB] dark:border-[#363B44] text-xs text-slate-700 dark:text-[#F2F3F5] flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 animate-fadeIn">
-                        <span>⚡ You become debt-free <strong className="text-[#EF6448]">{calculation.monthsSaved} months sooner</strong></span>
-                        <span className="text-[#EF6448] font-bold">Save {formatINR(calculation.interestSaved)}</span>
+                        <span>⚡ You become debt-free <strong className="text-[var(--brufin-accent-ink)]">{calculation.monthsSaved} months sooner</strong></span>
+                        <span className="text-[var(--brufin-accent-ink)] font-bold">Save {formatINR(calculation.interestSaved)}</span>
                       </div>
                     )}
                   </div>
@@ -461,7 +461,7 @@ export const LoansView: React.FC<Props> = ({ loans, onUpdateLoans }) => {
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2 rounded-xl bg-[#EF6448] hover:bg-[#E05338] text-white text-xs font-bold shadow-sm transition-all"
+                    className="px-5 py-2 rounded-xl bg-[var(--brufin-accent-bg)] hover:bg-[var(--brufin-accent-bg-hover)] text-white text-xs font-bold shadow-sm transition-all"
                   >
                     Save
                   </button>

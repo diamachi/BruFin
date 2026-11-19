@@ -81,7 +81,7 @@ export const DashboardView: React.FC<Props> = ({
     : (unifiedBal.startBalance > 0 ? unifiedBal.startBalance : 0);
 
   return (
-    <div className="space-y-4 animate-fadeIn">
+    <div className="dashboard-container space-y-4 animate-fadeIn">
       {/* 1. Greeting & EOM Banner */}
       <div className="p-4 sm:p-5 rounded-3xl bg-white dark:bg-[#22252A] border border-[#E8E1DB] dark:border-[#363B44] shadow-sm flex items-center justify-between gap-3 transition-colors">
         <div className="space-y-0.5 min-w-0">
@@ -101,7 +101,7 @@ export const DashboardView: React.FC<Props> = ({
         </div>
       </div>
 
-      <div className="grid items-start gap-4 lg:grid-cols-2">
+      <div className="dashboard-summary-grid grid grid-cols-1 items-start gap-4">
       {/* 2. Budget Health Card with Direct Link to Expenses Page */}
       <div className={`p-5 rounded-3xl border transition-all shadow-sm dark:shadow-xl ${
         isBudgetOvershot
@@ -115,7 +115,7 @@ export const DashboardView: React.FC<Props> = ({
           <span className={`px-3 py-1 rounded-full text-xs font-bold border flex items-center gap-1.5 shrink-0 ${
             isBudgetOvershot
               ? 'bg-rose-100 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 border-rose-200 dark:border-rose-800/40'
-              : 'bg-[#FDF4E7] dark:bg-[#B84E3B]/15 text-[#996520] dark:text-[#FF927A] border-[#F5DEBE] dark:border-[#EF6448]/30'
+              : 'bg-[var(--brufin-warm-soft)] dark:bg-[var(--brufin-accent-active)]/15 text-[var(--brufin-warm-ink)] dark:text-[var(--brufin-accent-ink)] border-[var(--brufin-warm-border)] dark:border-[var(--brufin-accent-border)]/30'
           }`}>
             {isBudgetOvershot ? (
               <>
@@ -134,7 +134,7 @@ export const DashboardView: React.FC<Props> = ({
         {/* Dynamic Status Message */}
         <div className="mb-4">
           <h2 className={`text-2xl sm:text-3xl font-black tracking-tight ${
-            isBudgetOvershot ? 'text-rose-700 dark:text-rose-400' : 'text-[#996520] dark:text-[#FF927A]'
+            isBudgetOvershot ? 'text-rose-700 dark:text-rose-400' : 'text-[var(--brufin-warm-ink)] dark:text-[var(--brufin-accent-ink)]'
           }`}>
             {isBudgetOvershot
               ? `Overshot by ${formatINR(Math.abs(remainingBudget))}`
@@ -166,7 +166,7 @@ export const DashboardView: React.FC<Props> = ({
                   ? 'bg-rose-500 dark:bg-rose-400'
                   : targetSpentPercent > 80
                   ? 'bg-amber-500 dark:bg-amber-400'
-                  : 'bg-[#B87B2E] dark:bg-[#B84E3B]'
+                  : 'bg-[var(--brufin-gold)] dark:bg-[var(--brufin-accent-active)]'
               }`}
               style={{ width: `${Math.min(100, targetSpentPercent)}%` }}
             />
@@ -194,9 +194,9 @@ export const DashboardView: React.FC<Props> = ({
           >
             <div>
               <span className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold flex items-center gap-1">
-                <ArrowUpRight className="w-3 h-3 text-[#996520] dark:text-[#FF927A]" /> Income
+                <ArrowUpRight className="w-3 h-3 text-[var(--brufin-warm-ink)] dark:text-[var(--brufin-accent-ink)]" /> Income
               </span>
-              <span className="text-xs font-extrabold text-[#996520] dark:text-[#FF927A] block mt-0.5">{formatINR(totalIncome)}</span>
+              <span className="text-xs font-extrabold text-[var(--brufin-warm-ink)] dark:text-[var(--brufin-accent-ink)] block mt-0.5">{formatINR(totalIncome)}</span>
             </div>
             <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-800 dark:group-hover:text-white transition-colors" />
           </button>
@@ -204,16 +204,17 @@ export const DashboardView: React.FC<Props> = ({
       </div>
 
       {/* 3. Dedicated Income Card */}
-      <div
+      <button
+        type="button"
         onClick={onNavigateToIncome}
-        className="p-4 rounded-3xl bg-white dark:bg-[#22252A] border border-[#E8E1DB] dark:border-[#363B44] hover:border-slate-300 dark:hover:border-slate-700 cursor-pointer transition-all shadow-sm flex items-center justify-between group"
+        className="w-full p-4 rounded-3xl bg-white dark:bg-[#22252A] border border-[#E8E1DB] dark:border-[#363B44] hover:border-slate-300 dark:hover:border-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brufin-accent-ink)] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#17191C] cursor-pointer transition-all shadow-sm flex items-center justify-between text-left group"
       >
         <div className="flex items-center space-x-3.5">
-          <div className="w-10 h-10 rounded-2xl bg-[#FDF4E7] dark:bg-[#B84E3B]/15 text-[#996520] dark:text-[#FF927A] flex items-center justify-center border border-[#F5DEBE] dark:border-[#EF6448]/30">
+          <div className="w-10 h-10 rounded-2xl bg-[var(--brufin-warm-soft)] dark:bg-[var(--brufin-accent-active)]/15 text-[var(--brufin-warm-ink)] dark:text-[var(--brufin-accent-ink)] flex items-center justify-center border border-[var(--brufin-warm-border)] dark:border-[var(--brufin-accent-border)]/30">
             <ArrowUpRight className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="text-xs font-bold text-slate-800 dark:text-white group-hover:text-[#996520] dark:group-hover:text-[#EF6448] transition-colors">
+            <h3 className="text-xs font-bold text-slate-800 dark:text-white group-hover:text-[var(--brufin-warm-ink)] dark:group-hover:text-[var(--brufin-accent-ink)] transition-colors">
               Income Stream Overview
             </h3>
             <p className="text-[11px] text-slate-500 dark:text-slate-400">
@@ -222,10 +223,10 @@ export const DashboardView: React.FC<Props> = ({
           </div>
         </div>
         <div className="flex items-center space-x-2">
-          <span className="text-base font-black text-[#996520] dark:text-[#FF927A]">{formatINR(totalIncome)}</span>
+          <span className="text-base font-black text-[var(--brufin-warm-ink)] dark:text-[var(--brufin-accent-ink)]">{formatINR(totalIncome)}</span>
           <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-800 dark:group-hover:text-white transition-colors" />
         </div>
-      </div>
+      </button>
 
       </div>
 
@@ -236,12 +237,12 @@ export const DashboardView: React.FC<Props> = ({
         onNavigateToExpenses={onNavigateToTransactions}
       />
 
-      <div className="grid items-start gap-4 lg:grid-cols-2">
+      <div className="dashboard-detail-grid grid grid-cols-1 items-start gap-4">
       {/* 6. Unified Bank & Cash Balances Card */}
       <div className="p-5 rounded-3xl bg-white dark:bg-[#22252A] border border-[#E8E1DB] dark:border-[#363B44] shadow-sm space-y-3.5">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2.5">
-            <div className="w-8 h-8 rounded-2xl bg-[#EF6448] flex items-center justify-center text-white shadow-sm shrink-0">
+            <div className="w-8 h-8 rounded-2xl bg-[var(--brufin-accent-bg)] flex items-center justify-center text-white shadow-sm shrink-0">
               <Landmark className="w-4 h-4 stroke-[2.5]" />
             </div>
             <div>
@@ -266,7 +267,7 @@ export const DashboardView: React.FC<Props> = ({
           </div>
 
           <div className="text-right">
-            <span className="text-sm font-black text-[#EF6448] block">
+            <span className="text-sm font-black text-[var(--brufin-accent-ink)] block">
               {formatINR(currentLiquidDisplay)}
             </span>
             <span className="text-[9px] text-slate-400">Total Liquid</span>
@@ -324,7 +325,7 @@ export const DashboardView: React.FC<Props> = ({
           {onOpenUpdateBalance && (
             <button
               onClick={() => onOpenUpdateBalance(activeMonthKey)}
-              className="px-3 py-1.5 rounded-xl bg-[#EF6448] hover:bg-[#E05338] text-white text-[11px] font-black shadow-sm flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer"
+              className="px-3 py-1.5 rounded-xl bg-[var(--brufin-accent-bg)] hover:bg-[var(--brufin-accent-bg-hover)] text-white text-[11px] font-black shadow-sm flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer"
             >
               <Edit2 className="w-3 h-3 stroke-[2.5]" />
               <span>Update Balance</span>
@@ -334,7 +335,7 @@ export const DashboardView: React.FC<Props> = ({
       </div>
 
       {/* 7. Quick Portfolio Teasers (Cards & Loans) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div className="dashboard-portfolio-grid grid grid-cols-1 gap-3">
         {/* Credit Card Quick Teaser */}
         <div
           onClick={onNavigateToCards}

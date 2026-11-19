@@ -117,7 +117,7 @@ export const IncomeView: React.FC<Props> = ({
               <span>Back to Monitor</span>
             </button>
           </div>
-          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#FDF4E7] dark:bg-[#B84E3B]/15 text-[#996520] dark:text-[#FF927A] border border-[#F5DEBE] dark:border-[#EF6448]/30">
+          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[var(--brufin-warm-soft)] dark:bg-[var(--brufin-accent-active)]/15 text-[var(--brufin-warm-ink)] dark:text-[var(--brufin-accent-ink)] border border-[var(--brufin-warm-border)] dark:border-[var(--brufin-accent-border)]/30">
             {selectedMonth === 'All' ? 'All Time' : selectedMonth}
           </span>
         </div>
@@ -127,13 +127,13 @@ export const IncomeView: React.FC<Props> = ({
             <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
               Total Inflows Received
             </span>
-            <span className="text-2xl sm:text-3xl font-black text-[#996520] dark:text-[#FF927A] tracking-tight">
+            <span className="text-2xl sm:text-3xl font-black text-[var(--brufin-warm-ink)] dark:text-[var(--brufin-accent-ink)] tracking-tight">
               +{formatINR(totalIncome)}
             </span>
           </div>
           <button
             onClick={onOpenQuickAdd}
-            className="px-3.5 py-2 rounded-2xl bg-[#EF6448] hover:bg-[#E05338] text-white text-xs font-bold shadow-md flex items-center gap-1.5 transition-all cursor-pointer"
+            className="px-3.5 py-2 rounded-2xl bg-[var(--brufin-accent-bg)] hover:bg-[var(--brufin-accent-bg-hover)] text-white text-xs font-bold shadow-md flex items-center gap-1.5 transition-all cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Add Income</span>
@@ -169,7 +169,7 @@ export const IncomeView: React.FC<Props> = ({
             onClick={() => setShowFilters(!showFilters)}
             className={`p-2.5 rounded-2xl border transition-colors flex items-center justify-center cursor-pointer ${
               showFilters || categoryFilter !== 'All' || paymentModeFilter !== 'All'
-                ? 'bg-[#EF6448] text-white border-[#EF6448]'
+                ? 'bg-[var(--brufin-accent-bg)] text-white border-[var(--brufin-accent-border)]'
                 : 'bg-white dark:bg-[#22252A] border-[#E8E1DB] dark:border-[#363B44] text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
             }`}
             title="Filter Income"
@@ -238,7 +238,7 @@ export const IncomeView: React.FC<Props> = ({
           <p className="text-slate-500 dark:text-slate-400 text-xs">No income entries match your search filters.</p>
           <button
             onClick={onOpenQuickAdd}
-            className="px-4 py-2 rounded-xl bg-[#EF6448] hover:bg-[#E05338] text-white text-xs font-bold transition-colors shadow-sm cursor-pointer"
+            className="px-4 py-2 rounded-xl bg-[var(--brufin-accent-bg)] hover:bg-[var(--brufin-accent-bg-hover)] text-white text-xs font-bold transition-colors shadow-sm cursor-pointer"
           >
             Add Income Entry
           </button>
@@ -254,7 +254,7 @@ export const IncomeView: React.FC<Props> = ({
                 {/* Date Header */}
                 <div className="flex items-center justify-between px-2 text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                   <span>{formatDateLabel(dateStr)}</span>
-                  <span className="text-[#996520] dark:text-[#FF927A]">+{formatINR(dayIncome)}</span>
+                  <span className="text-[var(--brufin-warm-ink)] dark:text-[var(--brufin-accent-ink)]">+{formatINR(dayIncome)}</span>
                 </div>
 
                 {/* Date Items */}
@@ -280,7 +280,7 @@ export const IncomeView: React.FC<Props> = ({
                               {t.description || t.category}
                             </h4>
                             <div className="flex items-center gap-1.5 mt-0.5 text-[10px] text-slate-500 dark:text-slate-400 flex-wrap">
-                              <span className="font-medium text-[#996520] dark:text-[#FF927A]">{t.category}</span>
+                              <span className="font-medium text-[var(--brufin-warm-ink)] dark:text-[var(--brufin-accent-ink)]">{t.category}</span>
                               <span>•</span>
                               <span className="px-1.5 py-0.2 rounded bg-slate-100 dark:bg-[#1B1E22] text-slate-700 dark:text-slate-300">
                                 {t.paymentMode}
@@ -299,7 +299,7 @@ export const IncomeView: React.FC<Props> = ({
 
                         {/* Right: Amount & Actions */}
                         <div className="flex items-center space-x-3 shrink-0">
-                          <span className="text-sm sm:text-base font-black text-[#996520] dark:text-[#FF927A]">
+                          <span className="text-sm sm:text-base font-black text-[var(--brufin-warm-ink)] dark:text-[var(--brufin-accent-ink)]">
                             +{formatINR(t.amount)}
                           </span>
 

@@ -9,7 +9,7 @@ This guide covers both Docker Compose from source and the prebuilt Docker Hub im
 | Setup | Image/source | Persistent storage |
 | --- | --- | --- |
 | Docker Compose on a Mac or Linux host | Build from this repository | `./data/` beside `docker-compose.yml` |
-| Portainer on a homelab | `diamachi/brufin:v0.6.1` | Named Docker volume `brufin-data` |
+| Portainer on a homelab | `diamachi/brufin:v0.6.2` | Named Docker volume `brufin-data` |
 
 In both setups, the container listens internally on port `8080` and publishes host port `8780` by default. You can choose another host port with `BRUFIN_HTTP_PORT`.
 
@@ -42,7 +42,7 @@ Requirements: a homelab machine with Docker and Portainer, and host port `8780` 
 
    | Variable | Value | Purpose |
    | --- | --- | --- |
-   | `BRUFIN_IMAGE` | `diamachi/brufin:v0.6.1` | Pin the BruFin image version |
+   | `BRUFIN_IMAGE` | `diamachi/brufin:v0.6.2` | Pin the BruFin image version |
    | `BRUFIN_BIND_ADDRESS` | `0.0.0.0` | Allow access from your LAN/VPN |
    | `BRUFIN_HTTP_PORT` | `8780` | Host port to open in the browser and app |
    | `BRUFIN_ALLOW_FIRST_RUN_PAIRING` | `true` | Enable one-time fresh-server setup |
@@ -74,9 +74,16 @@ Treat the token like a password because it grants access to the finance database
 
 ## Update and back up
 
-For Portainer, change `BRUFIN_IMAGE` to the new version tag, then pull and redeploy the stack. Keep the `brufin-data` volume when replacing the container; removing the container does not require removing its volume.
+For Portainer, change `BRUFIN_IMAGE` to the new version tag, pull the image, and redeploy the stack. Keep the existing `brufin-data` volume selected. Replacing the container does not remove this volume, but deleting the volume does remove the SQLite database and token. This release does not require a database reset or data import.
 
 For Compose from source, pull the source updates and run `docker compose up -d --build`. Keep the `./data` directory. To stop the local server without deleting its data, run `docker compose down`; do not add `-v` if you want to preserve named volumes.
+
+### Keep existing phone and server records
+
+- **Updating the Android app:** install the official signed APK over the existing BruFin app. The application ID and release signing key stay the same, so Android retains the local database, server address, pairing, and preferences. Do not uninstall the app or clear its storage as part of a routine update. Export a JSON backup first for extra protection.
+- **Updating the server:** replace only the container/image and retain its data mount. Portainer must keep the existing `brufin-data` volume; Compose-from-source must keep `./data`. The SQLite database and API token are in that persistent storage. Do not remove the volume or data directory. No import is needed after this release.
+- **Pairing a client with a server that already has data:** back up both copies first. Choose **Use server data** to keep the populated server and replace the phone's local copy. Choose **Upload this device** only when the phone is the copy you intend to keep; it replaces the server snapshot. Once paired, routine app updates retain the pairing, and ordinary sync resumes without repeating the initial choice.
+- **Adding a new phone:** scan the server's pairing QR and choose **Use server data** so the existing shared records are loaded onto that phone.
 
 Back up the database regularly. For a running server, use SQLite's online backup API or stop the service and copy the database and any `-wal`/`-shm` files together. Compose-from-source stores them in `./data/`; Portainer stores them in `brufin-data`. The API token is in the same persistent storage. Keep backups private and encrypted.
 

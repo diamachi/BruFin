@@ -69,7 +69,7 @@ export const ArchiveViewerModal: React.FC<Props> = ({ transactions, existingTran
       <div className="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-3xl border border-[#E8E1DB] bg-white shadow-2xl dark:border-[#363B44] dark:bg-[#22252A]">
         <header className="flex items-center justify-between border-b border-[#E8E1DB] p-4 dark:border-[#363B44]">
           <div className="flex items-center gap-2">
-            <Archive className="h-5 w-5 text-[#EF6448]" />
+            <Archive className="h-5 w-5 text-[var(--brufin-accent-ink)]" />
             <div>
               <h2 id="archive-viewer-title" className="font-bold">Historical data preview</h2>
               <p className="text-xs text-slate-500 dark:text-slate-400">{transactions.length} records · {dateRange}</p>
@@ -108,7 +108,7 @@ export const ArchiveViewerModal: React.FC<Props> = ({ transactions, existingTran
           <p className="text-xs text-slate-500 dark:text-slate-400">Duplicate rows are skipped when you restore this archive.</p>
           <div className="flex gap-2">
             <button onClick={onClose} className="rounded-xl border border-slate-200 px-3 py-2 text-xs font-semibold dark:border-[#363B44]">Close</button>
-            <button onClick={() => void handleRestore()} disabled={isRestoring || newTransactions.length === 0} className="flex items-center gap-1.5 rounded-xl bg-[#59171B] px-3 py-2 text-xs font-bold text-white disabled:opacity-50">
+            <button onClick={() => void handleRestore()} disabled={isRestoring || newTransactions.length === 0} className="flex items-center gap-1.5 rounded-xl bg-[var(--brufin-accent-deep-bg)] px-3 py-2 text-xs font-bold text-white disabled:opacity-50">
               {isRestoring ? <RotateCcw className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
               Restore {newTransactions.length} new
             </button>

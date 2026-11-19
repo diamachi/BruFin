@@ -85,10 +85,10 @@ export const BalancesView: React.FC<Props> = ({
       <div className="p-4 rounded-3xl bg-white dark:bg-[#22252A] border border-[#E8E1DB] dark:border-[#363B44] shadow-sm flex items-center justify-between transition-colors">
         <div>
           <div className="flex items-center space-x-1.5 text-slate-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-wider">
-            <Landmark className="w-3.5 h-3.5 text-[#EF6448]" />
+            <Landmark className="w-3.5 h-3.5 text-[var(--brufin-accent-ink)]" />
             <span>Bank & Cash Balance • {formatMonthYear(activeMonth)}</span>
           </div>
-          <p className="text-xl font-black text-[#EF6448] mt-0.5">
+          <p className="text-xl font-black text-[var(--brufin-accent-ink)] mt-0.5">
             {formatINR(activeBal.endBalance || activeBal.startBalance)}
           </p>
           <span className="text-[11px] text-slate-500 dark:text-slate-400">
@@ -99,7 +99,7 @@ export const BalancesView: React.FC<Props> = ({
         <div className="flex items-center gap-1.5">
           <button
             onClick={() => handleOpenEdit(activeMonth)}
-            className="px-3.5 py-2 rounded-2xl bg-[#EF6448] hover:bg-[#E05338] text-white font-bold text-xs shadow-md flex items-center gap-1.5 active:scale-95 transition-all cursor-pointer"
+            className="px-3.5 py-2 rounded-2xl bg-[var(--brufin-accent-bg)] hover:bg-[var(--brufin-accent-bg-hover)] text-white font-bold text-xs shadow-md flex items-center gap-1.5 active:scale-95 transition-all cursor-pointer"
           >
             <Edit2 className="w-3.5 h-3.5 stroke-[2.5]" />
             <span>Update Balance</span>
@@ -153,7 +153,7 @@ export const BalancesView: React.FC<Props> = ({
       <div className="space-y-2">
         <div className="flex items-center justify-between px-1">
           <div className="flex items-center space-x-1.5 text-xs font-bold text-slate-600 dark:text-slate-400">
-            <Calendar className="w-3.5 h-3.5 text-[#59171B] dark:text-[#FF927A]" />
+            <Calendar className="w-3.5 h-3.5 text-[var(--brufin-accent-deep)] dark:text-[var(--brufin-accent-ink)]" />
             <span>Monthly Balance History</span>
           </div>
           <button
@@ -162,7 +162,7 @@ export const BalancesView: React.FC<Props> = ({
               const previousMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
               handleOpenEdit(getCurrentMonthKey(previousMonth));
             }}
-            className="text-[11px] font-bold text-[#59171B] dark:text-[#FF927A] hover:underline flex items-center gap-1"
+            className="text-[11px] font-bold text-[var(--brufin-accent-deep)] dark:text-[var(--brufin-accent-ink)] hover:underline flex items-center gap-1"
           >
             <Plus className="w-3 h-3" />
             <span>Add Month Record</span>
@@ -173,7 +173,7 @@ export const BalancesView: React.FC<Props> = ({
           {allMonths.map((m) => (
             <div
               key={m.month}
-              className="p-3.5 rounded-2xl bg-white dark:bg-[#22252A] border border-[#E8E1DB] dark:border-[#363B44] shadow-sm flex items-center justify-between gap-3 transition-colors hover:border-[#59171B]/40"
+              className="p-3.5 rounded-2xl bg-white dark:bg-[#22252A] border border-[#E8E1DB] dark:border-[#363B44] shadow-sm flex items-center justify-between gap-3 transition-colors hover:border-[var(--brufin-accent-deep)]/40"
             >
               <div className="min-w-0">
                 <div className="flex items-center space-x-2">
@@ -221,7 +221,7 @@ export const BalancesView: React.FC<Props> = ({
           >
             <div className="flex items-center justify-between border-b border-[#E8E1DB] dark:border-[#363B44] pb-3">
               <div>
-                <h3 className="text-sm font-bold text-[#59171B] dark:text-[#FF927A]">
+                <h3 className="text-sm font-bold text-[var(--brufin-accent-deep)] dark:text-[var(--brufin-accent-ink)]">
                   Update Liquid Balance
                 </h3>
                 <p className="text-[11px] text-slate-500 dark:text-slate-400">
@@ -292,7 +292,7 @@ export const BalancesView: React.FC<Props> = ({
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 rounded-xl bg-[#EF6448] hover:bg-[#E05338] text-white text-xs font-black shadow-md flex items-center gap-1.5 transition-all active:scale-95"
+                  className="px-5 py-2.5 rounded-xl bg-[var(--brufin-accent-bg)] hover:bg-[var(--brufin-accent-bg-hover)] text-white text-xs font-black shadow-md flex items-center gap-1.5 transition-all active:scale-95"
                 >
                   <Check className="w-4 h-4 stroke-[3]" />
                   <span>Save Balance</span>

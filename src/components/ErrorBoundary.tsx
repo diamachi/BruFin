@@ -54,7 +54,7 @@ export class ErrorBoundary extends Component<Props, State> {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen bg-[#F7F6F3] dark:bg-[#1B1E22] text-[#59171B] dark:text-[#F2F3F5] flex items-center justify-center p-6 font-sans">
+        <div className="min-h-screen bg-[#F7F6F3] dark:bg-[#1B1E22] text-[var(--brufin-accent-deep)] dark:text-[#F2F3F5] flex items-center justify-center p-6 font-sans">
           <div className="w-full max-w-md bg-white dark:bg-[#22252A] border-2 border-[#E8E1DB] dark:border-[#363B44] rounded-3xl p-6 shadow-2xl space-y-4 text-center">
             <div className="w-14 h-14 rounded-full bg-rose-100 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 flex items-center justify-center mx-auto">
               <AlertTriangle className="w-8 h-8" />
@@ -83,7 +83,7 @@ export class ErrorBoundary extends Component<Props, State> {
             <div className="flex gap-2.5 pt-2">
               <button
                 onClick={this.handleReload}
-                className="flex-1 py-2.5 px-4 rounded-xl bg-[#EF6448] hover:bg-[#E05338] text-white font-black text-xs shadow-md flex items-center justify-center gap-1.5 transition-all active:scale-95 cursor-pointer"
+                className="flex-1 py-2.5 px-4 rounded-xl bg-[var(--brufin-accent-bg)] hover:bg-[var(--brufin-accent-bg-hover)] text-white font-black text-xs shadow-md flex items-center justify-center gap-1.5 transition-all active:scale-95 cursor-pointer"
               >
                 <RotateCcw className="w-4 h-4" />
                 <span>Reload Page</span>

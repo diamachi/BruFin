@@ -56,7 +56,7 @@ export const MFReturnsCalculator: React.FC<Props> = ({ onInvestNow, className = 
       {/* Header & Mode Switcher */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#E8E1DB] dark:border-[#363B44] pb-4">
         <div className="flex items-center space-x-2.5">
-          <div className="w-8 h-8 rounded-2xl bg-[#EF6448] text-white flex items-center justify-center shadow-sm shrink-0">
+          <div className="w-8 h-8 rounded-2xl bg-[var(--brufin-accent-bg)] text-white flex items-center justify-center shadow-sm shrink-0">
             <Calculator className="w-4 h-4 stroke-[2.5]" />
           </div>
           <div>
@@ -76,7 +76,7 @@ export const MFReturnsCalculator: React.FC<Props> = ({ onInvestNow, className = 
             onClick={() => setCalcType('lumpsum')}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
               calcType === 'lumpsum'
-                ? 'bg-[#EF6448] text-white shadow-sm'
+                ? 'bg-[var(--brufin-accent-bg)] text-white shadow-sm'
                 : 'text-slate-500 dark:text-[#A5ACB7] hover:text-slate-800 dark:hover:text-[#F2F3F5]'
             }`}
           >
@@ -87,7 +87,7 @@ export const MFReturnsCalculator: React.FC<Props> = ({ onInvestNow, className = 
             onClick={() => setCalcType('sip')}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
               calcType === 'sip'
-                ? 'bg-[#EF6448] text-white shadow-sm'
+                ? 'bg-[var(--brufin-accent-bg)] text-white shadow-sm'
                 : 'text-slate-500 dark:text-[#A5ACB7] hover:text-slate-800 dark:hover:text-[#F2F3F5]'
             }`}
           >
@@ -102,16 +102,16 @@ export const MFReturnsCalculator: React.FC<Props> = ({ onInvestNow, className = 
           {/* Slider 1: Investment Amount */}
           <div className="space-y-2">
             <div className="flex justify-between items-center text-xs">
-              <span className="font-semibold text-slate-700 dark:text-[#FF927A]">
+              <span className="font-semibold text-slate-700 dark:text-[var(--brufin-accent-ink)]">
                 {calcType === 'sip' ? 'Monthly investment' : 'Total investment'}
               </span>
-              <div className="flex items-center px-3 py-1 rounded-lg bg-[#FED7B8]/30 dark:bg-[#1B1E22] border border-[#E8E1DB] dark:border-[#363B44] text-[#59171B] dark:text-[#FF927A] font-extrabold text-sm">
+              <div className="flex items-center px-3 py-1 rounded-lg bg-[var(--brufin-accent-soft)]/30 dark:bg-[#1B1E22] border border-[#E8E1DB] dark:border-[#363B44] text-[var(--brufin-accent-deep)] dark:text-[var(--brufin-accent-ink)] font-extrabold text-sm">
                 <span className="mr-1">₹</span>
                 <input
                   type="number"
                   value={totalInvestment}
                   onChange={(e) => setTotalInvestment(Math.max(500, parseFloat(e.target.value) || 0))}
-                  className="w-24 bg-transparent text-[#59171B] dark:text-[#FF927A] font-bold focus:outline-none text-right"
+                  className="w-24 bg-transparent text-[var(--brufin-accent-deep)] dark:text-[var(--brufin-accent-ink)] font-bold focus:outline-none text-right"
                 />
               </div>
             </div>
@@ -129,16 +129,16 @@ export const MFReturnsCalculator: React.FC<Props> = ({ onInvestNow, className = 
           {/* Slider 2: Expected return rate (p.a) */}
           <div className="space-y-2">
             <div className="flex justify-between items-center text-xs">
-              <span className="font-semibold text-slate-700 dark:text-[#FF927A]">
+              <span className="font-semibold text-slate-700 dark:text-[var(--brufin-accent-ink)]">
                 Expected return rate (p.a)
               </span>
-              <div className="flex items-center px-3 py-1 rounded-lg bg-[#FED7B8]/30 dark:bg-[#1B1E22] border border-[#E8E1DB] dark:border-[#363B44] text-[#59171B] dark:text-[#FF927A] font-extrabold text-sm">
+              <div className="flex items-center px-3 py-1 rounded-lg bg-[var(--brufin-accent-soft)]/30 dark:bg-[#1B1E22] border border-[#E8E1DB] dark:border-[#363B44] text-[var(--brufin-accent-deep)] dark:text-[var(--brufin-accent-ink)] font-extrabold text-sm">
                 <input
                   type="number"
                   step="0.5"
                   value={expectedRate}
                   onChange={(e) => setExpectedRate(Math.max(1, parseFloat(e.target.value) || 0))}
-                  className="w-12 bg-transparent text-[#59171B] dark:text-[#FF927A] font-bold focus:outline-none text-right"
+                  className="w-12 bg-transparent text-[var(--brufin-accent-deep)] dark:text-[var(--brufin-accent-ink)] font-bold focus:outline-none text-right"
                 />
                 <span>%</span>
               </div>
@@ -157,13 +157,13 @@ export const MFReturnsCalculator: React.FC<Props> = ({ onInvestNow, className = 
           {/* Slider 3: Time period */}
           <div className="space-y-2">
             <div className="flex justify-between items-center text-xs">
-              <span className="font-semibold text-slate-700 dark:text-[#FF927A]">Time period</span>
-              <div className="flex items-center px-3 py-1 rounded-lg bg-[#FED7B8]/30 dark:bg-[#1B1E22] border border-[#E8E1DB] dark:border-[#363B44] text-[#59171B] dark:text-[#FF927A] font-extrabold text-sm">
+              <span className="font-semibold text-slate-700 dark:text-[var(--brufin-accent-ink)]">Time period</span>
+              <div className="flex items-center px-3 py-1 rounded-lg bg-[var(--brufin-accent-soft)]/30 dark:bg-[#1B1E22] border border-[#E8E1DB] dark:border-[#363B44] text-[var(--brufin-accent-deep)] dark:text-[var(--brufin-accent-ink)] font-extrabold text-sm">
                 <input
                   type="number"
                   value={timePeriod}
                   onChange={(e) => setTimePeriod(Math.max(1, parseInt(e.target.value) || 1))}
-                  className="w-10 bg-transparent text-[#59171B] dark:text-[#FF927A] font-bold focus:outline-none text-right"
+                  className="w-10 bg-transparent text-[var(--brufin-accent-deep)] dark:text-[var(--brufin-accent-ink)] font-bold focus:outline-none text-right"
                 />
                 <span className="ml-1">Yr</span>
               </div>
@@ -185,11 +185,11 @@ export const MFReturnsCalculator: React.FC<Props> = ({ onInvestNow, className = 
           {/* Legend */}
           <div className="flex items-center space-x-4 text-[11px] font-medium mb-3">
             <div className="flex items-center space-x-1.5">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#FED7B8] dark:bg-[#30353D] border border-[#E8E1DB] dark:border-[#363B44]" />
+              <span className="w-2.5 h-2.5 rounded-full bg-[var(--brufin-accent-soft)] dark:bg-[#30353D] border border-[#E8E1DB] dark:border-[#363B44]" />
               <span className="text-slate-600 dark:text-[#A5ACB7]">Invested amount</span>
             </div>
             <div className="flex items-center space-x-1.5">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#59171B] dark:bg-[#B84E3B]" />
+              <span className="w-2.5 h-2.5 rounded-full bg-[var(--brufin-accent-bg)] dark:bg-[var(--brufin-accent-active)]" />
               <span className="text-slate-600 dark:text-[#A5ACB7]">Est. returns</span>
             </div>
           </div>
@@ -212,7 +212,7 @@ export const MFReturnsCalculator: React.FC<Props> = ({ onInvestNow, className = 
                 cy="50"
                 r="38"
                 fill="transparent"
-                stroke="#FED7B8"
+                stroke="var(--brufin-accent-soft)"
                 className="dark:stroke-[#363C3A]"
                 strokeWidth="16"
                 strokeDasharray={`${(investedPercent / 100) * 238.76} 238.76`}
@@ -224,8 +224,8 @@ export const MFReturnsCalculator: React.FC<Props> = ({ onInvestNow, className = 
                 cy="50"
                 r="38"
                 fill="transparent"
-                stroke="#59171B"
-                className="dark:stroke-[#EF6448]"
+                stroke="var(--brufin-accent-deep)"
+                className="dark:stroke-[var(--brufin-accent-ink)]"
                 strokeWidth="16"
                 strokeDasharray={`${(returnsPercent / 100) * 238.76} 238.76`}
                 strokeDashoffset={`-${(investedPercent / 100) * 238.76}`}
@@ -235,7 +235,7 @@ export const MFReturnsCalculator: React.FC<Props> = ({ onInvestNow, className = 
               <span className="text-[10px] text-slate-500 dark:text-[#A5ACB7] uppercase font-bold">
                 Total Value
               </span>
-              <span className="text-xs font-black text-[#59171B] dark:text-[#F2F3F5]">
+              <span className="text-xs font-black text-[var(--brufin-accent-deep)] dark:text-[#F2F3F5]">
                 {formatINR(totalValue)}
               </span>
               <span className="text-[9px] text-emerald-600 dark:text-emerald-400 font-bold mt-0.5">
@@ -257,13 +257,13 @@ export const MFReturnsCalculator: React.FC<Props> = ({ onInvestNow, className = 
           </div>
           <div>
             <span className="text-[11px] text-slate-500 dark:text-[#A5ACB7] block font-medium">Est. returns</span>
-            <span className="text-xs sm:text-sm font-extrabold text-[#59171B] dark:text-[#FF927A]">
+            <span className="text-xs sm:text-sm font-extrabold text-[var(--brufin-accent-deep)] dark:text-[var(--brufin-accent-ink)]">
               +{formatINR(estReturns)}
             </span>
           </div>
           <div>
             <span className="text-[11px] text-slate-500 dark:text-[#A5ACB7] block font-medium">Total wealth</span>
-            <span className="text-xs sm:text-sm font-extrabold text-[#59171B] dark:text-[#F2F3F5]">
+            <span className="text-xs sm:text-sm font-extrabold text-[var(--brufin-accent-deep)] dark:text-[#F2F3F5]">
               {formatINR(totalValue)}
             </span>
           </div>
@@ -273,7 +273,7 @@ export const MFReturnsCalculator: React.FC<Props> = ({ onInvestNow, className = 
           <button
             type="button"
             onClick={onInvestNow}
-            className="px-6 py-2.5 rounded-xl bg-[#EF6448] hover:bg-[#E05338] text-white text-xs font-black tracking-wider uppercase transition-all shadow-md self-end sm:self-center cursor-pointer active:scale-95 flex items-center gap-1.5"
+            className="px-6 py-2.5 rounded-xl bg-[var(--brufin-accent-bg)] hover:bg-[var(--brufin-accent-bg-hover)] text-white text-xs font-black tracking-wider uppercase transition-all shadow-md self-end sm:self-center cursor-pointer active:scale-95 flex items-center gap-1.5"
           >
             <span>+ Add to Portfolio</span>
             <ArrowRight className="w-3.5 h-3.5" />

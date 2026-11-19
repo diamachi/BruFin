@@ -50,7 +50,7 @@ export const DiagnosticsBar: React.FC<Props> = ({ onOpenDetails }) => {
         <button
           type="button"
           onClick={onOpenDetails}
-          className="text-[10px] font-bold text-[#C94F39] transition-colors hover:text-[#EF6448] dark:text-[#FF927A] dark:hover:text-[#FFB09D]"
+          className="text-[10px] font-bold text-[var(--brufin-accent-ink)] transition-colors hover:text-[var(--brufin-accent-ink)] dark:text-[var(--brufin-accent-ink)] dark:hover:text-[var(--brufin-accent-ink)]"
         >
           Details
         </button>
@@ -64,7 +64,7 @@ export const DiagnosticsBar: React.FC<Props> = ({ onOpenDetails }) => {
           title={`Local database storage: ${storage.totalFormatted} (${storage.percentOfQuota.toFixed(1)}% of available quota). Open diagnostics.`}
           aria-label={`Local storage ${storage.totalFormatted}; open diagnostics`}
         >
-          <HardDrive className="h-3.5 w-3.5 text-[#B87B2E] dark:text-[#FF927A]" />
+          <HardDrive className="h-3.5 w-3.5 text-[var(--brufin-gold)] dark:text-[var(--brufin-accent-ink)]" />
           <span>Storage {storage.totalFormatted}</span>
         </button>
 
@@ -75,7 +75,7 @@ export const DiagnosticsBar: React.FC<Props> = ({ onOpenDetails }) => {
           title={`Estimated memory use: ${memory.usedMB}. Open diagnostics.`}
           aria-label={`RAM ${memory.usedMB}; open diagnostics`}
         >
-          <Cpu className="h-3.5 w-3.5 text-[#B87B2E] dark:text-[#FF927A]" />
+          <Cpu className="h-3.5 w-3.5 text-[var(--brufin-gold)] dark:text-[var(--brufin-accent-ink)]" />
           <span>RAM {memory.usedMB}</span>
         </button>
 

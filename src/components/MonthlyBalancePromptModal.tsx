@@ -94,11 +94,11 @@ export const MonthlyBalancePromptModal: React.FC<Props> = ({
         {/* Header */}
         <div className="flex items-center justify-between border-b border-[#E8E1DB] dark:border-[#363B44] pb-3">
           <div className="flex items-center space-x-2.5">
-            <div className="w-9 h-9 rounded-2xl bg-[#EF6448] flex items-center justify-center text-white shadow-sm shrink-0">
+            <div className="w-9 h-9 rounded-2xl bg-[var(--brufin-accent-bg)] flex items-center justify-center text-white shadow-sm shrink-0">
               <Landmark className="w-4 h-4 stroke-[2.5]" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-[#EF6448]">
+              <h3 className="text-sm font-bold text-[var(--brufin-accent-ink)]">
                 {mode === 'start_of_month'
                   ? 'Start of Month Balance Check-in ☕'
                   : mode === 'end_of_month'
@@ -143,7 +143,7 @@ export const MonthlyBalancePromptModal: React.FC<Props> = ({
                 Starting Balance (1st of month)
               </label>
               {mode === 'start_of_month' && (
-                <span className="text-[10px] font-bold text-[#EF6448]">
+                <span className="text-[10px] font-bold text-[var(--brufin-accent-ink)]">
                   ★ Current Check-in
                 </span>
               )}
@@ -158,7 +158,7 @@ export const MonthlyBalancePromptModal: React.FC<Props> = ({
                   setStartInput(e.target.value);
                   setError('');
                 }}
-                className="w-full bg-slate-50 dark:bg-[#1B1E22] border border-[#E8E1DB] dark:border-[#363B44] rounded-xl pl-8 pr-3.5 py-2.5 text-xs text-slate-900 dark:text-white font-bold focus:outline-none focus:ring-1 focus:ring-[#EF6448]"
+                className="w-full bg-slate-50 dark:bg-[#1B1E22] border border-[#E8E1DB] dark:border-[#363B44] rounded-xl pl-8 pr-3.5 py-2.5 text-xs text-slate-900 dark:text-white font-bold focus:outline-none focus:ring-1 focus:ring-[var(--brufin-accent-ink)]"
               />
             </div>
             <p className="text-[10px] text-slate-400 mt-1">
@@ -173,7 +173,7 @@ export const MonthlyBalancePromptModal: React.FC<Props> = ({
                 Ending Balance (End of month)
               </label>
               {mode === 'end_of_month' && (
-                <span className="text-[10px] font-bold text-[#EF6448]">
+                <span className="text-[10px] font-bold text-[var(--brufin-accent-ink)]">
                   ★ Current Check-in
                 </span>
               )}
@@ -188,7 +188,7 @@ export const MonthlyBalancePromptModal: React.FC<Props> = ({
                   setEndInput(e.target.value);
                   setError('');
                 }}
-                className="w-full bg-slate-50 dark:bg-[#1B1E22] border border-[#E8E1DB] dark:border-[#363B44] rounded-xl pl-8 pr-3.5 py-2.5 text-xs text-slate-900 dark:text-white font-bold focus:outline-none focus:ring-1 focus:ring-[#EF6448]"
+                className="w-full bg-slate-50 dark:bg-[#1B1E22] border border-[#E8E1DB] dark:border-[#363B44] rounded-xl pl-8 pr-3.5 py-2.5 text-xs text-slate-900 dark:text-white font-bold focus:outline-none focus:ring-1 focus:ring-[var(--brufin-accent-ink)]"
               />
             </div>
             <p className="text-[10px] text-slate-400 mt-1">
@@ -244,7 +244,7 @@ export const MonthlyBalancePromptModal: React.FC<Props> = ({
               </button>
               <button
                 type="submit"
-                className="px-5 py-2.5 rounded-xl bg-[#EF6448] hover:bg-[#E05338] text-white text-xs font-black shadow-md flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer"
+                className="px-5 py-2.5 rounded-xl bg-[var(--brufin-accent-bg)] hover:bg-[var(--brufin-accent-bg-hover)] text-white text-xs font-black shadow-md flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer"
               >
                 <Check className="w-4 h-4 stroke-[3]" />
                 <span>Save Balance</span>
