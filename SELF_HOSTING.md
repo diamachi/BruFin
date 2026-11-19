@@ -9,7 +9,7 @@ This guide covers both Docker Compose from source and the prebuilt Docker Hub im
 | Setup | Image/source | Persistent storage |
 | --- | --- | --- |
 | Docker Compose on a Mac or Linux host | Build from this repository | `./data/` beside `docker-compose.yml` |
-| Portainer on a homelab | `diamachi/brufin:v0.6.2` | Named Docker volume `brufin-data` |
+| Portainer on a homelab | `diamachi/brufin:v0.6.3` | Named Docker volume `brufin-data` |
 
 In both setups, the container listens internally on port `8080` and publishes host port `8780` by default. You can choose another host port with `BRUFIN_HTTP_PORT`.
 
@@ -42,7 +42,7 @@ Requirements: a homelab machine with Docker and Portainer, and host port `8780` 
 
    | Variable | Value | Purpose |
    | --- | --- | --- |
-   | `BRUFIN_IMAGE` | `diamachi/brufin:v0.6.2` | Pin the BruFin image version |
+   | `BRUFIN_IMAGE` | `diamachi/brufin:v0.6.3` | Pin the BruFin image version |
    | `BRUFIN_BIND_ADDRESS` | `0.0.0.0` | Allow access from your LAN/VPN |
    | `BRUFIN_HTTP_PORT` | `8780` | Host port to open in the browser and app |
    | `BRUFIN_ALLOW_FIRST_RUN_PAIRING` | `true` | Enable one-time fresh-server setup |
